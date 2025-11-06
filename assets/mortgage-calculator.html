@@ -142,6 +142,7 @@
         display: grid;
         gap: 12px;
         box-shadow: 0 4px 12px rgba(10, 13, 28, 0.4);
+        touch-action: pan-y;
       }
 
       details.section-block {
@@ -346,6 +347,7 @@
       .carousel-window {
         width: 100%;
         overflow: hidden;
+        touch-action: pan-y;
       }
 
       .carousel-track {
@@ -399,6 +401,7 @@
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 4px 12px rgba(10, 13, 28, 0.35);
+        touch-action: pan-y;
       }
 
       .breakdown-chart {
@@ -425,6 +428,7 @@
         font-weight: 700;
         font-size: 24px;
         letter-spacing: -0.01em;
+        pointer-events: none;
       }
 
       .breakdown-chart .chart-value span {
@@ -443,6 +447,7 @@
         align-content: stretch;
         overflow: hidden;
         grid-template-rows: repeat(var(--rows, 5), 1fr);
+        touch-action: pan-y;
       }
 
       .breakdown-row {
@@ -2074,10 +2079,20 @@
         loadCarouselIndex();
         updateMiVisibility();
         updateCarousel();
-        window.addEventListener("resize", updateCarousel);
+        let resizeRaf = 0;
         window.addEventListener("resize", () => {
-          if (breakdownOutputs.canvas) fitCanvasToParent(breakdownOutputs.canvas);
-          calculateAndRender();
+          if (resizeRaf) cancelAnimationFrame(resizeRaf);
+          resizeRaf = requestAnimationFrame(() => {
+            updateCarousel();
+            const breakdownSlide = document.querySelector('.carousel-slide[data-card="breakdown"]');
+            const isBreakdownVisible = breakdownSlide && breakdownSlide.getAttribute('aria-hidden') === 'false';
+            if (isBreakdownVisible) {
+              if (breakdownOutputs.canvas) fitCanvasToParent(breakdownOutputs.canvas);
+              const params = readParams();
+              const calc = mortgageCalculator.calculate_mortgage(params);
+              renderBreakdown(calc);
+            }
+          });
         });
 
         const carouselWindowEl = document.querySelector(".carousel-window");
