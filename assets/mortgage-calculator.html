@@ -559,7 +559,7 @@
       }
       .rate-badge {
         position: absolute;
-        top: 0;
+        top: 4px;
         right: 0;
         font-size: 11px;
         letter-spacing: 0.1em;
@@ -594,6 +594,9 @@
         cursor: pointer;
         transition: all 0.2s ease;
         z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
       }
       .rate-cta:hover,
       .rate-cta:focus-visible {
@@ -603,6 +606,7 @@
         box-shadow: 0 4px 14px rgba(14, 165, 233, 0.18);
         outline: none;
       }
+      .rate-cta svg { width: 14px; height: 14px; display: block; color: currentColor; }
 
       .totals-list {
         display: grid;
@@ -870,8 +874,11 @@
               <div class="slide-content">
                 <header class="slide-header">
                   <h2>Mortgage Calculator</h2>
-                  <span class="rate-badge"><span class="rate-label">Today's Average Rate is</span> <span class="rate-num">5%</span></span>
-                  <button class="rate-cta" id="notifyRatesBtn" type="button">Notify Me When Rates Drop</button>
+                  <span class="rate-badge"><span class="rate-label">Today's Average Rate</span> <span class="rate-num">5%</span></span>
+                  <button class="rate-cta" id="notifyRatesBtn" type="button" aria-label="Notify me when rates drop">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2Zm6-6V11a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z"/></svg>
+                    Notify Me When Rates Drop
+                  </button>
                   <p>Compare loan programs, see monthly costs, and preview payoff timing.<br />Adjust the inputs to explore scenarios.</p>
                 </header>
 
@@ -2211,6 +2218,19 @@
 
         // Notify Me When Rates Drop
         const notifyBtn = document.getElementById("notifyRatesBtn");
+
+        const centerNotifyUnderRate = () => {
+          const header = document.querySelector('.carousel-slide[data-card="summary"] .slide-header');
+          const badge = header ? header.querySelector('.rate-badge') : null;
+          if (!header || !badge || !notifyBtn) return;
+          const headerRect = header.getBoundingClientRect();
+          const badgeRect = badge.getBoundingClientRect();
+          const btnRect = notifyBtn.getBoundingClientRect();
+          const left = badgeRect.left + badgeRect.width / 2 - btnRect.width / 2 - headerRect.left;
+          notifyBtn.style.left = `${Math.round(left)}px`;
+          notifyBtn.style.right = 'auto';
+        };
+
         if (notifyBtn) {
           notifyBtn.addEventListener("click", async () => {
             try {
@@ -2247,6 +2267,9 @@
               window.alert("Subscription failed. Please try again.");
             }
           });
+
+          requestAnimationFrame(centerNotifyUnderRate);
+          window.addEventListener('resize', centerNotifyUnderRate);
         }
 
         setDefaults(baseDefaults);
