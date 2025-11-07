@@ -2326,14 +2326,17 @@
                   turnstileToken: "auto-verified-fallback",
                 }),
               });
-              const data = await resp.json().catch(() => ({}));
+              const raw = await resp.text();
+              let data = {};
+              try { data = raw ? JSON.parse(raw) : {}; } catch (_) { /* keep raw */ }
               if (resp.ok && (data?.success || data?.id)) {
                 const code = Math.random().toString(36).slice(2, 8).toUpperCase();
                 statusEl.textContent = data.message || "You're subscribed!";
                 overlay.style.display = 'none';
                 window.setTimeout(() => window.alert(`${data.message || "You're subscribed!"}\nConfirmation: ${code}`), 50);
               } else {
-                statusEl.textContent = `Subscription failed: ${data?.error || resp.statusText}`;
+                const detail = data?.error || (typeof data?.detail === 'string' ? data.detail : '') || resp.statusText || raw || 'Unknown error';
+                statusEl.textContent = `Subscription failed: ${detail}`;
               }
             } catch (err) {
               console.error('Notify subscription error', err);

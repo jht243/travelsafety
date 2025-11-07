@@ -1088,7 +1088,12 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
       return;
     }
 
-    // For global notifications, deadline can be null
+    const BUTTONDOWN_API_KEY_PRESENT = !!process.env.BUTTONDOWN_API_KEY;
+    if (!BUTTONDOWN_API_KEY_PRESENT) {
+      res.writeHead(500).end(JSON.stringify({ error: "Server misconfigured: BUTTONDOWN_API_KEY missing" }));
+      return;
+    }
+
     try {
       await subscribeToButtondown(email, settlementId, settlementName, deadline || null);
       res.writeHead(200).end(JSON.stringify({ 
@@ -1096,8 +1101,9 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
         message: "Successfully subscribed! You'll receive a reminder before the deadline." 
       }));
     } catch (subscribeError: any) {
-      // If subscriber already exists, try updating their metadata instead
-      if (subscribeError.message && subscribeError.message.includes('already subscribed')) {
+      const msg = (subscribeError?.message || "").toLowerCase();
+      const already = msg.includes('already subscribed') || msg.includes('already exists') || msg.includes('already on your list') || msg.includes('subscriber already exists') || msg.includes('already');
+      if (already) {
         console.log("Subscriber exists, updating metadata...");
         try {
           await updateButtondownSubscriber(email, settlementId, settlementName, deadline || null);
