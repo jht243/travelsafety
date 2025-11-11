@@ -20,6 +20,8 @@
         background: transparent;
         color: #e2e8f0;
         overflow-x: hidden;
+        overscroll-behavior: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .app {
@@ -34,6 +36,9 @@
         border-radius: 0;
         box-shadow: none;
         box-sizing: border-box;
+        touch-action: auto;
+        overscroll-behavior: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       header h1 {
@@ -143,7 +148,9 @@
         display: grid;
         gap: 12px;
         box-shadow: 0 4px 12px rgba(10, 13, 28, 0.4);
-        touch-action: pan-y;
+        touch-action: auto;
+        overscroll-behavior: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       details.section-block {
@@ -187,7 +194,7 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
-        font-size: 10px;
+        font-size: 12px;
         color: rgba(226, 232, 240, 0.68);
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -349,7 +356,9 @@
       .carousel-window {
         width: 100%;
         overflow: hidden;
-        touch-action: pan-y;
+        touch-action: auto;
+        overscroll-behavior: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .carousel-track {
@@ -414,7 +423,7 @@
         border-radius: 14px;
         padding: 12px 20px 20px;
         box-shadow: 0 14px 34px rgba(13, 18, 33, 0.38);
-        touch-action: pan-y;
+        touch-action: auto;
       }
 
       .breakdown-chart {
@@ -466,7 +475,7 @@
         align-content: stretch;
         overflow: hidden;
         grid-template-rows: repeat(var(--rows, 5), 1fr);
-        touch-action: pan-y;
+        touch-action: auto;
       }
 
       .breakdown-row {
@@ -640,7 +649,7 @@
         color: rgba(226, 244, 255, 0.9);
         padding: 8px 20px;
         font: inherit;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.12em;
@@ -653,6 +662,7 @@
         justify-content: center;
         gap: 8px;
         line-height: 1.15;
+        white-space: nowrap;
         box-shadow: 0 10px 26px rgba(14,165,233,0.18), 0 0 0 1px rgba(14,165,233,0.08) inset;
         backdrop-filter: blur(6px);
       }
@@ -1168,7 +1178,7 @@
                   </div>
                   <div class="quick-metrics" data-openai-component="quick-metrics">
                     <div class="result-card secondary">
-                      <span class="label">Scheduled principal & interest</span>
+                      <span class="label">Principal & interest</span>
                       <span class="value" id="p_and_i">$0</span>
                       <span class="hint">Level payment before extra principal or add-ons.</span>
                     </div>
