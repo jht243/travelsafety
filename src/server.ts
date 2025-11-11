@@ -3,6 +3,7 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
+import PDFDocument from "pdfkit";
 import fs from "node:fs";
 import path from "node:path";
 import { URL, fileURLToPath } from "node:url";
@@ -47,6 +48,90 @@ const LOGS_DIR = path.resolve(__dirname, "..", "logs");
 
 if (!fs.existsSync(LOGS_DIR)) {
   fs.mkdirSync(LOGS_DIR, { recursive: true });
+}
+
+async function handleExportPdf(req: IncomingMessage, res: ServerResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204).end();
+    return;
+  }
+
+  if (req.method !== "POST") {
+    res.writeHead(405).end(JSON.stringify({ error: "Method not allowed" }));
+    return;
+  }
+
+  try {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    const payload = JSON.parse(body || "{}");
+    const params = payload?.params || {};
+    const monthlyPayment = payload?.monthlyPayment;
+    const chartPngDataUrl = payload?.chartPngDataUrl as string | undefined;
+
+    // Prepare PDF
+    const doc = new PDFDocument({ size: "LETTER", margin: 36 });
+    res.writeHead(200, {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=Mortgage_Summary.pdf",
+    });
+    doc.pipe(res);
+
+    // Header
+    doc.fillColor("#0ea5e9").fontSize(18).text("Mortgage Calculator Summary", { align: "left" });
+    doc.moveDown(0.2);
+    doc.fillColor("#6b7280").fontSize(10).text(new Date().toLocaleString());
+    doc.moveDown(0.6);
+
+    // Inputs section
+    doc.fillColor("#e5e7eb").fontSize(12).text("Loan Inputs", { underline: true });
+    doc.moveDown(0.4);
+    const lines: Array<[string, any]> = [
+      ["Loan program", params.loan_type ?? "—"],
+      ["Home value ($)", params.home_value ?? "—"],
+      ["Down payment ($)", params.down_payment_value ?? "—"],
+      ["Rate (APR %)", params.rate_apr ?? "—"],
+      ["Term (years)", params.term_years ?? "—"],
+      ["ZIP code", params.zip_code ?? "—"],
+      ["Property tax (%)", params.property_tax_input ?? "—"],
+      ["Homeowners insurance ($/yr)", params.homeowners_insurance_yearly ?? "—"],
+      ["HOA ($/mo)", params.hoa_monthly ?? "—"],
+    ];
+    lines.forEach(([k, v]) => {
+      doc.fillColor("#cbd5e1").fontSize(11).text(`${k}: `, { continued: true });
+      doc.fillColor("#ffffff").text(String(v));
+    });
+
+    if (monthlyPayment != null) {
+      doc.moveDown(0.4);
+      doc.fillColor("#e5e7eb").fontSize(12).text("Monthly Payment", { underline: true });
+      doc.fillColor("#ffffff").fontSize(16).text(`$${monthlyPayment.toLocaleString?.() ?? monthlyPayment}`);
+    }
+
+    // Chart image
+    if (chartPngDataUrl && chartPngDataUrl.startsWith("data:image")) {
+      try {
+        const base64 = chartPngDataUrl.split(",")[1] || "";
+        const buf = Buffer.from(base64, "base64");
+        doc.moveDown(0.6);
+        doc.fillColor("#e5e7eb").fontSize(12).text("Monthly Payment Breakdown");
+        doc.moveDown(0.2);
+        const maxWidth = 540; // page width minus margins
+        doc.image(buf, { fit: [maxWidth, 300], align: "left" });
+      } catch (err) {
+        console.error("Failed to embed chart image", err);
+      }
+    }
+
+    doc.end();
+  } catch (error) {
+    console.error("Export PDF error:", error);
+    res.writeHead(500).end(JSON.stringify({ error: "Failed to export PDF" }));
+  }
 }
 
 // FRED daily mortgage rate endpoint (/api/rate)
@@ -752,6 +837,7 @@ const postPath = "/mcp/messages";
 const subscribePath = "/api/subscribe";
 const analyticsPath = "/analytics";
 const trackEventPath = "/api/track";
+const exportPdfPath = "/api/export-pdf";
 const healthPath = "/health";
 const ratePath = "/api/rate";
 
@@ -1600,6 +1686,11 @@ const httpServer = createServer(
 
     if (url.pathname === trackEventPath) {
       await handleTrackEvent(req, res);
+      return;
+    }
+
+    if (url.pathname === exportPdfPath) {
+      await handleExportPdf(req, res);
       return;
     }
 

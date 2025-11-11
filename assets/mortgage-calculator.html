@@ -813,6 +813,7 @@
         border: 1px solid rgba(14, 165, 233, 0.4);
         box-shadow: 0 8px 24px rgba(14, 165, 233, 0.2), 0 0 80px rgba(14, 165, 233, 0.08);
         gap: 10px;
+        position: relative;
       }
 
       .result-card.primary .card-header {
@@ -850,6 +851,35 @@
         color: #f1f5f9;
         letter-spacing: -0.02em;
       }
+
+      .export-pdf-btn {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        background: rgba(37, 40, 65, 0.86);
+        border: 1px solid rgba(14,165,233,0.35);
+        color: rgba(226,232,240,0.92);
+        padding: 8px 12px;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        border-radius: 999px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 8px 20px rgba(14,165,233,0.18);
+      }
+      .export-pdf-btn:hover,
+      .export-pdf-btn:focus-visible {
+        color: #0df9ff;
+        border-color: rgba(13, 249, 255, 0.55);
+        background: rgba(14,165,233,0.18);
+        outline: none;
+      }
+      .export-pdf-btn svg { width: 14px; height: 14px; display: inline-block; }
 
       .result-card.secondary {
         background: linear-gradient(135deg, rgba(25, 28, 48, 0.7), rgba(20, 23, 42, 0.75));
@@ -1181,6 +1211,7 @@
                     </div>
                     <span class="value" id="total_monthly_0" aria-live="polite">$0</span>
                     <span class="hint">Includes P&I, MI, taxes, insurance, HOA (excludes extra principal).</span>
+                    <button id="exportPdfBtn" type="button" class="export-pdf-btn" aria-label="Export to PDF"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM8.5 12H11a2 2 0 1 1 0 4H9.5V18H8v-6h.5zm1 1.5V15H11a.5.5 0 0 0 0-1h-1.5zM13 12h2a2 2 0 1 1 0 4h-2v-4zm1.5 1.5V15H15a.5.5 0 0 0 0-1h-.5zM18 12h2v6h-1.5v-1H18a1.5 1.5 0 0 1 0-3h.5V13H18v-1z"/></svg>PDF</button>
                   </div>
                   <div class="quick-metrics" data-openai-component="quick-metrics">
                     <div class="result-card secondary">
@@ -2304,6 +2335,72 @@
             setDefaults(baseDefaults);
             mergeProgramDefaults();
             calculateAndRender();
+          });
+        }
+
+        // Export PDF button
+        const exportBtn = $("exportPdfBtn");
+        if (exportBtn) {
+          const EXPORT_ENDPOINTS = [
+            'https://mortgage-calculator-open-ai.onrender.com/api/export-pdf',
+            'http://localhost:8000/api/export-pdf',
+            '/api/export-pdf',
+          ];
+
+          const postForBlob = async (url, payload) => {
+            return fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              mode: 'cors',
+              body: JSON.stringify(payload),
+            });
+          };
+
+          const triggerDownload = (blob, filename) => {
+            try {
+              const href = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = href;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(href);
+              }, 0);
+            } catch (_) {}
+          };
+
+          exportBtn.addEventListener('click', async () => {
+            try {
+              // Ensure latest calc
+              const params = readParams();
+              const calc = mortgageCalculator.calculate_mortgage(params);
+              const d = calc.derived;
+              const monthlyPayment = Math.round((d.p_and_i + d.tax_monthly + d.ins_monthly + d.hoa_monthly + d.monthly_mi_initial) * 100) / 100;
+              const canvas = document.getElementById('breakdownChart');
+              let chartPngDataUrl = undefined;
+              if (canvas && canvas.toDataURL) {
+                try { chartPngDataUrl = canvas.toDataURL('image/png'); } catch (_) {}
+              }
+
+              let resp = null;
+              for (const url of EXPORT_ENDPOINTS) {
+                try {
+                  resp = await postForBlob(url, { params, monthlyPayment, chartPngDataUrl });
+                  if (resp && resp.ok) break;
+                } catch (_) { /* try next */ }
+              }
+              if (!resp || !resp.ok) {
+                showToast('error', 'Export failed');
+                return;
+              }
+              const blob = await resp.blob();
+              triggerDownload(blob, 'Mortgage_Summary.pdf');
+              showToast('success', 'PDF downloaded');
+            } catch (err) {
+              showToast('error', 'Export failed');
+            }
           });
         }
 
