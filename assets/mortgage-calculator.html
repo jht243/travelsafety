@@ -1377,6 +1377,59 @@
             down_payment_value: effectiveDpValue,
             down_payment_pct: effectiveDpPct,
           };
+
+          const openPrintView = (params, monthlyPayment, chartPngDataUrl) => {
+            try {
+              const fmt = (n) => {
+                try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(n||0)); } catch (_) { return String(n); }
+              };
+              const html = `<!doctype html><html><head><meta charset="utf-8" />
+                <title>Mortgage Summary</title>
+                <style>
+                  html,body{margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fff;color:#111}
+                  h1{font-size:22px;margin:0 0 12px}
+                  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+                  .card{border:1px solid #ddd;border-radius:10px;padding:12px}
+                  .label{color:#555;font-size:12px}
+                  img{max-width:100%;height:auto;border:1px solid #eee;border-radius:8px;margin-top:12px}
+                  @media print{html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+                </style>
+              </head><body>
+                <h1>Mortgage Summary</h1>
+                <div class="grid">
+                  <div class="card">
+                    <div class="label">Home value</div><div>${fmt(params.home_value)}</div>
+                    <div class="label">Down payment</div><div>${fmt(params.down_payment_value)}</div>
+                    <div class="label">Interest rate (APR)</div><div>${params.rate_apr || ''}%</div>
+                    <div class="label">Term</div><div>${params.loan_term_years || 30} years</div>
+                  </div>
+                  <div class="card">
+                    <div class="label">Estimated monthly payment</div><div style="font-size:18px;font-weight:600">${fmt(monthlyPayment)}</div>
+                    <div class="label">Property tax (annual)</div><div>${fmt(params.property_tax_rate ? (params.home_value * (params.property_tax_rate/100)) : 0)}</div>
+                    <div class="label">Home insurance (annual)</div><div>${fmt(params.home_insurance_annual)}</div>
+                    <div class="label">HOA (monthly)</div><div>${fmt(params.hoa_monthly)}</div>
+                  </div>
+                </div>
+                ${chartPngDataUrl ? `<img alt="Payment breakdown" src="${chartPngDataUrl}" />` : ''}
+                <script>window.onload=function(){try{window.focus();window.print();}catch(e){} setTimeout(function(){try{window.close()}catch(_){}} ,1500)}<\/script>
+              </body></html>`;
+              const blob = new Blob([html], { type: 'text/html' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url; a.target = '_blank'; a.rel = 'noopener';
+              document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(), 0);
+              setTimeout(()=>URL.revokeObjectURL(url), 10000);
+              try { emitTelemetry('export_print_view_opened', { withChart: !!chartPngDataUrl }); } catch (_) {}
+              console.debug('Print: opened print view');
+              try { showToast('info', 'Opened Print View'); } catch (_) {}
+              return true;
+            } catch (e) {
+              try { emitTelemetry('export_print_view_error', { error: String(e && e.message || e) }); } catch (_) {}
+              console.error('Print: failed to open print view', e);
+              try { showToast('error', 'Print failed — use Cmd/Ctrl+P'); } catch (_) {}
+              return false;
+            }
+          };
         }
 
         function apply_upfront_fee(loan_amount_base, upfront_fee_pct, finance_upfront_fee) {
@@ -2426,6 +2479,9 @@
             return env;
           };
 
+          let __printBeforeFired = false;
+          let __printAfterFired = false;
+
           const bindPrintLifecycle = () => {
             const id = Math.random().toString(36).slice(2);
             const env = collectPrintEnv();
@@ -2433,11 +2489,13 @@
             try { emitTelemetry('export_print_lifecycle_bind', { id, env }); } catch (_) {}
             console.debug('Print: lifecycle bound', { id, env });
             const before = () => {
+              __printBeforeFired = true;
               try { emitTelemetry('export_print_before', { id }); } catch (_) {}
               console.debug('Print: beforeprint', { id });
             };
             const after = () => {
               afterFired = true;
+              __printAfterFired = true;
               try { emitTelemetry('export_print_after', { id }); } catch (_) {}
               console.debug('Print: afterprint', { id });
               window.removeEventListener('beforeprint', before);
@@ -2502,17 +2560,46 @@
             bindPrintLifecycle();
             try { showToast('info', 'Opening print dialog'); } catch (_) {}
             try {
+              // Prepare data for potential fallback
+              const params = readParams();
+              const calc = mortgageCalculator.calculate_mortgage(params);
+              const d = calc.derived;
+              const monthlyPayment = Math.round((d.p_and_i + d.tax_monthly + d.ins_monthly + d.hoa_monthly + d.monthly_mi_initial) * 100) / 100;
+              const canvas = document.getElementById('breakdownChart');
+              let chartPngDataUrl = undefined;
+              if (canvas && canvas.toDataURL) {
+                try { chartPngDataUrl = canvas.toDataURL('image/png'); } catch (_) {}
+              }
               setTimeout(() => {
                 try { window.print(); } catch (e) {
                   try { emitTelemetry('export_print_error', { error: String(e && e.message || e) }); } catch (_) {}
                   console.error('Print: window.print() threw', e);
-                  try { showToast('error', 'Print blocked — use Cmd/Ctrl+P'); } catch (_) {}
                 }
               }, 0);
+              // Fallback: if no print events fired shortly, open Print View new tab
+              setTimeout(() => {
+                if (!__printBeforeFired && !__printAfterFired) {
+                  try { emitTelemetry('export_print_fallback_print_view', {}); } catch (_) {}
+                  console.debug('Print: fallback to Print View');
+                  openPrintView(params, monthlyPayment, chartPngDataUrl);
+                }
+              }, 900);
             } catch (err) {
               try { emitTelemetry('export_print_error', { error: String(err && err.message || err) }); } catch (_) {}
               console.error('Print: error invoking print', err);
-              try { showToast('error', 'Print failed — use Cmd/Ctrl+P'); } catch (_) {}
+              // Directly attempt Print View if print path errors synchronously
+              try {
+                const params = readParams();
+                const calc = mortgageCalculator.calculate_mortgage(params);
+                const d = calc.derived;
+                const monthlyPayment = Math.round((d.p_and_i + d.tax_monthly + d.ins_monthly + d.hoa_monthly + d.monthly_mi_initial) * 100) / 100;
+                const canvas = document.getElementById('breakdownChart');
+                let chartPngDataUrl = undefined;
+                if (canvas && canvas.toDataURL) { try { chartPngDataUrl = canvas.toDataURL('image/png'); } catch (_) {} }
+                openPrintView(params, monthlyPayment, chartPngDataUrl);
+              } catch (_) {
+                try { showToast('error', 'Print failed — use Cmd/Ctrl+P'); } catch (_) {}
+              }
             }
           };
           exportBtn.addEventListener('click', onExportClick);
