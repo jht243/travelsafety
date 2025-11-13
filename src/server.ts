@@ -858,6 +858,55 @@ function createMortgageCalculatorServer(): Server {
         const widgetMetadata = widgetMeta(widget, false);
         console.log(`[MCP] Tool called: ${request.params.name}, returning templateUri: ${(widgetMetadata as any)["openai/outputTemplate"]}`);
 
+        // Build structured content once so we can log it and return it
+        const structured = {
+          ready: true,
+          timestamp: new Date().toISOString(),
+          currentRate: fredRateCache?.payload?.ratePercent ?? null,
+          // Flatten parsed parameters directly into structuredContent
+          loan_type: args.loan_type,
+          home_value: args.home_value,
+          down_payment_value: args.down_payment_value,
+          rate_apr: args.rate_apr,
+          term_years: args.term_years,
+          zip_code: args.zip_code,
+          credit_score: args.credit_score,
+          property_tax_input: args.property_tax_input,
+          homeowners_insurance_yearly: args.homeowners_insurance_yearly,
+          hoa_monthly: args.hoa_monthly,
+          pmi_pct: args.pmi_pct,
+          annual_mi_pct: args.annual_mi_pct,
+          upfront_fee_pct: args.upfront_fee_pct,
+          finance_upfront_fee: args.finance_upfront_fee,
+          start_month: args.start_month,
+          start_year: args.start_year,
+          extra_principal_monthly: args.extra_principal_monthly,
+          extra_start_month_index: args.extra_start_month_index,
+          summary: computeSummary(args),
+          suggested_followups: [
+            "Help me reduce my monthly payment",
+            "Compare 15 vs 30 year for my inputs",
+            "What if property taxes are 1.2%?",
+          ],
+        } as const;
+
+        // Embed the widget resource in _meta to mirror official examples and improve hydration reliability
+        const metaForReturn = {
+          ...widgetMetadata,
+          "openai.com/widget": {
+            type: "resource",
+            resource: {
+              uri: widget.templateUri,
+              mimeType: "text/html+skybridge",
+              text: widget.html,
+              title: widget.title,
+            },
+          },
+        } as const;
+
+        console.log("[MCP] Returning outputTemplate:", (metaForReturn as any)["openai/outputTemplate"]);
+        console.log("[MCP] Returning structuredContent:", structured);
+
         return {
           content: [
             {
@@ -865,37 +914,8 @@ function createMortgageCalculatorServer(): Server {
               text: widget.responseText,
             },
           ],
-          structuredContent: {
-            ready: true,
-            timestamp: new Date().toISOString(),
-            currentRate: fredRateCache?.payload?.ratePercent ?? null,
-            // Flatten parsed parameters directly into structuredContent
-            loan_type: args.loan_type,
-            home_value: args.home_value,
-            down_payment_value: args.down_payment_value,
-            rate_apr: args.rate_apr,
-            term_years: args.term_years,
-            zip_code: args.zip_code,
-            credit_score: args.credit_score,
-            property_tax_input: args.property_tax_input,
-            homeowners_insurance_yearly: args.homeowners_insurance_yearly,
-            hoa_monthly: args.hoa_monthly,
-            pmi_pct: args.pmi_pct,
-            annual_mi_pct: args.annual_mi_pct,
-            upfront_fee_pct: args.upfront_fee_pct,
-            finance_upfront_fee: args.finance_upfront_fee,
-            start_month: args.start_month,
-            start_year: args.start_year,
-            extra_principal_monthly: args.extra_principal_monthly,
-            extra_start_month_index: args.extra_start_month_index,
-            summary: computeSummary(args),
-            suggested_followups: [
-              "Help me reduce my monthly payment",
-              "Compare 15 vs 30 year for my inputs",
-              "What if property taxes are 1.2%?",
-            ],
-          },
-          _meta: widgetMetadata,
+          structuredContent: structured,
+          _meta: metaForReturn,
         };
       } catch (error: any) {
         logAnalytics("tool_call_error", {
