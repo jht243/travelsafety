@@ -113,6 +113,15 @@
         }
       }
 
+      /* Hide header toggles when the section is collapsed */
+      details[data-openai-component="purchase-details"]:not([open]) .purchase-header-toggles {
+        display: none;
+      }
+
+      details[data-openai-component="sell-exit-assumptions"]:not([open]) .sell-header-toggle {
+        display: none;
+      }
+
       .section-summary::after {
         content: "";
         width: 9px;
@@ -1861,7 +1870,6 @@
                   <div class="result-card primary" id="monthlyPaymentCard" data-openai-component="monthly-summary-card">
                     <div class="card-header">
                       <div class="card-controls">
-                        <span class="badge">Overview</span>
                       </div>
                     </div>
                     <div class="result-split">
