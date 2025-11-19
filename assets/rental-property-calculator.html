@@ -1929,22 +1929,24 @@
                 <section class="section-block">
                   <div class="section-title">First-Year Income & Expenses</div>
                   <div class="year1-grid">
-                    <div class="kpi-item">
-                      <span class="kpi-label">Year 1 Income</span>
-                      <span class="kpi-number" id="out_gsi">—</span>
-                      <span class="kpi-sub" id="out_gsi_monthly"></span>
-                    </div>
-                    <div class="kpi-item">
-                      <span class="kpi-label">Year 1 Cash Flow</span>
-                      <span class="kpi-number" id="out_cash_flow">—</span>
-                      <span class="kpi-sub" id="out_cash_flow_monthly"></span>
+                    <div class="kpi-main">
+                      <div class="kpi-item">
+                        <span class="kpi-label">Year 1 Cash Flow</span>
+                        <span class="kpi-number" id="kpi_cashflow_annual">$0</span>
+                        <span class="kpi-sub" id="kpi_cashflow_monthly">— /mo</span>
+                      </div>
+                      <div class="kpi-item">
+                        <span class="kpi-label">Year 1 Income</span>
+                        <span class="kpi-number" id="kpi_income_annual">$0</span>
+                        <span class="kpi-sub" id="kpi_income_monthly">— /mo</span>
+                      </div>
                     </div>
                     <div class="donut-row">
-                      <div class="donut-chart" id="donutChart" style="width: 180px; height: 180px; margin: 0 auto;"></div>
-                      <div class="donut-legend" id="donutLegend"></div>
+                      <canvas id="expenseDonut"></canvas>
+                      <div class="donut-legend" id="expenseLegend"></div>
                     </div>
                     <div class="metrics-table-wrap">
-                      <table class="metrics-table" id="metricsTable">
+                      <table class="metrics-table">
                         <thead>
                           <tr>
                             <th>Metric</th>
@@ -1952,7 +1954,53 @@
                             <th>Annual</th>
                           </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                          <tr>
+                            <td>Income</td>
+                            <td id="y1_income_monthly">$0</td>
+                            <td id="y1_income_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Mortgage (P&I)</td>
+                            <td id="y1_mortgage_monthly">$0</td>
+                            <td id="y1_mortgage_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Vacancy</td>
+                            <td id="y1_vacancy_monthly">$0</td>
+                            <td id="y1_vacancy_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Property tax</td>
+                            <td id="y1_tax_monthly">$0</td>
+                            <td id="y1_tax_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Insurance</td>
+                            <td id="y1_insurance_monthly">$0</td>
+                            <td id="y1_insurance_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Maintenance</td>
+                            <td id="y1_maintenance_monthly">$0</td>
+                            <td id="y1_maintenance_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Other expenses</td>
+                            <td id="y1_other_monthly">$0</td>
+                            <td id="y1_other_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>Cash flow</td>
+                            <td id="y1_cashflow_monthly">$0</td>
+                            <td id="y1_cashflow_annual">$0</td>
+                          </tr>
+                          <tr>
+                            <td>NOI</td>
+                            <td id="y1_noi_monthly">$0</td>
+                            <td id="y1_noi_annual">$0</td>
+                          </tr>
+                        </tbody>
                       </table>
                     </div>
                   </div>
@@ -1960,12 +2008,14 @@
                 <section class="section-block">
                   <div class="section-title">20-Year Investment Summary</div>
                   <div class="grid three-col">
-                    <div class="metric"><span class="label">Return (IRR)</span><span class="value" id="out_irr">—</span></div>
-                    <div class="metric"><span class="label">Cap Rate</span><span class="value" id="out_cap_rate">—</span></div>
-                    <div class="metric"><span class="label">Cash on Cash Return</span><span class="value" id="out_coc_return">—</span></div>
-                    <div class="metric"><span class="label">Total Profit When Sold</span><span class="value" id="out_profit_sold">—</span></div>
-                    <div class="metric"><span class="label">Total Cash Flow</span><span class="value" id="out_total_cash_flow">—</span></div>
-                    <div class="metric"><span class="label">Total Principal Paid</span><span class="value" id="out_total_principal_paid">—</span></div>
+                    <div class="metric"><span class="label">Total rent collected</span><span class="value" id="out_total_rent">$0</span></div>
+                    <div class="metric"><span class="label">Total mortgage paid (P&I)</span><span class="value" id="out_total_mortgage">$0</span></div>
+                    <div class="metric"><span class="label">Total operating expenses</span><span class="value" id="out_total_expenses">$0</span></div>
+                    <div class="metric"><span class="label">Total NOI</span><span class="value" id="out_total_noi">$0</span></div>
+                    <div class="metric"><span class="label">Total profit when sold</span><span class="value" id="out_total_profit">$0</span></div>
+                    <div class="metric"><span class="label">Cash-on-cash return</span><span class="value" id="out_coc">0%</span></div>
+                    <div class="metric"><span class="label">Cap rate</span><span class="value" id="out_cap_rate">0%</span></div>
+                    <div class="metric"><span class="label">IRR</span><span class="value" id="out_irr">0%</span></div>
                   </div>
                 </section>
                 <div class="button-row">
