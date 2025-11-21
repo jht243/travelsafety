@@ -4749,9 +4749,20 @@
           applyAutoProvided(providedParams);
         }
 
-        // Hydrate from saved widget/local state BEFORE applying derived defaults
-        const hadSavedState = !!hydrateInputsFromState();
-        console.log(`[Debug] Result of hydrateInputsFromState: ${hadSavedState}`);
+        // Hydrate from saved widget/local state BEFORE applying derived defaults.
+        // IMPORTANT: When this widget is opened via a tool call with explicit parameters
+        // (providedParams), those prompt-specified values must take precedence over any
+        // 72-hour saved state. In that case, we skip hydrateInputsFromState so we do not
+        // overwrite the tool inputs with older localStorage/widgetState values.
+        let hadSavedState = false;
+        const hasProvidedParams = providedParams && Object.keys(providedParams).length > 0;
+        if (!hasProvidedParams) {
+          hadSavedState = !!hydrateInputsFromState();
+          console.log(`[Debug] Result of hydrateInputsFromState: ${hadSavedState}`);
+        } else {
+          console.log('[Debug] Skipping hydrateInputsFromState because providedParams are present.');
+        }
+
         if (!hadSavedState) {
           console.log('[Debug] No saved state was hydrated. Applying rental defaults.');
           setRentalDefaultsIfEmpty(true);
