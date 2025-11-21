@@ -1927,9 +1927,8 @@
                 <thead>
                   <tr>
                     <th>Year</th>
-                    <th>Payment</th>
-                    <th>Principal</th>
                     <th>Interest</th>
+                    <th>Principal</th>
                     <th>Ending Balance</th>
                   </tr>
                 </thead>
@@ -2344,6 +2343,15 @@
             maximumFractionDigits: 0,
           });
 
+        // Currency formatter with cents for amortization table parity
+        const formatCurrencyCents = (value) =>
+          clampNonNegative(value).toLocaleString(undefined, {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+
         const formatCurrencySigned = (value) => {
           const abs = Math.abs(Number(value) || 0);
           const s = abs.toLocaleString(undefined, {
@@ -2469,8 +2477,10 @@
             if (!st || !taxEl) return;
             const code = String(st.value || '').toUpperCase();
             if (!code || !(code in STATE_SALES_TAX)) return;
-            const hasMeaningful = taxEl.value !== '' && Number(taxEl.value) > 0;
-            if (force || !autoSalesTaxEdited || !hasMeaningful) {
+            const curNum = Number(taxEl.value);
+            const hasMeaningful = taxEl.value !== '' && Number.isFinite(curNum) && curNum > 0;
+            // Only set when forcing or when the field is empty/zero and user hasn't manually edited it
+            if (force || (!hasMeaningful && !autoSalesTaxEdited)) {
               taxEl.value = String(STATE_SALES_TAX[code]);
             }
           } catch (_) { /* ignore */ }
@@ -2848,7 +2858,7 @@
         const readParams = () => {
           // New Auto Loan inputs
           const price = toNumber(document.getElementById('auto_price')?.value || 0);
-          const ratePct = toNumber(document.getElementById('interest_rate_pct')?.value || 0);
+          const rateRaw = toNumber(document.getElementById('interest_rate_pct')?.value || 0);
           const termMonths = Math.max(1, Math.round(toNumber(document.getElementById('loan_term_months')?.value || 60)));
           const downPayment = Math.max(0, toNumber(document.getElementById('down_payment_value')?.value || 0));
           const incentives = Math.max(0, toNumber(document.getElementById('cash_incentives')?.value || 0));
@@ -2870,7 +2880,8 @@
           const principal = usingLoan ? Math.max(0, baseToFinance + financedExtras) : 0;
 
           // Map into existing calculation fields
-          const rateAprDec = Math.max(0, ratePct) / 100;
+          // Accept either percent (e.g., 5) or decimal (e.g., 0.05)
+          const rateAprDec = (rateRaw > 1 ? rateRaw / 100 : rateRaw);
           const termYears = Math.max(0.1, termMonths / 12);
 
           return {
@@ -3102,28 +3113,30 @@
         const renderOverTimeTable = (calc) => {
           const tbody = outputs.overTimeTableBody;
           if (!tbody) return;
-          const byYear = new Map();
-          (calc.schedule || []).forEach((row) => {
-            const y = row.date.year;
-            const agg = byYear.get(y) || { pay: 0, prin: 0, int: 0, end: 0 };
-            agg.pay += row.p_and_i;
-            agg.prin += (row.principal_scheduled + row.extra_principal);
-            agg.int += row.interest;
-            agg.end = row.closing_balance;
-            byYear.set(y, agg);
-          });
-          const years = Array.from(byYear.keys()).sort((a,b)=>a-b);
-          const rowsHtml = years.map((y) => {
-            const r = byYear.get(y);
-            return `
-              <tr>
-                <td>${y}</td>
-                <td>${formatCurrency(r.pay)}</td>
-                <td>${formatCurrency(r.prin)}</td>
-                <td>${formatCurrency(r.int)}</td>
-                <td>${formatCurrency(r.end)}</td>
-              </tr>`;
-          }).join('');
+          const schedule = calc.schedule || [];
+          const months = schedule.length;
+          const yearCount = Math.ceil(months / 12);
+          const rows = [];
+          for (let y = 1; y <= yearCount; y++) {
+            const start = (y - 1) * 12;
+            const endIdx = Math.min(y * 12, months) - 1;
+            let sumInt = 0;
+            let sumPrin = 0;
+            for (let i = start; i <= endIdx; i++) {
+              const row = schedule[i];
+              sumInt += row?.interest || 0;
+              sumPrin += (row?.principal_scheduled || 0) + (row?.extra_principal || 0);
+            }
+            const endBal = endIdx >= start && endIdx >= 0 ? (schedule[endIdx]?.closing_balance || 0) : (calc.derived?.principal_0 || 0);
+            rows.push({ y, sumInt, sumPrin, endBal });
+          }
+          const rowsHtml = rows.map((r) => `
+            <tr>
+              <td>${r.y}</td>
+              <td>${formatCurrencyCents(r.sumInt)}</td>
+              <td>${formatCurrencyCents(r.sumPrin)}</td>
+              <td>${formatCurrencyCents(r.endBal)}</td>
+            </tr>`).join('');
           tbody.innerHTML = rowsHtml;
         };
 
