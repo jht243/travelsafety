@@ -1688,7 +1688,8 @@ export default function RetirementCalculatorHelloWorld({ initialData }: { initia
           borderRadius: "16px",
           padding: "16px",
           boxShadow: "0 4px 12px -4px rgba(0,0,0,0.05)",
-          marginBottom: "20px"
+          marginBottom: "20px",
+          marginTop: "24px"
       }}>
           <div style={{
               fontSize: "14px", 
