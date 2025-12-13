@@ -753,8 +753,15 @@ function createPortfolioOptimizerServer(): Server {
           }
         } catch {}
 
+        // Build content narration for the model
+        const contentText = args.initial_investment || args.stocks || args.stocks_percent
+          ? `Portfolio analysis ready with ${args.time_horizon || 10}-year projection. ${
+              args.initial_investment ? `Initial investment: $${Number(args.initial_investment).toLocaleString()}.` : ''
+            } ${args.risk_tolerance ? `Risk profile: ${args.risk_tolerance}.` : ''} Use the interactive widget to adjust allocation and run Monte Carlo simulations.`
+          : "Portfolio Optimizer is ready. Enter your asset allocation, time horizon, and contribution strategy to project your investment growth.";
+
         return {
-          content: [],
+          content: [{ type: "text", text: contentText }],
           structuredContent: structured,
           _meta: metaForReturn,
         };

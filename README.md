@@ -2,6 +2,8 @@
 
 A Model Context Protocol (MCP) server that provides an interactive portfolio optimization widget for ChatGPT. Helps users optimize investments and analyze finance metrics.
 
+**[Privacy Policy](PRIVACY.md)** | **[OpenAI Apps SDK](https://developers.openai.com/apps-sdk)**
+
 ## Features
 
 - 💰 Optimize Portfolio
