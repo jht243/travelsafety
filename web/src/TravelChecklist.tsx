@@ -75,22 +75,27 @@ const fetchWeatherForecast = async (
   endDate: string
 ): Promise<WeatherForecast | null> => {
   try {
-    // Open-Meteo provides up to 16 days forecast, or we use climate averages
+    // Open-Meteo provides up to 16 days forecast
     const today = new Date();
     const start = new Date(startDate);
-    const end = new Date(endDate);
     
     // If trip is within forecast range (16 days), use forecast API
     const daysUntilTrip = Math.floor((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
     let url: string;
+    let useClimateApi = false;
+    
     if (daysUntilTrip <= 14 && daysUntilTrip >= 0) {
-      // Use forecast API
+      // Use forecast API for near-term trips
       url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${startDate}&end_date=${endDate}`;
     } else {
-      // Use climate API for historical averages (for trips further out)
-      const monthDay = startDate.slice(5); // MM-DD
-      url = `https://climate-api.open-meteo.com/v1/climate?latitude=${lat}&longitude=${lon}&start_date=1990-${monthDay}&end_date=2020-${monthDay}&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min,precipitation_sum&models=EC_Earth3P_HR`;
+      // For future dates, use the forecast API with current + 14 days to get seasonal estimate
+      // This is more reliable than the climate API which can be unreliable
+      const forecastStart = new Date();
+      const forecastEnd = new Date();
+      forecastEnd.setDate(forecastEnd.getDate() + 14);
+      url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${forecastStart.toISOString().split('T')[0]}&end_date=${forecastEnd.toISOString().split('T')[0]}`;
+      useClimateApi = true; // Flag that we're using seasonal estimate
     }
     
     const response = await fetch(url);
@@ -228,6 +233,30 @@ const DEFAULT_PROFILE: TripProfile = {
 const STORAGE_KEY = "TRAVEL_CHECKLIST_DATA";
 const BANNER_STORAGE_KEY = "TRAVEL_CHECKLIST_BANNER_DISMISSED";
 
+// Scale quantity based on trip duration
+// baseQty is designed for a 7-day trip, scale proportionally
+const scaleQuantityForDuration = (baseQty: string | undefined, tripDuration: number): string | undefined => {
+  if (!baseQty) return undefined;
+  
+  // Extract number from quantity string (e.g., "6", "6 pairs", "3")
+  const match = baseQty.match(/^(\d+)/);
+  if (!match) return baseQty;
+  
+  const baseNum = parseInt(match[1], 10);
+  const suffix = baseQty.slice(match[1].length); // e.g., " pairs", ""
+  
+  // Scale proportionally: base is for 7 days
+  // For a gym rat working out daily, they need ~tripDuration workout sets
+  // But cap at reasonable maximums and minimum of 2
+  const scaleFactor = tripDuration / 7;
+  let scaled = Math.round(baseNum * scaleFactor);
+  
+  // Ensure minimum of 2 and maximum of 10 for most items
+  scaled = Math.max(2, Math.min(scaled, 10));
+  
+  return `${scaled}${suffix}`;
+};
+
 // Traveler presets with their associated items
 // gender: "female" = female only, "male" = male only, undefined = everyone
 const TRAVELER_PRESETS: Record<string, { label: string; icon: string; items: { name: string; category: string; quantity?: string; gender?: "female" | "male" }[] }> = {
@@ -246,16 +275,18 @@ const TRAVELER_PRESETS: Record<string, { label: string; icon: string; items: { n
     label: "Gym Rat",
     icon: "💪",
     items: [
-      { name: "Workout shirts", category: "workout", quantity: "3" },
-      { name: "Workout shorts", category: "workout", quantity: "3" },
+      { name: "Workout shirts", category: "workout", quantity: "6" },
+      { name: "Workout shorts", category: "workout", quantity: "4" },
       { name: "Training shoes", category: "workout" },
-      { name: "Workout socks", category: "workout", quantity: "3 pairs" },
-      { name: "Sports bra", category: "workout", quantity: "3", gender: "female" },
+      { name: "Workout socks", category: "workout", quantity: "6 pairs" },
+      { name: "Sports bra", category: "workout", quantity: "5", gender: "female" },
+      { name: "Compression shorts", category: "workout", quantity: "3" },
       { name: "Resistance bands", category: "activity" },
       { name: "Gym gloves", category: "activity" },
       { name: "Protein bars", category: "personal" },
       { name: "Shaker bottle", category: "personal" },
       { name: "Pre-workout", category: "personal" },
+      { name: "Quick-dry towel", category: "workout" },
     ]
   },
   yoga: {
@@ -776,91 +807,6 @@ const getIndividualTravelers = (travelers: TravelerInfo[]): IndividualTraveler[]
   return individuals;
 };
 
-// Generate checklist for a specific individual
-const generateIndividualChecklist = (profile: TripProfile, traveler: IndividualTraveler): ChecklistItem[] => {
-  const items: ChecklistItem[] = [];
-  const { isInternational, climate, tripDuration, purpose, packingConstraint, activities, personalNotes } = profile;
-  const isFemale = traveler.gender === "female";
-  const isMale = traveler.gender === "male";
-  const isChild = traveler.type === "child";
-  const isCarryOnOnly = packingConstraint === "carry_on_only";
-  const baseOutfits = Math.min(tripDuration, 7);
-  const prefix = traveler.id;
-
-  // DOCUMENTS (adults only)
-  if (!isChild) {
-    items.push({ id: `${prefix}-doc-id`, name: "ID / Driver's license", category: "documents", essential: true, checked: false });
-    if (isInternational) {
-      items.push({ id: `${prefix}-doc-passport`, name: "Passport", category: "documents", essential: true, checked: false });
-    }
-  }
-
-  // CLOTHING - gender specific
-  items.push({ id: `${prefix}-cloth-underwear`, name: "Underwear", category: "clothing", quantity: `${Math.min(tripDuration + 1, 8)}`, essential: true, checked: false });
-  items.push({ id: `${prefix}-cloth-socks`, name: "Socks", category: "clothing", quantity: `${Math.min(tripDuration + 1, 8)}`, essential: true, checked: false });
-  
-  if (climate === "summer" || climate === "tropical") {
-    items.push({ id: `${prefix}-cloth-tops`, name: isChild ? "T-shirts" : (isFemale ? "Tops / blouses" : "T-shirts"), category: "clothing", quantity: `${baseOutfits}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-bottoms`, name: isChild ? "Shorts" : (isFemale ? "Shorts / skirts" : "Shorts"), category: "clothing", quantity: `${Math.ceil(baseOutfits / 2)}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-swimwear`, name: isFemale ? "Swimsuit / bikini" : "Swim trunks", category: "clothing", essential: purpose === "beach", checked: false });
-    items.push({ id: `${prefix}-cloth-sunhat`, name: "Hat & sunglasses", category: "clothing", essential: true, checked: false });
-    if (isFemale) {
-      items.push({ id: `${prefix}-cloth-dress`, name: isChild ? "Dresses" : "Summer dresses", category: "clothing", quantity: "2", essential: false, checked: false });
-    }
-  }
-  if (climate === "winter") {
-    items.push({ id: `${prefix}-cloth-sweaters`, name: "Sweaters", category: "clothing", quantity: `${Math.ceil(baseOutfits / 2)}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-pants`, name: isFemale ? "Pants / leggings" : "Pants", category: "clothing", quantity: `${Math.ceil(baseOutfits / 2)}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-coat`, name: "Winter coat", category: "clothing", essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-accessories`, name: "Gloves, scarf, hat", category: "clothing", essential: true, checked: false });
-  }
-  
-  items.push({ id: `${prefix}-cloth-sleepwear`, name: "Sleepwear / pajamas", category: "clothing", essential: true, checked: false });
-  items.push({ id: `${prefix}-cloth-shoes`, name: "Walking shoes", category: "clothing", essential: true, checked: false });
-  
-  if (purpose === "business" && !isChild) {
-    items.push({ id: `${prefix}-cloth-formal`, name: isFemale ? "Business attire / heels" : "Suit / dress shoes", category: "clothing", essential: true, checked: false });
-  }
-
-  // TOILETRIES - gender specific
-  items.push({ id: `${prefix}-toil-basics`, name: "Toothbrush & paste", category: "toiletries", essential: true, checked: false });
-  items.push({ id: `${prefix}-toil-deo`, name: isChild ? "Kids deodorant" : "Deodorant", category: "toiletries", essential: !isChild, checked: false });
-  
-  if (isMale && !isChild) {
-    items.push({ id: `${prefix}-toil-razor`, name: "Razor & shaving cream", category: "toiletries", essential: false, checked: false });
-  }
-  if (isFemale) {
-    items.push({ id: `${prefix}-toil-makeup`, name: isChild ? "Hair accessories" : "Makeup & remover", category: "toiletries", essential: false, checked: false });
-    if (!isChild) {
-      items.push({ id: `${prefix}-toil-feminine`, name: "Feminine products", category: "toiletries", essential: false, checked: false });
-      items.push({ id: `${prefix}-toil-hairtools`, name: "Hair dryer / straightener", category: "toiletries", essential: false, checked: false });
-    }
-  }
-
-  // HEALTH
-  if (!isChild) {
-    items.push({ id: `${prefix}-health-meds`, name: "Personal medications", category: "health", essential: true, checked: false });
-  }
-  
-  // TECH (adults only for expensive items)
-  if (!isChild) {
-    items.push({ id: `${prefix}-tech-phone`, name: "Phone & charger", category: "tech", essential: true, checked: false });
-  }
-
-  // PERSONAL from notes
-  if (personalNotes && !isChild) {
-    const noteItems = parsePersonalNotes(personalNotes);
-    // Add with unique prefix and filter by gender if needed
-    noteItems.forEach(item => {
-      // Skip sports bra for males
-      if (isMale && item.id.includes("sports-bra")) return;
-      items.push({ ...item, id: `${prefix}-${item.id}` });
-    });
-  }
-
-  return items;
-};
-
 const generateChecklist = (profile: TripProfile): ChecklistItem[] => {
   const items: ChecklistItem[] = [];
   const { isInternational, climate, tripDuration, travelers, purpose, packingConstraint, activities, personalNotes } = profile;
@@ -1350,9 +1296,9 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
   const saved = loadSavedData();
   const [profile, setProfile] = useState<TripProfile>(saved?.profile || DEFAULT_PROFILE);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(saved?.checklist || []);
-  const [individualChecklists, setIndividualChecklists] = useState<Record<string, ChecklistItem[]>>({});
+  const [individualChecklists, setIndividualChecklists] = useState<Record<string, ChecklistItem[]>>(saved?.individualChecklists || {});
   const [checklistGenerated, setChecklistGenerated] = useState(saved?.checklistGenerated || false);
-  const [selectedTab, setSelectedTab] = useState<string>("shared"); // "shared" or traveler id
+  const [selectedTab, setSelectedTab] = useState<string>(saved?.selectedTab || "shared"); // "shared" or traveler id
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({ documents: true, clothing: true, workout: true, toiletries: true, health: true, tech: true, activity: true, family: true, preDeparture: true, personal: true });
   const [showBanner, setShowBanner] = useState(() => { try { const d = localStorage.getItem(BANNER_STORAGE_KEY); return !d || (new Date().getTime() - parseInt(d)) > 86400000; } catch { return true; } });
@@ -1375,12 +1321,192 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
   const [weatherLoading, setWeatherLoading] = useState(false);
   
   // Per-individual preferences (notes and presets unique to each traveler)
-  const [individualPrefs, setIndividualPrefs] = useState<Record<string, { notes: string; presets: string[] }>>({});
+  const [individualPrefs, setIndividualPrefs] = useState<Record<string, { notes: string; presets: string[] }>>(saved?.individualPrefs || {});
+  
+  // Track previous traveler info to detect single->multi transition and who gets presets
+  const prevTravelerCountRef = useRef<number>(0);
+  const wasLastGenerationSinglePerson = useRef<boolean>(true);
+  const originalSingleTravelerRef = useRef<{ type: string; gender: string } | null>(null);
   
   // Get list of individual travelers
   const individuals = useMemo(() => getIndividualTravelers(profile.travelers), [profile.travelers]);
 
-  useEffect(() => { saveData({ profile, checklist, checklistGenerated }); }, [profile, checklist, checklistGenerated]);
+  useEffect(() => { 
+    saveData({ profile, checklist, checklistGenerated, individualChecklists, individualPrefs, selectedTab }); 
+  }, [profile, checklist, checklistGenerated, individualChecklists, individualPrefs, selectedTab]);
+  
+  // Fix selectedTab on load: if multiple travelers and selectedTab is invalid, auto-select first traveler
+  useEffect(() => {
+    if (checklistGenerated && individuals.length > 1) {
+      const validTabs = individuals.map(i => i.id);
+      if (selectedTab === "shared" || !validTabs.includes(selectedTab)) {
+        // Auto-select first traveler
+        setSelectedTab(individuals[0].id);
+      }
+    }
+  }, [checklistGenerated, individuals, selectedTab]);
+  
+  // Regenerate individual checklists if missing but checklistGenerated is true (handles legacy data)
+  useEffect(() => {
+    if (checklistGenerated && individuals.length > 0 && Object.keys(individualChecklists).length === 0) {
+      // Need to regenerate individual checklists
+      const indivLists: Record<string, ChecklistItem[]> = {};
+      const newPrefs: Record<string, { notes: string; presets: string[] }> = {};
+      
+      individuals.forEach((t) => {
+        const individualProfile: TripProfile = {
+          ...profile,
+          presets: [],
+          travelers: [{
+            type: t.type as "adult" | "child" | "infant" | "senior" | "pet",
+            male: t.gender === "male" ? 1 : 0,
+            female: t.gender === "female" ? 1 : 0
+          }]
+        };
+        const items = generateChecklist(individualProfile);
+        indivLists[t.id] = items.map(item => ({ ...item, id: `${t.id}-${item.id}` }));
+        newPrefs[t.id] = individualPrefs[t.id] || { notes: "", presets: [] };
+      });
+      
+      setIndividualChecklists(indivLists);
+      if (Object.keys(individualPrefs).length === 0) {
+        setIndividualPrefs(newPrefs);
+      }
+    }
+  }, [checklistGenerated, individuals, individualChecklists, profile]);
+
+  // Hydrate profile from initialData (ChatGPT integration)
+  useEffect(() => {
+    if (!initialData || Object.keys(initialData).length === 0) {
+      console.log("[TravelChecklist] No initialData to hydrate");
+      return;
+    }
+    
+    console.log("[TravelChecklist] Hydrating from initialData:", initialData);
+    
+    try {
+      const updates: Partial<TripProfile> = {};
+      
+      // Destination
+      if (initialData.destination) {
+        updates.destination = String(initialData.destination);
+      }
+      
+      // Dates
+      if (initialData.start_date) {
+        updates.startDate = String(initialData.start_date);
+      }
+      if (initialData.end_date) {
+        updates.endDate = String(initialData.end_date);
+      }
+      
+      // Trip duration (calculate from dates if not provided)
+      if (initialData.trip_duration) {
+        updates.tripDuration = Number(initialData.trip_duration);
+      } else if (initialData.start_date && initialData.end_date) {
+        const start = new Date(initialData.start_date);
+        const end = new Date(initialData.end_date);
+        const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        if (diff > 0) updates.tripDuration = diff;
+      }
+      
+      // International flag
+      if (typeof initialData.is_international === "boolean") {
+        updates.isInternational = initialData.is_international;
+      }
+      
+      // Climate
+      if (initialData.climate && ["summer", "winter", "spring", "tropical", "variable"].includes(initialData.climate)) {
+        updates.climate = initialData.climate as TripProfile["climate"];
+      }
+      
+      // Purpose
+      if (initialData.purpose && ["leisure", "business", "adventure", "beach", "city"].includes(initialData.purpose)) {
+        updates.purpose = initialData.purpose as TripProfile["purpose"];
+      }
+      
+      // Packing constraint
+      if (initialData.packing_constraint && ["carry_on_only", "checked_bags", "minimal"].includes(initialData.packing_constraint)) {
+        updates.packingConstraint = initialData.packing_constraint as TripProfile["packingConstraint"];
+      }
+      
+      // Activities
+      if (Array.isArray(initialData.activities)) {
+        updates.activities = initialData.activities;
+      }
+      
+      // Travelers - build from detailed breakdown or total count
+      const newTravelers = [...DEFAULT_PROFILE.travelers];
+      let hasTravelerData = false;
+      
+      // Detailed breakdown
+      if (initialData.adult_males && Number(initialData.adult_males) > 0) {
+        const adultIdx = newTravelers.findIndex(t => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], male: Number(initialData.adult_males) };
+        hasTravelerData = true;
+      }
+      if (initialData.adult_females && Number(initialData.adult_females) > 0) {
+        const adultIdx = newTravelers.findIndex(t => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], female: Number(initialData.adult_females) };
+        hasTravelerData = true;
+      }
+      if (initialData.male_children && Number(initialData.male_children) > 0) {
+        const childIdx = newTravelers.findIndex(t => t.type === "child");
+        if (childIdx >= 0) newTravelers[childIdx] = { ...newTravelers[childIdx], male: Number(initialData.male_children) };
+        hasTravelerData = true;
+      }
+      if (initialData.female_children && Number(initialData.female_children) > 0) {
+        const childIdx = newTravelers.findIndex(t => t.type === "child");
+        if (childIdx >= 0) newTravelers[childIdx] = { ...newTravelers[childIdx], female: Number(initialData.female_children) };
+        hasTravelerData = true;
+      }
+      if (initialData.infants && Number(initialData.infants) > 0) {
+        const infantIdx = newTravelers.findIndex(t => t.type === "infant");
+        if (infantIdx >= 0) newTravelers[infantIdx] = { ...newTravelers[infantIdx], male: Number(initialData.infants) };
+        hasTravelerData = true;
+      }
+      
+      // Legacy: has_children / has_infants / has_pets booleans
+      if (initialData.has_children && !initialData.male_children && !initialData.female_children) {
+        const childIdx = newTravelers.findIndex(t => t.type === "child");
+        if (childIdx >= 0) newTravelers[childIdx] = { ...newTravelers[childIdx], male: 1 };
+        hasTravelerData = true;
+      }
+      if (initialData.has_infants && !initialData.infants) {
+        const infantIdx = newTravelers.findIndex(t => t.type === "infant");
+        if (infantIdx >= 0) newTravelers[infantIdx] = { ...newTravelers[infantIdx], male: 1 };
+        hasTravelerData = true;
+      }
+      if (initialData.has_pets) {
+        const petIdx = newTravelers.findIndex(t => t.type === "pet");
+        if (petIdx >= 0) newTravelers[petIdx] = { ...newTravelers[petIdx], male: 1 };
+        hasTravelerData = true;
+      }
+      
+      // Fallback: total travelers count (assume adult males if no breakdown)
+      if (!hasTravelerData && initialData.travelers && Number(initialData.travelers) > 0) {
+        const adultIdx = newTravelers.findIndex(t => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], male: Number(initialData.travelers) };
+        hasTravelerData = true;
+      }
+      
+      // Default to 1 adult male if no travelers specified
+      if (!hasTravelerData) {
+        const adultIdx = newTravelers.findIndex(t => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], male: 1 };
+      }
+      
+      updates.travelers = newTravelers;
+      
+      // Apply all updates
+      if (Object.keys(updates).length > 0) {
+        console.log("[TravelChecklist] Applying hydration updates:", updates);
+        setProfile(p => ({ ...p, ...updates }));
+      }
+    } catch (e) {
+      console.error("[TravelChecklist] Failed to hydrate from initialData:", e);
+    }
+  }, []); // Run once on mount
 
   const updateTravelerGender = (type: TravelerType, gender: "male" | "female", count: number) => {
     setProfile(p => ({ ...p, travelers: p.travelers.map(t => t.type === type ? { ...t, [gender]: count } : t) }));
@@ -1524,27 +1650,93 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
     // Generate shared checklist
     setChecklist(generateChecklist(profile)); 
     
-    // Generate individual checklists for each person
+    // Generate individual checklists for each person using the SAME generateChecklist logic
     const indivLists: Record<string, ChecklistItem[]> = {};
     const travelers = getIndividualTravelers(profile.travelers);
     
+    // Check if we have shared presets that need to be transferred to an individual
+    // This happens when transitioning from single-person (shared mode) to multi-person
+    const sharedPresets = profile.presets || [];
+    const sharedNotes = profile.personalNotes || "";
+    const hasSharedPresets = sharedPresets.length > 0;
+    const isMultiPerson = travelers.length > 1;
+    
+    // Use refs to detect transition from single to multi person
+    const wasLastSingle = wasLastGenerationSinglePerson.current;
+    const originalTraveler = originalSingleTravelerRef.current;
+    
+    // Determine who should inherit the shared presets (if any)
+    let presetInheritingTravelerId: string | null = null;
+    if (hasSharedPresets && isMultiPerson && wasLastSingle && originalTraveler) {
+      // Transitioning from single to multi - find the original person by type and gender
+      // Check if presets were already transferred to any individual
+      const alreadyTransferred = Object.values(individualPrefs).some(p => p.presets.length > 0);
+      
+      if (!alreadyTransferred) {
+        // Find the traveler that matches the original single person's type and gender
+        const match = travelers.find(t => t.type === originalTraveler.type && t.gender === originalTraveler.gender);
+        presetInheritingTravelerId = match?.id || null;
+      }
+    }
+    
     // Initialize per-individual preferences (preserve existing if any)
     const newPrefs: Record<string, { notes: string; presets: string[] }> = {};
-    travelers.forEach(t => {
-      indivLists[t.id] = generateIndividualChecklist(profile, t);
-      // Keep existing prefs or initialize empty
-      newPrefs[t.id] = individualPrefs[t.id] || { notes: "", presets: [] };
+    travelers.forEach((t) => {
+      // Create a modified profile for this individual traveler
+      // IMPORTANT: Clear presets from individual profile - we handle them via individualPrefs
+      const individualProfile: TripProfile = {
+        ...profile,
+        presets: [], // Don't include shared presets in individual generation
+        travelers: [{
+          type: t.type as "adult" | "child" | "infant" | "senior" | "pet",
+          male: t.gender === "male" ? 1 : 0,
+          female: t.gender === "female" ? 1 : 0
+        }]
+      };
+      // Generate using the same comprehensive checklist logic
+      const items = generateChecklist(individualProfile);
+      // Prefix item IDs to make them unique per traveler
+      indivLists[t.id] = items.map(item => ({ ...item, id: `${t.id}-${item.id}` }));
+      
+      // Determine preferences for this traveler
+      if (individualPrefs[t.id] && individualPrefs[t.id].presets.length > 0) {
+        // Traveler already has individual prefs with presets - keep them
+        newPrefs[t.id] = individualPrefs[t.id];
+      } else if (t.id === presetInheritingTravelerId) {
+        // This traveler should inherit the shared presets
+        newPrefs[t.id] = { notes: sharedNotes, presets: [...sharedPresets] };
+      } else if (individualPrefs[t.id]) {
+        // Has prefs but no presets - keep notes, empty presets
+        newPrefs[t.id] = individualPrefs[t.id];
+      } else {
+        // New traveler - start with empty prefs
+        newPrefs[t.id] = { notes: "", presets: [] };
+      }
     });
+    
+    // Update refs for next time
+    prevTravelerCountRef.current = travelers.length;
+    wasLastGenerationSinglePerson.current = travelers.length <= 1;
+    // Save the original single traveler's info for preset transfer
+    if (travelers.length === 1) {
+      originalSingleTravelerRef.current = { type: travelers[0].type, gender: travelers[0].gender };
+    } else if (travelers.length > 1 && !wasLastSingle) {
+      // Already multi-person, clear the original
+      originalSingleTravelerRef.current = null;
+    }
+    // Note: We keep originalSingleTravelerRef when transitioning from single to multi
+    // so the preset transfer can happen on subsequent generates if needed
+    
     setIndividualPrefs(newPrefs);
     setIndividualChecklists(indivLists);
     setChecklistGenerated(true); 
     setSelectedTab(travelers.length > 1 ? travelers[0].id : "shared");
     
-    // Scroll to progress section after a short delay for render
+    // Scroll to the content section (after the trip summary) after a short delay for render
     setTimeout(() => {
-      const progressSection = document.getElementById('progress-section');
-      if (progressSection) {
-        progressSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const contentSection = document.getElementById('checklist-content-section');
+      if (contentSection) {
+        contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -1669,8 +1861,42 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
   // Get current checklist based on selected tab
   const currentChecklist = useMemo(() => {
     if (selectedTab === "shared") return checklist;
-    return individualChecklists[selectedTab] || [];
-  }, [selectedTab, checklist, individualChecklists]);
+    
+    // For individual tabs, start with base items and add preset items
+    const baseItems = individualChecklists[selectedTab] || [];
+    const prefs = individualPrefs[selectedTab] || { notes: "", presets: [] };
+    const traveler = individuals.find(t => t.id === selectedTab);
+    const isFemale = traveler?.gender === "female";
+    const isMale = traveler?.gender === "male";
+    const tripDuration = profile.tripDuration || 7;
+    
+    // Add items from selected presets, scaling quantities based on trip duration
+    const presetItems: ChecklistItem[] = [];
+    prefs.presets.forEach(presetId => {
+      const preset = TRAVELER_PRESETS[presetId];
+      if (preset) {
+        preset.items.forEach((item, idx) => {
+          // Filter by gender
+          if (item.gender === "female" && !isFemale) return;
+          if (item.gender === "male" && !isMale) return;
+          // Check if item already exists (by name)
+          const exists = baseItems.some(bi => bi.name === item.name) || presetItems.some(pi => pi.name === item.name);
+          if (!exists) {
+            presetItems.push({
+              id: `${selectedTab}-preset-${presetId}-${idx}`,
+              name: item.name,
+              category: item.category,
+              quantity: scaleQuantityForDuration(item.quantity, tripDuration),
+              essential: false,
+              checked: false
+            });
+          }
+        });
+      }
+    });
+    
+    return [...baseItems, ...presetItems];
+  }, [selectedTab, checklist, individualChecklists, individualPrefs, individuals, profile.tripDuration]);
 
   const progress = useMemo(() => {
     if (!currentChecklist.length) return { checked: 0, total: 0, percent: 0 };
@@ -1700,8 +1926,138 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
     footerBtn: { display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", color: COLORS.textSecondary, fontSize: 14, fontWeight: 600, padding: 8 }
   };
 
+  // Inject print styles
+  useEffect(() => {
+    const styleId = 'travel-checklist-print-styles';
+    if (document.getElementById(styleId)) return;
+    
+    const printStyles = document.createElement('style');
+    printStyles.id = styleId;
+    printStyles.textContent = `
+      @media print {
+        /* Hide screen-only elements */
+        .no-print, button, .footer-actions, [data-no-print] { display: none !important; }
+        
+        /* Reset page */
+        body { background: white !important; margin: 0; padding: 0; }
+        
+        /* Hide the screen view */
+        .screen-view { display: none !important; }
+        
+        /* Show print view */
+        .print-view { display: block !important; }
+        
+        /* Print view styling */
+        .print-view {
+          font-family: 'Inter', -apple-system, sans-serif;
+          font-size: 11px;
+          color: #000;
+          padding: 15px;
+        }
+        
+        .print-header {
+          text-align: center;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 15px;
+        }
+        
+        .print-header h1 {
+          font-size: 18px;
+          margin: 0 0 5px 0;
+        }
+        
+        .print-header .trip-info {
+          font-size: 12px;
+          color: #555;
+        }
+        
+        .print-columns {
+          /* No special layout - sections stack vertically */
+        }
+        
+        .print-category {
+          margin-bottom: 12px;
+          break-inside: avoid;
+        }
+        
+        .print-category h2 {
+          font-size: 11px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+          padding-bottom: 2px;
+          border-bottom: 1px solid #999;
+          background: #f5f5f5;
+          padding: 3px 5px;
+        }
+        
+        .print-items {
+          column-count: 4;
+          column-gap: 10px;
+        }
+        
+        /* Pre-departure section stays single column */
+        .print-category.pre-departure .print-items {
+          column-count: 2;
+        }
+        
+        .print-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 4px;
+          padding: 1px 0;
+          font-size: 9px;
+          break-inside: avoid;
+          line-height: 1.3;
+        }
+        
+        .print-checkbox {
+          width: 12px;
+          height: 12px;
+          border: 1px solid #333;
+          display: inline-block;
+          flex-shrink: 0;
+        }
+        
+        .print-checkbox.checked {
+          background: #333;
+        }
+        
+        .print-footer {
+          margin-top: 8px;
+          padding-top: 5px;
+          border-top: 1px solid #ccc;
+          text-align: center;
+          font-size: 8px;
+          color: #666;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+
+        @page {
+          size: auto;
+          margin: 8mm;
+        }
+        
+        /* Prevent orphan elements creating new pages */
+        .print-view * {
+          orphans: 3;
+          widows: 3;
+        }
+      }
+      
+      /* Hide print view on screen */
+      @media screen {
+        .print-view { display: none !important; }
+      }
+    `;
+    document.head.appendChild(printStyles);
+  }, []);
+
   return (
     <div style={styles.container}>
+      {/* Screen view - hidden when printing */}
+      <div className="screen-view">
       <div style={{ fontSize: 28, fontWeight: 800, color: COLORS.textMain, marginBottom: 10 }}>✈️ Smart Travel Checklist</div>
       <div style={{ fontSize: 14, color: COLORS.textSecondary, marginBottom: 20, display: "flex", alignItems: "center", gap: 6 }}>
         <Check size={16} color={COLORS.primary} /> Personalized packing lists powered by smart rules
@@ -2144,7 +2500,7 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
       )}
 
       {checklistGenerated && (
-        <>
+        <div>
           <div style={{ ...styles.card, background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.primaryDark})`, color: "white" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
               <div>
@@ -2157,16 +2513,22 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
               <span>📅 {profile.tripDuration} days</span>
               <span>{profile.isInternational ? "✈️ International" : "🚗 Domestic"}</span>
               <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                {getTraveler("adult").male > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10 }}><span>👨</span> {getTraveler("adult").male}</span>}
-                {getTraveler("adult").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10 }}><span>👩</span> {getTraveler("adult").female}</span>}
-                {getTraveler("child").male > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10 }}><span>👦</span> {getTraveler("child").male}</span>}
-                {getTraveler("child").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10 }}><span>👧</span> {getTraveler("child").female}</span>}
+                {getTraveler("adult").male > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10, color: "#1a365d" }}><span>👨</span> {getTraveler("adult").male}</span>}
+                {getTraveler("adult").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10, color: "#831843" }}><span>👩</span> {getTraveler("adult").female}</span>}
+                {getTraveler("child").male > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10, color: "#1a365d" }}><span>👦</span> {getTraveler("child").male}</span>}
+                {getTraveler("child").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10, color: "#831843" }}><span>👧</span> {getTraveler("child").female}</span>}
                 {getTraveler("infant").male + getTraveler("infant").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3 }}>👶 {getTraveler("infant").male + getTraveler("infant").female}</span>}
                 {getTraveler("pet").male > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3 }}>🐕 {getTraveler("pet").male}</span>}
                 {getTraveler("pet").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3 }}>🐈 {getTraveler("pet").female}</span>}
               </span>
+              <button onClick={() => window.print()} style={{ marginLeft: "auto", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                <Printer size={14} /> Print
+              </button>
             </div>
           </div>
+
+          {/* Content section starts here - scroll target */}
+          <div id="checklist-content-section">
 
           {/* Traveler Tabs - only show if multiple travelers */}
           {individuals.length > 1 && (
@@ -2310,7 +2672,8 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
           }}>
             <Heart size={20} /> Save This Checklist
           </button>
-        </>
+          </div>{/* End checklist-content-section */}
+        </div>
       )}
 
       {!checklistGenerated && (
@@ -2401,6 +2764,42 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
         <button style={styles.footerBtn}><MessageSquare size={16} /> Feedback</button>
         <button style={styles.footerBtn} onClick={() => window.print()}><Printer size={16} /> Print</button>
       </div>
+      </div>{/* End screen-view */}
+
+      {/* Print-only view - hidden on screen, shown when printing */}
+      {checklistGenerated && (
+        <div className="print-view">
+          <div className="print-header">
+            <h1>✈️ Travel Checklist {profile.startDate && profile.endDate ? 
+              `${new Date(profile.startDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} - ${new Date(profile.endDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}` 
+              : ''}</h1>
+            <div className="trip-info">
+              <strong>{profile.destination}</strong> • {profile.tripDuration} days • {profile.isInternational ? "International" : "Domestic"}
+              {weatherForecast && ` • ${weatherForecast.avgTemp}°C ${weatherForecast.conditions}`}
+            </div>
+          </div>
+          
+          <div className="print-columns">
+            {Object.entries(groupedItems).map(([category, items]) => (
+              <div key={category} className={`print-category ${category === 'preDeparture' ? 'pre-departure' : ''}`}>
+                <h2>{CATEGORY_INFO[category]?.name || category}</h2>
+                <div className="print-items">
+                  {items.map((item) => (
+                    <div key={item.id} className="print-item">
+                      <span className={`print-checkbox ${item.checked ? 'checked' : ''}`}></span>
+                      <span>{item.name}{item.quantity && Number(item.quantity) > 1 ? ` (×${item.quantity})` : ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="print-footer">
+            Generated by Smart Travel Checklist • {progress.checked}/{progress.total} items packed
+          </div>
+        </div>
+      )}
     </div>
   );
 }

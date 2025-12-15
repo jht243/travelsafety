@@ -24960,14 +24960,17 @@ var fetchWeatherForecast = async (lat, lon, startDate, endDate) => {
   try {
     const today = /* @__PURE__ */ new Date();
     const start = new Date(startDate);
-    const end = new Date(endDate);
     const daysUntilTrip = Math.floor((start.getTime() - today.getTime()) / (1e3 * 60 * 60 * 24));
     let url;
+    let useClimateApi = false;
     if (daysUntilTrip <= 14 && daysUntilTrip >= 0) {
       url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${startDate}&end_date=${endDate}`;
     } else {
-      const monthDay = startDate.slice(5);
-      url = `https://climate-api.open-meteo.com/v1/climate?latitude=${lat}&longitude=${lon}&start_date=1990-${monthDay}&end_date=2020-${monthDay}&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min,precipitation_sum&models=EC_Earth3P_HR`;
+      const forecastStart = /* @__PURE__ */ new Date();
+      const forecastEnd = /* @__PURE__ */ new Date();
+      forecastEnd.setDate(forecastEnd.getDate() + 14);
+      url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${forecastStart.toISOString().split("T")[0]}&end_date=${forecastEnd.toISOString().split("T")[0]}`;
+      useClimateApi = true;
     }
     const response = await fetch(url);
     const data = await response.json();
@@ -25052,6 +25055,17 @@ var DEFAULT_PROFILE = {
 };
 var STORAGE_KEY = "TRAVEL_CHECKLIST_DATA";
 var BANNER_STORAGE_KEY = "TRAVEL_CHECKLIST_BANNER_DISMISSED";
+var scaleQuantityForDuration = (baseQty, tripDuration) => {
+  if (!baseQty) return void 0;
+  const match = baseQty.match(/^(\d+)/);
+  if (!match) return baseQty;
+  const baseNum = parseInt(match[1], 10);
+  const suffix = baseQty.slice(match[1].length);
+  const scaleFactor = tripDuration / 7;
+  let scaled = Math.round(baseNum * scaleFactor);
+  scaled = Math.max(2, Math.min(scaled, 10));
+  return `${scaled}${suffix}`;
+};
 var TRAVELER_PRESETS = {
   lightSleeper: {
     label: "Light Sleeper",
@@ -25068,16 +25082,18 @@ var TRAVELER_PRESETS = {
     label: "Gym Rat",
     icon: "\u{1F4AA}",
     items: [
-      { name: "Workout shirts", category: "workout", quantity: "3" },
-      { name: "Workout shorts", category: "workout", quantity: "3" },
+      { name: "Workout shirts", category: "workout", quantity: "6" },
+      { name: "Workout shorts", category: "workout", quantity: "4" },
       { name: "Training shoes", category: "workout" },
-      { name: "Workout socks", category: "workout", quantity: "3 pairs" },
-      { name: "Sports bra", category: "workout", quantity: "3", gender: "female" },
+      { name: "Workout socks", category: "workout", quantity: "6 pairs" },
+      { name: "Sports bra", category: "workout", quantity: "5", gender: "female" },
+      { name: "Compression shorts", category: "workout", quantity: "3" },
       { name: "Resistance bands", category: "activity" },
       { name: "Gym gloves", category: "activity" },
       { name: "Protein bars", category: "personal" },
       { name: "Shaker bottle", category: "personal" },
-      { name: "Pre-workout", category: "personal" }
+      { name: "Pre-workout", category: "personal" },
+      { name: "Quick-dry towel", category: "workout" }
     ]
   },
   yoga: {
@@ -25504,70 +25520,6 @@ var getIndividualTravelers = (travelers) => {
     }
   });
   return individuals;
-};
-var generateIndividualChecklist = (profile, traveler) => {
-  const items = [];
-  const { isInternational, climate, tripDuration, purpose, packingConstraint, activities, personalNotes } = profile;
-  const isFemale = traveler.gender === "female";
-  const isMale = traveler.gender === "male";
-  const isChild = traveler.type === "child";
-  const isCarryOnOnly = packingConstraint === "carry_on_only";
-  const baseOutfits = Math.min(tripDuration, 7);
-  const prefix = traveler.id;
-  if (!isChild) {
-    items.push({ id: `${prefix}-doc-id`, name: "ID / Driver's license", category: "documents", essential: true, checked: false });
-    if (isInternational) {
-      items.push({ id: `${prefix}-doc-passport`, name: "Passport", category: "documents", essential: true, checked: false });
-    }
-  }
-  items.push({ id: `${prefix}-cloth-underwear`, name: "Underwear", category: "clothing", quantity: `${Math.min(tripDuration + 1, 8)}`, essential: true, checked: false });
-  items.push({ id: `${prefix}-cloth-socks`, name: "Socks", category: "clothing", quantity: `${Math.min(tripDuration + 1, 8)}`, essential: true, checked: false });
-  if (climate === "summer" || climate === "tropical") {
-    items.push({ id: `${prefix}-cloth-tops`, name: isChild ? "T-shirts" : isFemale ? "Tops / blouses" : "T-shirts", category: "clothing", quantity: `${baseOutfits}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-bottoms`, name: isChild ? "Shorts" : isFemale ? "Shorts / skirts" : "Shorts", category: "clothing", quantity: `${Math.ceil(baseOutfits / 2)}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-swimwear`, name: isFemale ? "Swimsuit / bikini" : "Swim trunks", category: "clothing", essential: purpose === "beach", checked: false });
-    items.push({ id: `${prefix}-cloth-sunhat`, name: "Hat & sunglasses", category: "clothing", essential: true, checked: false });
-    if (isFemale) {
-      items.push({ id: `${prefix}-cloth-dress`, name: isChild ? "Dresses" : "Summer dresses", category: "clothing", quantity: "2", essential: false, checked: false });
-    }
-  }
-  if (climate === "winter") {
-    items.push({ id: `${prefix}-cloth-sweaters`, name: "Sweaters", category: "clothing", quantity: `${Math.ceil(baseOutfits / 2)}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-pants`, name: isFemale ? "Pants / leggings" : "Pants", category: "clothing", quantity: `${Math.ceil(baseOutfits / 2)}`, essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-coat`, name: "Winter coat", category: "clothing", essential: true, checked: false });
-    items.push({ id: `${prefix}-cloth-accessories`, name: "Gloves, scarf, hat", category: "clothing", essential: true, checked: false });
-  }
-  items.push({ id: `${prefix}-cloth-sleepwear`, name: "Sleepwear / pajamas", category: "clothing", essential: true, checked: false });
-  items.push({ id: `${prefix}-cloth-shoes`, name: "Walking shoes", category: "clothing", essential: true, checked: false });
-  if (purpose === "business" && !isChild) {
-    items.push({ id: `${prefix}-cloth-formal`, name: isFemale ? "Business attire / heels" : "Suit / dress shoes", category: "clothing", essential: true, checked: false });
-  }
-  items.push({ id: `${prefix}-toil-basics`, name: "Toothbrush & paste", category: "toiletries", essential: true, checked: false });
-  items.push({ id: `${prefix}-toil-deo`, name: isChild ? "Kids deodorant" : "Deodorant", category: "toiletries", essential: !isChild, checked: false });
-  if (isMale && !isChild) {
-    items.push({ id: `${prefix}-toil-razor`, name: "Razor & shaving cream", category: "toiletries", essential: false, checked: false });
-  }
-  if (isFemale) {
-    items.push({ id: `${prefix}-toil-makeup`, name: isChild ? "Hair accessories" : "Makeup & remover", category: "toiletries", essential: false, checked: false });
-    if (!isChild) {
-      items.push({ id: `${prefix}-toil-feminine`, name: "Feminine products", category: "toiletries", essential: false, checked: false });
-      items.push({ id: `${prefix}-toil-hairtools`, name: "Hair dryer / straightener", category: "toiletries", essential: false, checked: false });
-    }
-  }
-  if (!isChild) {
-    items.push({ id: `${prefix}-health-meds`, name: "Personal medications", category: "health", essential: true, checked: false });
-  }
-  if (!isChild) {
-    items.push({ id: `${prefix}-tech-phone`, name: "Phone & charger", category: "tech", essential: true, checked: false });
-  }
-  if (personalNotes && !isChild) {
-    const noteItems = parsePersonalNotes(personalNotes);
-    noteItems.forEach((item) => {
-      if (isMale && item.id.includes("sports-bra")) return;
-      items.push({ ...item, id: `${prefix}-${item.id}` });
-    });
-  }
-  return items;
 };
 var generateChecklist = (profile) => {
   const items = [];
@@ -26046,9 +25998,9 @@ function TravelChecklist({ initialData: initialData2 }) {
   const saved = loadSavedData();
   const [profile, setProfile] = (0, import_react3.useState)(saved?.profile || DEFAULT_PROFILE);
   const [checklist, setChecklist] = (0, import_react3.useState)(saved?.checklist || []);
-  const [individualChecklists, setIndividualChecklists] = (0, import_react3.useState)({});
+  const [individualChecklists, setIndividualChecklists] = (0, import_react3.useState)(saved?.individualChecklists || {});
   const [checklistGenerated, setChecklistGenerated] = (0, import_react3.useState)(saved?.checklistGenerated || false);
-  const [selectedTab, setSelectedTab] = (0, import_react3.useState)("shared");
+  const [selectedTab, setSelectedTab] = (0, import_react3.useState)(saved?.selectedTab || "shared");
   const [showAdvanced, setShowAdvanced] = (0, import_react3.useState)(false);
   const [expandedCategories, setExpandedCategories] = (0, import_react3.useState)({ documents: true, clothing: true, workout: true, toiletries: true, health: true, tech: true, activity: true, family: true, preDeparture: true, personal: true });
   const [showBanner, setShowBanner] = (0, import_react3.useState)(() => {
@@ -26074,11 +26026,146 @@ function TravelChecklist({ initialData: initialData2 }) {
   const [showSavedList, setShowSavedList] = (0, import_react3.useState)(false);
   const [weatherForecast, setWeatherForecast] = (0, import_react3.useState)(null);
   const [weatherLoading, setWeatherLoading] = (0, import_react3.useState)(false);
-  const [individualPrefs, setIndividualPrefs] = (0, import_react3.useState)({});
+  const [individualPrefs, setIndividualPrefs] = (0, import_react3.useState)(saved?.individualPrefs || {});
+  const prevTravelerCountRef = (0, import_react3.useRef)(0);
+  const wasLastGenerationSinglePerson = (0, import_react3.useRef)(true);
+  const originalSingleTravelerRef = (0, import_react3.useRef)(null);
   const individuals = (0, import_react3.useMemo)(() => getIndividualTravelers(profile.travelers), [profile.travelers]);
   (0, import_react3.useEffect)(() => {
-    saveData({ profile, checklist, checklistGenerated });
-  }, [profile, checklist, checklistGenerated]);
+    saveData({ profile, checklist, checklistGenerated, individualChecklists, individualPrefs, selectedTab });
+  }, [profile, checklist, checklistGenerated, individualChecklists, individualPrefs, selectedTab]);
+  (0, import_react3.useEffect)(() => {
+    if (checklistGenerated && individuals.length > 1) {
+      const validTabs = individuals.map((i) => i.id);
+      if (selectedTab === "shared" || !validTabs.includes(selectedTab)) {
+        setSelectedTab(individuals[0].id);
+      }
+    }
+  }, [checklistGenerated, individuals, selectedTab]);
+  (0, import_react3.useEffect)(() => {
+    if (checklistGenerated && individuals.length > 0 && Object.keys(individualChecklists).length === 0) {
+      const indivLists = {};
+      const newPrefs = {};
+      individuals.forEach((t) => {
+        const individualProfile = {
+          ...profile,
+          presets: [],
+          travelers: [{
+            type: t.type,
+            male: t.gender === "male" ? 1 : 0,
+            female: t.gender === "female" ? 1 : 0
+          }]
+        };
+        const items = generateChecklist(individualProfile);
+        indivLists[t.id] = items.map((item) => ({ ...item, id: `${t.id}-${item.id}` }));
+        newPrefs[t.id] = individualPrefs[t.id] || { notes: "", presets: [] };
+      });
+      setIndividualChecklists(indivLists);
+      if (Object.keys(individualPrefs).length === 0) {
+        setIndividualPrefs(newPrefs);
+      }
+    }
+  }, [checklistGenerated, individuals, individualChecklists, profile]);
+  (0, import_react3.useEffect)(() => {
+    if (!initialData2 || Object.keys(initialData2).length === 0) {
+      console.log("[TravelChecklist] No initialData to hydrate");
+      return;
+    }
+    console.log("[TravelChecklist] Hydrating from initialData:", initialData2);
+    try {
+      const updates = {};
+      if (initialData2.destination) {
+        updates.destination = String(initialData2.destination);
+      }
+      if (initialData2.start_date) {
+        updates.startDate = String(initialData2.start_date);
+      }
+      if (initialData2.end_date) {
+        updates.endDate = String(initialData2.end_date);
+      }
+      if (initialData2.trip_duration) {
+        updates.tripDuration = Number(initialData2.trip_duration);
+      } else if (initialData2.start_date && initialData2.end_date) {
+        const start = new Date(initialData2.start_date);
+        const end = new Date(initialData2.end_date);
+        const diff = Math.ceil((end.getTime() - start.getTime()) / (1e3 * 60 * 60 * 24)) + 1;
+        if (diff > 0) updates.tripDuration = diff;
+      }
+      if (typeof initialData2.is_international === "boolean") {
+        updates.isInternational = initialData2.is_international;
+      }
+      if (initialData2.climate && ["summer", "winter", "spring", "tropical", "variable"].includes(initialData2.climate)) {
+        updates.climate = initialData2.climate;
+      }
+      if (initialData2.purpose && ["leisure", "business", "adventure", "beach", "city"].includes(initialData2.purpose)) {
+        updates.purpose = initialData2.purpose;
+      }
+      if (initialData2.packing_constraint && ["carry_on_only", "checked_bags", "minimal"].includes(initialData2.packing_constraint)) {
+        updates.packingConstraint = initialData2.packing_constraint;
+      }
+      if (Array.isArray(initialData2.activities)) {
+        updates.activities = initialData2.activities;
+      }
+      const newTravelers = [...DEFAULT_PROFILE.travelers];
+      let hasTravelerData = false;
+      if (initialData2.adult_males && Number(initialData2.adult_males) > 0) {
+        const adultIdx = newTravelers.findIndex((t) => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], male: Number(initialData2.adult_males) };
+        hasTravelerData = true;
+      }
+      if (initialData2.adult_females && Number(initialData2.adult_females) > 0) {
+        const adultIdx = newTravelers.findIndex((t) => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], female: Number(initialData2.adult_females) };
+        hasTravelerData = true;
+      }
+      if (initialData2.male_children && Number(initialData2.male_children) > 0) {
+        const childIdx = newTravelers.findIndex((t) => t.type === "child");
+        if (childIdx >= 0) newTravelers[childIdx] = { ...newTravelers[childIdx], male: Number(initialData2.male_children) };
+        hasTravelerData = true;
+      }
+      if (initialData2.female_children && Number(initialData2.female_children) > 0) {
+        const childIdx = newTravelers.findIndex((t) => t.type === "child");
+        if (childIdx >= 0) newTravelers[childIdx] = { ...newTravelers[childIdx], female: Number(initialData2.female_children) };
+        hasTravelerData = true;
+      }
+      if (initialData2.infants && Number(initialData2.infants) > 0) {
+        const infantIdx = newTravelers.findIndex((t) => t.type === "infant");
+        if (infantIdx >= 0) newTravelers[infantIdx] = { ...newTravelers[infantIdx], male: Number(initialData2.infants) };
+        hasTravelerData = true;
+      }
+      if (initialData2.has_children && !initialData2.male_children && !initialData2.female_children) {
+        const childIdx = newTravelers.findIndex((t) => t.type === "child");
+        if (childIdx >= 0) newTravelers[childIdx] = { ...newTravelers[childIdx], male: 1 };
+        hasTravelerData = true;
+      }
+      if (initialData2.has_infants && !initialData2.infants) {
+        const infantIdx = newTravelers.findIndex((t) => t.type === "infant");
+        if (infantIdx >= 0) newTravelers[infantIdx] = { ...newTravelers[infantIdx], male: 1 };
+        hasTravelerData = true;
+      }
+      if (initialData2.has_pets) {
+        const petIdx = newTravelers.findIndex((t) => t.type === "pet");
+        if (petIdx >= 0) newTravelers[petIdx] = { ...newTravelers[petIdx], male: 1 };
+        hasTravelerData = true;
+      }
+      if (!hasTravelerData && initialData2.travelers && Number(initialData2.travelers) > 0) {
+        const adultIdx = newTravelers.findIndex((t) => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], male: Number(initialData2.travelers) };
+        hasTravelerData = true;
+      }
+      if (!hasTravelerData) {
+        const adultIdx = newTravelers.findIndex((t) => t.type === "adult");
+        if (adultIdx >= 0) newTravelers[adultIdx] = { ...newTravelers[adultIdx], male: 1 };
+      }
+      updates.travelers = newTravelers;
+      if (Object.keys(updates).length > 0) {
+        console.log("[TravelChecklist] Applying hydration updates:", updates);
+        setProfile((p) => ({ ...p, ...updates }));
+      }
+    } catch (e) {
+      console.error("[TravelChecklist] Failed to hydrate from initialData:", e);
+    }
+  }, []);
   const updateTravelerGender = (type, gender, count) => {
     setProfile((p) => ({ ...p, travelers: p.travelers.map((t) => t.type === type ? { ...t, [gender]: count } : t) }));
   };
@@ -26184,19 +26271,59 @@ function TravelChecklist({ initialData: initialData2 }) {
     setChecklist(generateChecklist(profile));
     const indivLists = {};
     const travelers = getIndividualTravelers(profile.travelers);
+    const sharedPresets = profile.presets || [];
+    const sharedNotes = profile.personalNotes || "";
+    const hasSharedPresets = sharedPresets.length > 0;
+    const isMultiPerson = travelers.length > 1;
+    const wasLastSingle = wasLastGenerationSinglePerson.current;
+    const originalTraveler = originalSingleTravelerRef.current;
+    let presetInheritingTravelerId = null;
+    if (hasSharedPresets && isMultiPerson && wasLastSingle && originalTraveler) {
+      const alreadyTransferred = Object.values(individualPrefs).some((p) => p.presets.length > 0);
+      if (!alreadyTransferred) {
+        const match = travelers.find((t) => t.type === originalTraveler.type && t.gender === originalTraveler.gender);
+        presetInheritingTravelerId = match?.id || null;
+      }
+    }
     const newPrefs = {};
     travelers.forEach((t) => {
-      indivLists[t.id] = generateIndividualChecklist(profile, t);
-      newPrefs[t.id] = individualPrefs[t.id] || { notes: "", presets: [] };
+      const individualProfile = {
+        ...profile,
+        presets: [],
+        // Don't include shared presets in individual generation
+        travelers: [{
+          type: t.type,
+          male: t.gender === "male" ? 1 : 0,
+          female: t.gender === "female" ? 1 : 0
+        }]
+      };
+      const items = generateChecklist(individualProfile);
+      indivLists[t.id] = items.map((item) => ({ ...item, id: `${t.id}-${item.id}` }));
+      if (individualPrefs[t.id] && individualPrefs[t.id].presets.length > 0) {
+        newPrefs[t.id] = individualPrefs[t.id];
+      } else if (t.id === presetInheritingTravelerId) {
+        newPrefs[t.id] = { notes: sharedNotes, presets: [...sharedPresets] };
+      } else if (individualPrefs[t.id]) {
+        newPrefs[t.id] = individualPrefs[t.id];
+      } else {
+        newPrefs[t.id] = { notes: "", presets: [] };
+      }
     });
+    prevTravelerCountRef.current = travelers.length;
+    wasLastGenerationSinglePerson.current = travelers.length <= 1;
+    if (travelers.length === 1) {
+      originalSingleTravelerRef.current = { type: travelers[0].type, gender: travelers[0].gender };
+    } else if (travelers.length > 1 && !wasLastSingle) {
+      originalSingleTravelerRef.current = null;
+    }
     setIndividualPrefs(newPrefs);
     setIndividualChecklists(indivLists);
     setChecklistGenerated(true);
     setSelectedTab(travelers.length > 1 ? travelers[0].id : "shared");
     setTimeout(() => {
-      const progressSection = document.getElementById("progress-section");
-      if (progressSection) {
-        progressSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      const contentSection = document.getElementById("checklist-content-section");
+      if (contentSection) {
+        contentSection.scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -26315,8 +26442,35 @@ function TravelChecklist({ initialData: initialData2 }) {
   };
   const currentChecklist = (0, import_react3.useMemo)(() => {
     if (selectedTab === "shared") return checklist;
-    return individualChecklists[selectedTab] || [];
-  }, [selectedTab, checklist, individualChecklists]);
+    const baseItems = individualChecklists[selectedTab] || [];
+    const prefs = individualPrefs[selectedTab] || { notes: "", presets: [] };
+    const traveler = individuals.find((t) => t.id === selectedTab);
+    const isFemale = traveler?.gender === "female";
+    const isMale = traveler?.gender === "male";
+    const tripDuration = profile.tripDuration || 7;
+    const presetItems = [];
+    prefs.presets.forEach((presetId) => {
+      const preset = TRAVELER_PRESETS[presetId];
+      if (preset) {
+        preset.items.forEach((item, idx) => {
+          if (item.gender === "female" && !isFemale) return;
+          if (item.gender === "male" && !isMale) return;
+          const exists = baseItems.some((bi) => bi.name === item.name) || presetItems.some((pi) => pi.name === item.name);
+          if (!exists) {
+            presetItems.push({
+              id: `${selectedTab}-preset-${presetId}-${idx}`,
+              name: item.name,
+              category: item.category,
+              quantity: scaleQuantityForDuration(item.quantity, tripDuration),
+              essential: false,
+              checked: false
+            });
+          }
+        });
+      }
+    });
+    return [...baseItems, ...presetItems];
+  }, [selectedTab, checklist, individualChecklists, individualPrefs, individuals, profile.tripDuration]);
   const progress = (0, import_react3.useMemo)(() => {
     if (!currentChecklist.length) return { checked: 0, total: 0, percent: 0 };
     const checked = currentChecklist.filter((i) => i.checked).length;
@@ -26347,569 +26501,532 @@ function TravelChecklist({ initialData: initialData2 }) {
     footer: { display: "flex", justifyContent: "center", gap: 24, marginTop: 40, paddingTop: 24, borderTop: `1px solid ${COLORS.border}`, flexWrap: "wrap" },
     footerBtn: { display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", color: COLORS.textSecondary, fontSize: 14, fontWeight: 600, padding: 8 }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.container, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 28, fontWeight: 800, color: COLORS.textMain, marginBottom: 10 }, children: "\u2708\uFE0F Smart Travel Checklist" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 20, display: "flex", alignItems: "center", gap: 6 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { size: 16, color: COLORS.primary }),
-      " Personalized packing lists powered by smart rules"
-    ] }),
-    savedChecklists.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, marginBottom: 20 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "div",
-        {
-          onClick: () => setShowSavedList(!showSavedList),
-          style: { display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" },
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 20, color: COLORS.primary }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 16, fontWeight: 700 }, children: "My Saved Checklists" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 12, fontWeight: 600, color: "white", backgroundColor: COLORS.primary, padding: "2px 8px", borderRadius: 10 }, children: savedChecklists.length })
-            ] }),
-            showSavedList ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 20, color: COLORS.textSecondary }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 20, color: COLORS.textSecondary })
-          ]
+  (0, import_react3.useEffect)(() => {
+    const styleId = "travel-checklist-print-styles";
+    if (document.getElementById(styleId)) return;
+    const printStyles = document.createElement("style");
+    printStyles.id = styleId;
+    printStyles.textContent = `
+      @media print {
+        /* Hide screen-only elements */
+        .no-print, button, .footer-actions, [data-no-print] { display: none !important; }
+        
+        /* Reset page */
+        body { background: white !important; margin: 0; padding: 0; }
+        
+        /* Hide the screen view */
+        .screen-view { display: none !important; }
+        
+        /* Show print view */
+        .print-view { display: block !important; }
+        
+        /* Print view styling */
+        .print-view {
+          font-family: 'Inter', -apple-system, sans-serif;
+          font-size: 11px;
+          color: #000;
+          padding: 15px;
         }
-      ),
-      showSavedList && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 16 }, children: savedChecklists.map((sc) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 16px",
-        backgroundColor: COLORS.inputBg,
-        borderRadius: 12,
-        marginBottom: 8
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, cursor: "pointer" }, onClick: () => loadSavedChecklist(sc), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 700, color: COLORS.textMain, fontSize: 14 }, children: sc.name }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2 }, children: [
-            "\u{1F4CD} ",
-            sc.profile.destination,
-            " \u2022 \u{1F4C5} ",
-            sc.profile.tripDuration,
-            " days \u2022 ",
-            sc.checklist.filter((i) => i.checked).length,
-            "/",
-            sc.checklist.length,
-            " packed"
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, color: COLORS.textSecondary, marginTop: 2 }, children: [
-            "Saved ",
-            new Date(sc.savedAt).toLocaleDateString()
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "button",
-            {
-              onClick: () => duplicateChecklist(sc),
-              style: { padding: "6px 10px", borderRadius: 6, border: "none", backgroundColor: COLORS.blue, color: "white", fontSize: 11, fontWeight: 600, cursor: "pointer" },
-              children: "Duplicate"
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "button",
-            {
-              onClick: () => deleteSavedChecklist(sc.id),
-              style: { padding: "6px 10px", borderRadius: 6, border: "none", backgroundColor: COLORS.red, color: "white", fontSize: 11, fontWeight: 600, cursor: "pointer" },
-              children: "Delete"
-            }
-          )
-        ] })
-      ] }, sc.id)) })
-    ] }),
-    showBanner && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.accentLight, borderRadius: 16, padding: 16, marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 14, fontWeight: 600, color: COLORS.primaryDark }, children: "Get travel tips & packing hacks!" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: { background: COLORS.primary, color: "white", border: "none", borderRadius: 24, padding: "10px 16px", fontWeight: 700, cursor: "pointer", marginRight: 24 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mail, { size: 14 }),
-        " Subscribe"
+        
+        .print-header {
+          text-align: center;
+          border-bottom: 2px solid #000;
+          padding-bottom: 10px;
+          margin-bottom: 15px;
+        }
+        
+        .print-header h1 {
+          font-size: 18px;
+          margin: 0 0 5px 0;
+        }
+        
+        .print-header .trip-info {
+          font-size: 12px;
+          color: #555;
+        }
+        
+        .print-columns {
+          /* No special layout - sections stack vertically */
+        }
+        
+        .print-category {
+          margin-bottom: 12px;
+          break-inside: avoid;
+        }
+        
+        .print-category h2 {
+          font-size: 11px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+          padding-bottom: 2px;
+          border-bottom: 1px solid #999;
+          background: #f5f5f5;
+          padding: 3px 5px;
+        }
+        
+        .print-items {
+          column-count: 4;
+          column-gap: 10px;
+        }
+        
+        /* Pre-departure section stays single column */
+        .print-category.pre-departure .print-items {
+          column-count: 2;
+        }
+        
+        .print-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 4px;
+          padding: 1px 0;
+          font-size: 9px;
+          break-inside: avoid;
+          line-height: 1.3;
+        }
+        
+        .print-checkbox {
+          width: 12px;
+          height: 12px;
+          border: 1px solid #333;
+          display: inline-block;
+          flex-shrink: 0;
+        }
+        
+        .print-checkbox.checked {
+          background: #333;
+        }
+        
+        .print-footer {
+          margin-top: 8px;
+          padding-top: 5px;
+          border-top: 1px solid #ccc;
+          text-align: center;
+          font-size: 8px;
+          color: #666;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+
+        @page {
+          size: auto;
+          margin: 8mm;
+        }
+        
+        /* Prevent orphan elements creating new pages */
+        .print-view * {
+          orphans: 3;
+          widows: 3;
+        }
+      }
+      
+      /* Hide print view on screen */
+      @media screen {
+        .print-view { display: none !important; }
+      }
+    `;
+    document.head.appendChild(printStyles);
+  }, []);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.container, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "screen-view", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 28, fontWeight: 800, color: COLORS.textMain, marginBottom: 10 }, children: "\u2708\uFE0F Smart Travel Checklist" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 20, display: "flex", alignItems: "center", gap: 6 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { size: 16, color: COLORS.primary }),
+        " Personalized packing lists powered by smart rules"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { position: "absolute", top: 8, right: 8, cursor: "pointer", color: COLORS.textSecondary }, onClick: () => {
-        setShowBanner(false);
-        localStorage.setItem(BANNER_STORAGE_KEY, Date.now().toString());
-      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 16 }) })
-    ] }),
-    !checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.card, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 16, fontWeight: 700, color: COLORS.textMain, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, color: COLORS.primary }),
-        " Trip Details"
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16, marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "Where are you going?" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DestinationAutocomplete, { value: profile.destination, onChange: (val) => setProfile((p) => ({ ...p, destination: val })) })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "Trip type" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(ToggleButton, { active: profile.isInternational, onClick: () => setProfile((p) => ({ ...p, isInternational: true })), children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plane, { size: 16 }),
-              " International"
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(ToggleButton, { active: !profile.isInternational, onClick: () => setProfile((p) => ({ ...p, isInternational: false })), children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 16 }),
-              " Domestic"
-            ] })
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
-            "Dates of Travel"
-          ] }),
-          (profile.startDate || profile.endDate) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "button",
-            {
-              onClick: () => setProfile((p) => ({ ...p, startDate: "", endDate: "" })),
-              style: { background: "none", border: "none", color: COLORS.textSecondary, fontSize: 12, cursor: "pointer", padding: 4, display: "flex", alignItems: "center", gap: 4 },
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14 }),
-                " Clear dates"
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flex: 1 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "date", style: styles.input, value: profile.startDate, onChange: (e) => setProfile((p) => ({ ...p, startDate: e.target.value })) }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", alignItems: "center", color: COLORS.textSecondary }, children: "to" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flex: 1 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "date", style: styles.input, value: profile.endDate, onChange: (e) => setProfile((p) => ({ ...p, endDate: e.target.value })) }) })
-        ] })
-      ] }),
-      profile.destination && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-        marginBottom: 20,
-        padding: 16,
-        borderRadius: 16,
-        background: weatherForecast ? weatherForecast.avgTemp >= 25 ? "linear-gradient(135deg, #FEF3C7, #FDE68A)" : weatherForecast.avgTemp >= 15 ? "linear-gradient(135deg, #D1FAE5, #A7F3D0)" : weatherForecast.avgTemp >= 5 ? "linear-gradient(135deg, #DBEAFE, #BFDBFE)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)" : COLORS.inputBg
-      }, children: weatherLoading ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8, color: COLORS.textSecondary }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 18 }),
-        " Checking weather forecast..."
-      ] }) : weatherForecast ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-            weatherForecast.avgTemp >= 25 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sun, { size: 24, color: "#F59E0B" }) : weatherForecast.avgTemp >= 15 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 24, color: "#10B981" }) : weatherForecast.avgTemp >= 5 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 24, color: "#3B82F6" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Snowflake, { size: 24, color: "#6366F1" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 18, fontWeight: 700 }, children: weatherForecast.conditions })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "right" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 24, fontWeight: 800 }, children: [
-              weatherForecast.avgTemp,
-              "\xB0C"
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, color: COLORS.textSecondary }, children: [
-              Math.round(weatherForecast.avgTemp * 9 / 5 + 32),
-              "\xB0F"
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12, color: COLORS.textSecondary, marginBottom: 8 }, children: [
-          "Low ",
-          weatherForecast.minTemp,
-          "\xB0C / High ",
-          weatherForecast.maxTemp,
-          "\xB0C \u2022 ",
-          weatherForecast.precipitation,
-          "% chance of rain"
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 13, fontWeight: 500 }, children: [
-          "\u{1F4A1} ",
-          weatherForecast.suggestion
-        ] })
-      ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8, color: COLORS.textSecondary }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 18 }),
-        " Enter dates to see weather forecast"
-      ] }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16, marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "Purpose" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { style: styles.select, value: profile.purpose, onChange: (e) => setProfile((p) => ({ ...p, purpose: e.target.value })), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "leisure", children: "\u{1F3D6}\uFE0F Leisure" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "business", children: "\u{1F4BC} Business" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "adventure", children: "\u{1F3D4}\uFE0F Adventure" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "beach", children: "\u{1F3DD}\uFE0F Beach" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "city", children: "\u{1F3D9}\uFE0F City" })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Luggage, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
-            "Luggage"
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { style: styles.select, value: profile.packingConstraint, onChange: (e) => setProfile((p) => ({ ...p, packingConstraint: e.target.value })), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "carry_on_only", children: "\u270B Carry-on only" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "checked_bags", children: "\u{1F9F3} Checked bags" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "minimal", children: "\u{1F392} Minimal / backpack" })
-          ] })
-        ] })
-      ] }),
-      !(profile.startDate && profile.endDate) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
-          "Duration: ",
-          profile.tripDuration,
-          " days"
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "range", min: 1, max: 30, value: profile.tripDuration, onChange: (e) => setProfile((p) => ({ ...p, tripDuration: parseInt(e.target.value) })), style: { width: "100%" } })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Users, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
-          "Travelers"
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, fontSize: 13, color: COLORS.textMain, marginBottom: 8 }, children: "Adults" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2642 Male" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "male", Math.max(0, getTraveler("adult").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("adult").male }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "male", getTraveler("adult").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-              ] })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2640 Female" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "female", Math.max(0, getTraveler("adult").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("adult").female }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "female", getTraveler("adult").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-              ] })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, marginBottom: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "div",
-            {
-              onClick: () => !expandedTravelers.children && setExpandedTravelers((p) => ({ ...p, children: true })),
-              style: {
-                flex: 1,
-                backgroundColor: COLORS.inputBg,
-                borderRadius: 10,
-                padding: "10px 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                cursor: expandedTravelers.children ? "default" : "pointer",
-                border: getTraveler("child").male + getTraveler("child").female > 0 ? `2px solid ${COLORS.primary}` : "none"
-              },
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Users, { size: 14, color: COLORS.primary }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, fontSize: 12 }, children: "Children" }),
-                  getTraveler("child").male + getTraveler("child").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { backgroundColor: COLORS.primary, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10 }, children: getTraveler("child").male + getTraveler("child").female })
-                ] }),
-                !expandedTravelers.children && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14, color: COLORS.primary }),
-                expandedTravelers.children && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14, color: COLORS.textSecondary, style: { cursor: "pointer" }, onClick: (e) => {
-                  e.stopPropagation();
-                  setExpandedTravelers((p) => ({ ...p, children: false }));
-                } })
-              ]
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "div",
-            {
-              onClick: () => !expandedTravelers.infants && setExpandedTravelers((p) => ({ ...p, infants: true })),
-              style: {
-                flex: 1,
-                backgroundColor: COLORS.inputBg,
-                borderRadius: 10,
-                padding: "10px 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                cursor: expandedTravelers.infants ? "default" : "pointer",
-                border: getTraveler("infant").male + getTraveler("infant").female > 0 ? `2px solid ${COLORS.primary}` : "none"
-              },
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Baby, { size: 14, color: COLORS.primary }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, fontSize: 12 }, children: "Infants" }),
-                  getTraveler("infant").male + getTraveler("infant").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { backgroundColor: COLORS.primary, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10 }, children: getTraveler("infant").male + getTraveler("infant").female })
-                ] }),
-                !expandedTravelers.infants && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14, color: COLORS.primary }),
-                expandedTravelers.infants && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14, color: COLORS.textSecondary, style: { cursor: "pointer" }, onClick: (e) => {
-                  e.stopPropagation();
-                  setExpandedTravelers((p) => ({ ...p, infants: false }));
-                } })
-              ]
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "div",
-            {
-              onClick: () => !expandedTravelers.pets && setExpandedTravelers((p) => ({ ...p, pets: true })),
-              style: {
-                flex: 1,
-                backgroundColor: COLORS.inputBg,
-                borderRadius: 10,
-                padding: "10px 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                cursor: expandedTravelers.pets ? "default" : "pointer",
-                border: getTraveler("pet").male + getTraveler("pet").female > 0 ? `2px solid ${COLORS.primary}` : "none"
-              },
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dog, { size: 14, color: COLORS.primary }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, fontSize: 12 }, children: "Pets" }),
-                  getTraveler("pet").male + getTraveler("pet").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { backgroundColor: COLORS.primary, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10 }, children: getTraveler("pet").male + getTraveler("pet").female })
-                ] }),
-                !expandedTravelers.pets && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14, color: COLORS.primary }),
-                expandedTravelers.pets && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14, color: COLORS.textSecondary, style: { cursor: "pointer" }, onClick: (e) => {
-                  e.stopPropagation();
-                  setExpandedTravelers((p) => ({ ...p, pets: false }));
-                } })
-              ]
-            }
-          )
-        ] }),
-        expandedTravelers.children && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2642 Boys" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "male", Math.max(0, getTraveler("child").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("child").male }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "male", getTraveler("child").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2640 Girls" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "female", Math.max(0, getTraveler("child").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("child").female }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "female", getTraveler("child").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-            ] })
-          ] })
-        ] }) }),
-        expandedTravelers.infants && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2642 Boys" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "male", Math.max(0, getTraveler("infant").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("infant").male }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "male", getTraveler("infant").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2640 Girls" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "female", Math.max(0, getTraveler("infant").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("infant").female }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "female", getTraveler("infant").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-            ] })
-          ] })
-        ] }) }),
-        expandedTravelers.pets && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dog, { size: 14, color: COLORS.textSecondary }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "Dogs" })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "male", Math.max(0, getTraveler("pet").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("pet").male }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "male", getTraveler("pet").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cat, { size: 14, color: COLORS.textSecondary }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "Cats" })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "female", Math.max(0, getTraveler("pet").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("pet").female }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "female", getTraveler("pet").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
-            ] })
-          ] })
-        ] }) }),
-        individuals.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          marginTop: 12,
-          padding: "10px 14px",
-          backgroundColor: COLORS.accentLight,
-          borderRadius: 10,
-          display: "flex",
-          alignItems: "center",
-          gap: 8
-        }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 16, color: COLORS.primary }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.primaryDark }, children: "In the next step, you can customize preferences for each traveler" })
-        ] })
-      ] }),
-      individuals.length <= 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PenLine, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
-          "Tell us about yourself"
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "textarea",
+      savedChecklists.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, marginBottom: 20 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "div",
           {
-            value: profile.personalNotes,
-            onChange: (e) => setProfile((p) => ({ ...p, personalNotes: e.target.value })),
-            placeholder: "E.g., I always travel with my Kindle, I'm a light sleeper, I need my workout gear, I get motion sick...",
-            style: {
-              width: "100%",
-              padding: "12px 16px",
-              borderRadius: 12,
-              border: `1px solid ${COLORS.border}`,
-              fontSize: 14,
-              backgroundColor: COLORS.inputBg,
-              color: COLORS.textMain,
-              boxSizing: "border-box",
-              outline: "none",
-              minHeight: 80,
-              resize: "vertical",
-              fontFamily: "inherit",
-              lineHeight: 1.5
-            }
+            onClick: () => setShowSavedList(!showSavedList),
+            style: { display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 20, color: COLORS.primary }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 16, fontWeight: 700 }, children: "My Saved Checklists" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 12, fontWeight: 600, color: "white", backgroundColor: COLORS.primary, padding: "2px 8px", borderRadius: 10 }, children: savedChecklists.length })
+              ] }),
+              showSavedList ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 20, color: COLORS.textSecondary }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 20, color: COLORS.textSecondary })
+            ]
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, color: COLORS.textSecondary, marginTop: 6 }, children: "We'll suggest items based on your preferences" })
-      ] }),
-      individuals.length <= 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "\u{1F3AF} I'm a..." }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }, children: Object.entries(TRAVELER_PRESETS).map(([key, preset]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "button",
-          {
-            type: "button",
-            onClick: () => togglePreset(key),
-            style: {
-              padding: "12px 14px",
-              borderRadius: 12,
-              border: profile.presets.includes(key) ? `2px solid ${COLORS.primary}` : `1px solid ${COLORS.border}`,
-              backgroundColor: profile.presets.includes(key) ? COLORS.accentLight : "white",
-              color: profile.presets.includes(key) ? COLORS.primaryDark : COLORS.textSecondary,
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 4
-            },
-            children: [
-              preset.icon,
-              " ",
-              preset.label
-            ]
-          },
-          key
-        )) })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: handleGenerate, disabled: !profile.destination, style: {
-        width: "100%",
-        padding: 16,
-        borderRadius: 16,
-        border: "none",
-        backgroundColor: profile.destination ? COLORS.primary : COLORS.border,
-        color: profile.destination ? "white" : COLORS.textSecondary,
-        fontSize: 18,
-        fontWeight: 800,
-        cursor: profile.destination ? "pointer" : "not-allowed",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 10
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Package, { size: 22 }),
-        " Generate Packing List"
-      ] })
-    ] }),
-    checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.primaryDark})`, color: "white" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 14, fontWeight: 600, opacity: 0.9, marginBottom: 4 }, children: "Trip to" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 24, fontWeight: 800 }, children: profile.destination })
+        showSavedList && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 16 }, children: savedChecklists.map((sc) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 16px",
+          backgroundColor: COLORS.inputBg,
+          borderRadius: 12,
+          marginBottom: 8
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, cursor: "pointer" }, onClick: () => loadSavedChecklist(sc), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 700, color: COLORS.textMain, fontSize: 14 }, children: sc.name }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2 }, children: [
+              "\u{1F4CD} ",
+              sc.profile.destination,
+              " \u2022 \u{1F4C5} ",
+              sc.profile.tripDuration,
+              " days \u2022 ",
+              sc.checklist.filter((i) => i.checked).length,
+              "/",
+              sc.checklist.length,
+              " packed"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, color: COLORS.textSecondary, marginTop: 2 }, children: [
+              "Saved ",
+              new Date(sc.savedAt).toLocaleDateString()
+            ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setChecklistGenerated(false), style: { background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "8px 12px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }, children: "Edit" })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "button",
+              {
+                onClick: () => duplicateChecklist(sc),
+                style: { padding: "6px 10px", borderRadius: 6, border: "none", backgroundColor: COLORS.blue, color: "white", fontSize: 11, fontWeight: 600, cursor: "pointer" },
+                children: "Duplicate"
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "button",
+              {
+                onClick: () => deleteSavedChecklist(sc.id),
+                style: { padding: "6px 10px", borderRadius: 6, border: "none", backgroundColor: COLORS.red, color: "white", fontSize: 11, fontWeight: 600, cursor: "pointer" },
+                children: "Delete"
+              }
+            )
+          ] })
+        ] }, sc.id)) })
+      ] }),
+      showBanner && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.accentLight, borderRadius: 16, padding: 16, marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 14, fontWeight: 600, color: COLORS.primaryDark }, children: "Get travel tips & packing hacks!" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: { background: COLORS.primary, color: "white", border: "none", borderRadius: 24, padding: "10px 16px", fontWeight: 700, cursor: "pointer", marginRight: 24 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mail, { size: 14 }),
+          " Subscribe"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, opacity: 0.9, alignItems: "center" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-            "\u{1F4C5} ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { position: "absolute", top: 8, right: 8, cursor: "pointer", color: COLORS.textSecondary }, onClick: () => {
+          setShowBanner(false);
+          localStorage.setItem(BANNER_STORAGE_KEY, Date.now().toString());
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 16 }) })
+      ] }),
+      !checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.card, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 16, fontWeight: 700, color: COLORS.textMain, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, color: COLORS.primary }),
+          " Trip Details"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16, marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "Where are you going?" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DestinationAutocomplete, { value: profile.destination, onChange: (val) => setProfile((p) => ({ ...p, destination: val })) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "Trip type" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(ToggleButton, { active: profile.isInternational, onClick: () => setProfile((p) => ({ ...p, isInternational: true })), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plane, { size: 16 }),
+                " International"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(ToggleButton, { active: !profile.isInternational, onClick: () => setProfile((p) => ({ ...p, isInternational: false })), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 16 }),
+                " Domestic"
+              ] })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
+              "Dates of Travel"
+            ] }),
+            (profile.startDate || profile.endDate) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "button",
+              {
+                onClick: () => setProfile((p) => ({ ...p, startDate: "", endDate: "" })),
+                style: { background: "none", border: "none", color: COLORS.textSecondary, fontSize: 12, cursor: "pointer", padding: 4, display: "flex", alignItems: "center", gap: 4 },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14 }),
+                  " Clear dates"
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flex: 1 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "date", style: styles.input, value: profile.startDate, onChange: (e) => setProfile((p) => ({ ...p, startDate: e.target.value })) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", alignItems: "center", color: COLORS.textSecondary }, children: "to" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flex: 1 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "date", style: styles.input, value: profile.endDate, onChange: (e) => setProfile((p) => ({ ...p, endDate: e.target.value })) }) })
+          ] })
+        ] }),
+        profile.destination && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+          marginBottom: 20,
+          padding: 16,
+          borderRadius: 16,
+          background: weatherForecast ? weatherForecast.avgTemp >= 25 ? "linear-gradient(135deg, #FEF3C7, #FDE68A)" : weatherForecast.avgTemp >= 15 ? "linear-gradient(135deg, #D1FAE5, #A7F3D0)" : weatherForecast.avgTemp >= 5 ? "linear-gradient(135deg, #DBEAFE, #BFDBFE)" : "linear-gradient(135deg, #E0E7FF, #C7D2FE)" : COLORS.inputBg
+        }, children: weatherLoading ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8, color: COLORS.textSecondary }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 18 }),
+          " Checking weather forecast..."
+        ] }) : weatherForecast ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+              weatherForecast.avgTemp >= 25 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sun, { size: 24, color: "#F59E0B" }) : weatherForecast.avgTemp >= 15 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 24, color: "#10B981" }) : weatherForecast.avgTemp >= 5 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 24, color: "#3B82F6" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Snowflake, { size: 24, color: "#6366F1" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 18, fontWeight: 700 }, children: weatherForecast.conditions })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "right" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 24, fontWeight: 800 }, children: [
+                weatherForecast.avgTemp,
+                "\xB0C"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 11, color: COLORS.textSecondary }, children: [
+                Math.round(weatherForecast.avgTemp * 9 / 5 + 32),
+                "\xB0F"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12, color: COLORS.textSecondary, marginBottom: 8 }, children: [
+            "Low ",
+            weatherForecast.minTemp,
+            "\xB0C / High ",
+            weatherForecast.maxTemp,
+            "\xB0C \u2022 ",
+            weatherForecast.precipitation,
+            "% chance of rain"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 13, fontWeight: 500 }, children: [
+            "\u{1F4A1} ",
+            weatherForecast.suggestion
+          ] })
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8, color: COLORS.textSecondary }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cloud, { size: 18 }),
+          " Enter dates to see weather forecast"
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16, marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "Purpose" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { style: styles.select, value: profile.purpose, onChange: (e) => setProfile((p) => ({ ...p, purpose: e.target.value })), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "leisure", children: "\u{1F3D6}\uFE0F Leisure" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "business", children: "\u{1F4BC} Business" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "adventure", children: "\u{1F3D4}\uFE0F Adventure" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "beach", children: "\u{1F3DD}\uFE0F Beach" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "city", children: "\u{1F3D9}\uFE0F City" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Luggage, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
+              "Luggage"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { style: styles.select, value: profile.packingConstraint, onChange: (e) => setProfile((p) => ({ ...p, packingConstraint: e.target.value })), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "carry_on_only", children: "\u270B Carry-on only" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "checked_bags", children: "\u{1F9F3} Checked bags" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "minimal", children: "\u{1F392} Minimal / backpack" })
+            ] })
+          ] })
+        ] }),
+        !(profile.startDate && profile.endDate) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
+            "Duration: ",
             profile.tripDuration,
             " days"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: profile.isInternational ? "\u2708\uFE0F International" : "\u{1F697} Domestic" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-            getTraveler("adult").male > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F468}" }),
-              " ",
-              getTraveler("adult").male
-            ] }),
-            getTraveler("adult").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F469}" }),
-              " ",
-              getTraveler("adult").female
-            ] }),
-            getTraveler("child").male > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F466}" }),
-              " ",
-              getTraveler("child").male
-            ] }),
-            getTraveler("child").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F467}" }),
-              " ",
-              getTraveler("child").female
-            ] }),
-            getTraveler("infant").male + getTraveler("infant").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
-              "\u{1F476} ",
-              getTraveler("infant").male + getTraveler("infant").female
-            ] }),
-            getTraveler("pet").male > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
-              "\u{1F415} ",
-              getTraveler("pet").male
-            ] }),
-            getTraveler("pet").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
-              "\u{1F408} ",
-              getTraveler("pet").female
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "range", min: 1, max: 30, value: profile.tripDuration, onChange: (e) => setProfile((p) => ({ ...p, tripDuration: parseInt(e.target.value) })), style: { width: "100%" } })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Users, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
+            "Travelers"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, fontSize: 13, color: COLORS.textMain, marginBottom: 8 }, children: "Adults" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2642 Male" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "male", Math.max(0, getTraveler("adult").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("adult").male }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "male", getTraveler("adult").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2640 Female" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "female", Math.max(0, getTraveler("adult").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("adult").female }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => updateTravelerGender("adult", "female", getTraveler("adult").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+                ] })
+              ] })
             ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8, marginBottom: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "div",
+              {
+                onClick: () => !expandedTravelers.children && setExpandedTravelers((p) => ({ ...p, children: true })),
+                style: {
+                  flex: 1,
+                  backgroundColor: COLORS.inputBg,
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: expandedTravelers.children ? "default" : "pointer",
+                  border: getTraveler("child").male + getTraveler("child").female > 0 ? `2px solid ${COLORS.primary}` : "none"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Users, { size: 14, color: COLORS.primary }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, fontSize: 12 }, children: "Children" }),
+                    getTraveler("child").male + getTraveler("child").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { backgroundColor: COLORS.primary, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10 }, children: getTraveler("child").male + getTraveler("child").female })
+                  ] }),
+                  !expandedTravelers.children && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14, color: COLORS.primary }),
+                  expandedTravelers.children && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14, color: COLORS.textSecondary, style: { cursor: "pointer" }, onClick: (e) => {
+                    e.stopPropagation();
+                    setExpandedTravelers((p) => ({ ...p, children: false }));
+                  } })
+                ]
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "div",
+              {
+                onClick: () => !expandedTravelers.infants && setExpandedTravelers((p) => ({ ...p, infants: true })),
+                style: {
+                  flex: 1,
+                  backgroundColor: COLORS.inputBg,
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: expandedTravelers.infants ? "default" : "pointer",
+                  border: getTraveler("infant").male + getTraveler("infant").female > 0 ? `2px solid ${COLORS.primary}` : "none"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Baby, { size: 14, color: COLORS.primary }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, fontSize: 12 }, children: "Infants" }),
+                    getTraveler("infant").male + getTraveler("infant").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { backgroundColor: COLORS.primary, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10 }, children: getTraveler("infant").male + getTraveler("infant").female })
+                  ] }),
+                  !expandedTravelers.infants && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14, color: COLORS.primary }),
+                  expandedTravelers.infants && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14, color: COLORS.textSecondary, style: { cursor: "pointer" }, onClick: (e) => {
+                    e.stopPropagation();
+                    setExpandedTravelers((p) => ({ ...p, infants: false }));
+                  } })
+                ]
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "div",
+              {
+                onClick: () => !expandedTravelers.pets && setExpandedTravelers((p) => ({ ...p, pets: true })),
+                style: {
+                  flex: 1,
+                  backgroundColor: COLORS.inputBg,
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: expandedTravelers.pets ? "default" : "pointer",
+                  border: getTraveler("pet").male + getTraveler("pet").female > 0 ? `2px solid ${COLORS.primary}` : "none"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dog, { size: 14, color: COLORS.primary }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, fontSize: 12 }, children: "Pets" }),
+                    getTraveler("pet").male + getTraveler("pet").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { backgroundColor: COLORS.primary, color: "white", fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 10 }, children: getTraveler("pet").male + getTraveler("pet").female })
+                  ] }),
+                  !expandedTravelers.pets && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14, color: COLORS.primary }),
+                  expandedTravelers.pets && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 14, color: COLORS.textSecondary, style: { cursor: "pointer" }, onClick: (e) => {
+                    e.stopPropagation();
+                    setExpandedTravelers((p) => ({ ...p, pets: false }));
+                  } })
+                ]
+              }
+            )
+          ] }),
+          expandedTravelers.children && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2642 Boys" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "male", Math.max(0, getTraveler("child").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("child").male }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "male", getTraveler("child").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2640 Girls" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "female", Math.max(0, getTraveler("child").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("child").female }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("child", "female", getTraveler("child").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+              ] })
+            ] })
+          ] }) }),
+          expandedTravelers.infants && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2642 Boys" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "male", Math.max(0, getTraveler("infant").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("infant").male }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "male", getTraveler("infant").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "\u2640 Girls" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "female", Math.max(0, getTraveler("infant").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("infant").female }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("infant", "female", getTraveler("infant").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+              ] })
+            ] })
+          ] }) }),
+          expandedTravelers.pets && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { backgroundColor: COLORS.inputBg, borderRadius: 12, padding: 12, marginBottom: 8 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dog, { size: 14, color: COLORS.textSecondary }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "Dogs" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "male", Math.max(0, getTraveler("pet").male - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("pet").male }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "male", getTraveler("pet").male + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "white", padding: "8px 12px", borderRadius: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cat, { size: 14, color: COLORS.textSecondary }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.textSecondary }, children: "Cats" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "female", Math.max(0, getTraveler("pet").female - 1)), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "-" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 700, minWidth: 16, textAlign: "center" }, children: getTraveler("pet").female }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => updateTravelerGender("pet", "female", getTraveler("pet").female + 1), style: { width: 24, height: 24, borderRadius: 6, border: "none", backgroundColor: COLORS.inputBg, color: COLORS.primary, cursor: "pointer" }, children: "+" })
+              ] })
+            ] })
+          ] }) }),
+          individuals.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+            marginTop: 12,
+            padding: "10px 14px",
+            backgroundColor: COLORS.accentLight,
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            gap: 8
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 16, color: COLORS.primary }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 13, color: COLORS.primaryDark }, children: "In the next step, you can customize preferences for each traveler" })
           ] })
-        ] })
-      ] }),
-      individuals.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, padding: 12 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 8, textTransform: "uppercase" }, children: "Packing For" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" }, children: individuals.map((t) => {
-          const genderColor = t.gender === "female" ? "#FFB6C1" : "#89CFF0";
-          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "button",
-            {
-              onClick: () => setSelectedTab(t.id),
-              style: {
-                padding: "8px 16px",
-                borderRadius: 20,
-                border: selectedTab === t.id ? `2px solid ${t.gender === "female" ? "#FF69B4" : "#4A90D9"}` : "none",
-                backgroundColor: selectedTab === t.id ? genderColor : COLORS.inputBg,
-                color: COLORS.textMain,
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 6
-              },
-              children: [
-                t.type === "adult" ? t.gender === "female" ? "\u{1F469}" : "\u{1F468}" : t.type === "child" ? t.gender === "female" ? "\u{1F467}" : "\u{1F466}" : "\u{1F476}",
-                t.label
-              ]
-            },
-            t.id
-          );
-        }) })
-      ] }),
-      individuals.length > 1 && selectedTab !== "shared" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, padding: 16 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 16 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: { fontWeight: 600, color: COLORS.textMain, fontSize: 14, marginBottom: 8, display: "block" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PenLine, { size: 14, style: { verticalAlign: "middle", marginRight: 6 } }),
-            "About ",
-            individuals.find((t) => t.id === selectedTab)?.label || "this traveler"
+        ] }),
+        individuals.length <= 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: styles.label, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PenLine, { size: 16, style: { verticalAlign: "middle", marginRight: 6 } }),
+            "Tell us about yourself"
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "textarea",
             {
-              value: getIndividualPrefs(selectedTab).notes,
-              onChange: (e) => updateIndividualNotes(selectedTab, e.target.value),
-              placeholder: "E.g., I always travel with my Kindle, I'm a light sleeper...",
+              value: profile.personalNotes,
+              onChange: (e) => setProfile((p) => ({ ...p, personalNotes: e.target.value })),
+              placeholder: "E.g., I always travel with my Kindle, I'm a light sleeper, I need my workout gear, I get motion sick...",
               style: {
                 width: "100%",
                 padding: "12px 16px",
@@ -26918,28 +27035,30 @@ function TravelChecklist({ initialData: initialData2 }) {
                 fontSize: 14,
                 backgroundColor: COLORS.inputBg,
                 color: COLORS.textMain,
-                minHeight: 60,
-                resize: "vertical",
                 boxSizing: "border-box",
+                outline: "none",
+                minHeight: 80,
+                resize: "vertical",
                 fontFamily: "inherit",
                 lineHeight: 1.5
               }
             }
-          )
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, color: COLORS.textSecondary, marginTop: 6 }, children: "We'll suggest items based on your preferences" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: { fontWeight: 600, color: COLORS.textMain, fontSize: 14, marginBottom: 8, display: "block" }, children: "\u{1F3AF} Travel Style" }),
+        individuals.length <= 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: styles.label, children: "\u{1F3AF} I'm a..." }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }, children: Object.entries(TRAVELER_PRESETS).map(([key, preset]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
             "button",
             {
               type: "button",
-              onClick: () => toggleIndividualPreset(selectedTab, key),
+              onClick: () => togglePreset(key),
               style: {
-                padding: "10px 12px",
-                borderRadius: 20,
-                border: "none",
-                backgroundColor: getIndividualPrefs(selectedTab).presets.includes(key) ? COLORS.primary : COLORS.inputBg,
-                color: getIndividualPrefs(selectedTab).presets.includes(key) ? "white" : COLORS.textSecondary,
+                padding: "12px 14px",
+                borderRadius: 12,
+                border: profile.presets.includes(key) ? `2px solid ${COLORS.primary}` : `1px solid ${COLORS.border}`,
+                backgroundColor: profile.presets.includes(key) ? COLORS.accentLight : "white",
+                color: profile.presets.includes(key) ? COLORS.primaryDark : COLORS.textSecondary,
                 fontWeight: 600,
                 fontSize: 14,
                 cursor: "pointer",
@@ -26956,217 +27075,418 @@ function TravelChecklist({ initialData: initialData2 }) {
             },
             key
           )) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: handleGenerate, disabled: !profile.destination, style: {
+          width: "100%",
+          padding: 16,
+          borderRadius: 16,
+          border: "none",
+          backgroundColor: profile.destination ? COLORS.primary : COLORS.border,
+          color: profile.destination ? "white" : COLORS.textSecondary,
+          fontSize: 18,
+          fontWeight: 800,
+          cursor: profile.destination ? "pointer" : "not-allowed",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Package, { size: 22 }),
+          " Generate Packing List"
         ] })
       ] }),
-      (individuals.length <= 1 || selectedTab === "shared") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, padding: 16 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 10, textTransform: "uppercase" }, children: "\u{1F3AF} Travel Style" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }, children: Object.entries(TRAVELER_PRESETS).map(([key, preset]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "button",
-          {
-            type: "button",
-            onClick: () => togglePreset(key),
-            style: {
-              padding: "10px 12px",
-              borderRadius: 20,
-              border: "none",
-              backgroundColor: profile.presets.includes(key) ? COLORS.primary : COLORS.inputBg,
-              color: profile.presets.includes(key) ? "white" : COLORS.textSecondary,
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 4
-            },
-            children: [
-              preset.icon,
-              " ",
-              preset.label
-            ]
-          },
-          key
-        )) })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { id: "progress-section", style: styles.card, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 16, fontWeight: 700 }, children: "Progress" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 14, fontWeight: 600, color: COLORS.primary }, children: [
-            progress.checked,
-            "/",
-            progress.total
+      checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.primaryDark})`, color: "white" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 14, fontWeight: 600, opacity: 0.9, marginBottom: 4 }, children: "Trip to" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 24, fontWeight: 800 }, children: profile.destination })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setChecklistGenerated(false), style: { background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "8px 12px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }, children: "Edit" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, opacity: 0.9, alignItems: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "\u{1F4C5} ",
+              profile.tripDuration,
+              " days"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: profile.isInternational ? "\u2708\uFE0F International" : "\u{1F697} Domestic" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+              getTraveler("adult").male > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10, color: "#1a365d" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F468}" }),
+                " ",
+                getTraveler("adult").male
+              ] }),
+              getTraveler("adult").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10, color: "#831843" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F469}" }),
+                " ",
+                getTraveler("adult").female
+              ] }),
+              getTraveler("child").male > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#E3F4FC", padding: "2px 8px", borderRadius: 10, color: "#1a365d" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F466}" }),
+                " ",
+                getTraveler("child").male
+              ] }),
+              getTraveler("child").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3, backgroundColor: "#FCE4EC", padding: "2px 8px", borderRadius: 10, color: "#831843" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u{1F467}" }),
+                " ",
+                getTraveler("child").female
+              ] }),
+              getTraveler("infant").male + getTraveler("infant").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
+                "\u{1F476} ",
+                getTraveler("infant").male + getTraveler("infant").female
+              ] }),
+              getTraveler("pet").male > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
+                "\u{1F415} ",
+                getTraveler("pet").male
+              ] }),
+              getTraveler("pet").female > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { display: "flex", alignItems: "center", gap: 3 }, children: [
+                "\u{1F408} ",
+                getTraveler("pet").female
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => window.print(), style: { marginLeft: "auto", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 14 }),
+              " Print"
+            ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: 12, backgroundColor: COLORS.inputBg, borderRadius: 6, overflow: "hidden" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: "100%", backgroundColor: progress.percent === 100 ? COLORS.primary : COLORS.blue, borderRadius: 6, width: `${progress.percent}%`, transition: "width 0.3s" } }) }),
-        progress.percent === 100 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginTop: 12, color: COLORS.primary, fontWeight: 700 }, children: "\u{1F389} All packed!" })
-      ] }),
-      Object.entries(groupedItems).map(([category, items]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.card, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { onClick: () => toggleCategory(category), style: { display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", marginBottom: expandedCategories[category] ? 16 : 0 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 16, fontWeight: 700 }, children: CATEGORY_INFO[category]?.name || category }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, backgroundColor: COLORS.inputBg, padding: "4px 8px", borderRadius: 12 }, children: [
-              items.filter((i) => i.checked).length,
-              "/",
-              items.length
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { id: "checklist-content-section", children: [
+          individuals.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, padding: 12 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 8, textTransform: "uppercase" }, children: "Packing For" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" }, children: individuals.map((t) => {
+              const genderColor = t.gender === "female" ? "#FFB6C1" : "#89CFF0";
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => setSelectedTab(t.id),
+                  style: {
+                    padding: "8px 16px",
+                    borderRadius: 20,
+                    border: selectedTab === t.id ? `2px solid ${t.gender === "female" ? "#FF69B4" : "#4A90D9"}` : "none",
+                    backgroundColor: selectedTab === t.id ? genderColor : COLORS.inputBg,
+                    color: COLORS.textMain,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6
+                  },
+                  children: [
+                    t.type === "adult" ? t.gender === "female" ? "\u{1F469}" : "\u{1F468}" : t.type === "child" ? t.gender === "female" ? "\u{1F467}" : "\u{1F466}" : "\u{1F476}",
+                    t.label
+                  ]
+                },
+                t.id
+              );
+            }) })
+          ] }),
+          individuals.length > 1 && selectedTab !== "shared" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, padding: 16 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 16 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { style: { fontWeight: 600, color: COLORS.textMain, fontSize: 14, marginBottom: 8, display: "block" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PenLine, { size: 14, style: { verticalAlign: "middle", marginRight: 6 } }),
+                "About ",
+                individuals.find((t) => t.id === selectedTab)?.label || "this traveler"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                "textarea",
+                {
+                  value: getIndividualPrefs(selectedTab).notes,
+                  onChange: (e) => updateIndividualNotes(selectedTab, e.target.value),
+                  placeholder: "E.g., I always travel with my Kindle, I'm a light sleeper...",
+                  style: {
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: 12,
+                    border: `1px solid ${COLORS.border}`,
+                    fontSize: 14,
+                    backgroundColor: COLORS.inputBg,
+                    color: COLORS.textMain,
+                    minHeight: 60,
+                    resize: "vertical",
+                    boxSizing: "border-box",
+                    fontFamily: "inherit",
+                    lineHeight: 1.5
+                  }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: { fontWeight: 600, color: COLORS.textMain, fontSize: 14, marginBottom: 8, display: "block" }, children: "\u{1F3AF} Travel Style" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }, children: Object.entries(TRAVELER_PRESETS).map(([key, preset]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => toggleIndividualPreset(selectedTab, key),
+                  style: {
+                    padding: "10px 12px",
+                    borderRadius: 20,
+                    border: "none",
+                    backgroundColor: getIndividualPrefs(selectedTab).presets.includes(key) ? COLORS.primary : COLORS.inputBg,
+                    color: getIndividualPrefs(selectedTab).presets.includes(key) ? "white" : COLORS.textSecondary,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 4
+                  },
+                  children: [
+                    preset.icon,
+                    " ",
+                    preset.label
+                  ]
+                },
+                key
+              )) })
             ] })
           ] }),
-          expandedCategories[category] ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 20, color: COLORS.textSecondary }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 20, color: COLORS.textSecondary })
-        ] }),
-        expandedCategories[category] && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }, children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "calc(50% - 4px)" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChecklistItemRow, { item, onToggle: () => toggleItem(item.id), onRemove: () => removeItem(item.id) }) }, item.id)) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AddItemInput, { category, onAdd: (name, qty) => addItem(category, name, qty) })
+          (individuals.length <= 1 || selectedTab === "shared") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, padding: 16 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 10, textTransform: "uppercase" }, children: "\u{1F3AF} Travel Style" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }, children: Object.entries(TRAVELER_PRESETS).map(([key, preset]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "button",
+              {
+                type: "button",
+                onClick: () => togglePreset(key),
+                style: {
+                  padding: "10px 12px",
+                  borderRadius: 20,
+                  border: "none",
+                  backgroundColor: profile.presets.includes(key) ? COLORS.primary : COLORS.inputBg,
+                  color: profile.presets.includes(key) ? "white" : COLORS.textSecondary,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 4
+                },
+                children: [
+                  preset.icon,
+                  " ",
+                  preset.label
+                ]
+              },
+              key
+            )) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { id: "progress-section", style: styles.card, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 16, fontWeight: 700 }, children: "Progress" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 14, fontWeight: 600, color: COLORS.primary }, children: [
+                progress.checked,
+                "/",
+                progress.total
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: 12, backgroundColor: COLORS.inputBg, borderRadius: 6, overflow: "hidden" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: "100%", backgroundColor: progress.percent === 100 ? COLORS.primary : COLORS.blue, borderRadius: 6, width: `${progress.percent}%`, transition: "width 0.3s" } }) }),
+            progress.percent === 100 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginTop: 12, color: COLORS.primary, fontWeight: 700 }, children: "\u{1F389} All packed!" })
+          ] }),
+          Object.entries(groupedItems).map(([category, items]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.card, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { onClick: () => toggleCategory(category), style: { display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", marginBottom: expandedCategories[category] ? 16 : 0 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 16, fontWeight: 700 }, children: CATEGORY_INFO[category]?.name || category }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, backgroundColor: COLORS.inputBg, padding: "4px 8px", borderRadius: 12 }, children: [
+                  items.filter((i) => i.checked).length,
+                  "/",
+                  items.length
+                ] })
+              ] }),
+              expandedCategories[category] ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 20, color: COLORS.textSecondary }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 20, color: COLORS.textSecondary })
+            ] }),
+            expandedCategories[category] && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }, children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "calc(50% - 4px)" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChecklistItemRow, { item, onToggle: () => toggleItem(item.id), onRemove: () => removeItem(item.id) }) }, item.id)) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AddItemInput, { category, onAdd: (name, qty) => addItem(category, name, qty) })
+            ] })
+          ] }, category)),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => openSaveModal(), style: {
+            width: "100%",
+            padding: 16,
+            borderRadius: 16,
+            border: "none",
+            background: `linear-gradient(135deg, ${COLORS.blue}, ${COLORS.primaryDark})`,
+            color: "white",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            marginTop: 8
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 20 }),
+            " Save This Checklist"
+          ] })
         ] })
-      ] }, category)),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => openSaveModal(), style: {
-        width: "100%",
-        padding: 16,
-        borderRadius: 16,
-        border: "none",
-        background: `linear-gradient(135deg, ${COLORS.blue}, ${COLORS.primaryDark})`,
-        color: "white",
-        fontSize: 16,
-        fontWeight: 700,
-        cursor: "pointer",
+      ] }),
+      !checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, textAlign: "center", padding: 40 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 48, marginBottom: 16 }, children: "\u{1F9F3}" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 18, fontWeight: 700, marginBottom: 8 }, children: "Enter Your Trip Details" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 14, color: COLORS.textSecondary }, children: "Fill in the form above to generate a personalized packing checklist" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.orangeLight, borderRadius: 16, padding: 16, marginTop: 24, display: "flex", gap: 12, alignItems: "flex-start" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 20, color: COLORS.orange, style: { flexShrink: 0, marginTop: 2 } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12, color: COLORS.orange, lineHeight: 1.6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Note:" }),
+          " This checklist is generated based on your trip profile. Always verify items based on your specific needs and destination requirements."
+        ] })
+      ] }),
+      showSaveModal && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: 10,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        marginTop: 8
+        zIndex: 1e3,
+        padding: 20
+      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 24,
+        width: "100%",
+        maxWidth: 400,
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 20 }),
-        " Save This Checklist"
-      ] })
-    ] }),
-    !checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { ...styles.card, textAlign: "center", padding: 40 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 48, marginBottom: 16 }, children: "\u{1F9F3}" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 18, fontWeight: 700, marginBottom: 8 }, children: "Enter Your Trip Details" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 14, color: COLORS.textSecondary }, children: "Fill in the form above to generate a personalized packing checklist" })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.orangeLight, borderRadius: 16, padding: 16, marginTop: 24, display: "flex", gap: 12, alignItems: "flex-start" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 20, color: COLORS.orange, style: { flexShrink: 0, marginTop: 2 } }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: 12, color: COLORS.orange, lineHeight: 1.6 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Note:" }),
-        " This checklist is generated based on your trip profile. Always verify items based on your specific needs and destination requirements."
-      ] })
-    ] }),
-    showSaveModal && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1e3,
-      padding: 20
-    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-      backgroundColor: "white",
-      borderRadius: 20,
-      padding: 24,
-      width: "100%",
-      maxWidth: 400,
-      boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
-    }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: 0, fontSize: 18, fontWeight: 700 }, children: editingChecklistId ? "Update Checklist" : "Save Checklist" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => {
-          setShowSaveModal(false);
-          setSaveChecklistName("");
-          setEditingChecklistId(null);
-        }, style: {
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: 4
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 20, color: COLORS.textSecondary }) })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: { fontWeight: 600, color: COLORS.textMain, fontSize: 14, marginBottom: 8, display: "block" }, children: "Checklist Name" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "input",
-          {
-            type: "text",
-            value: saveChecklistName,
-            onChange: (e) => setSaveChecklistName(e.target.value),
-            placeholder: "e.g., Paris Summer 2024",
-            autoFocus: true,
-            onKeyDown: (e) => e.key === "Enter" && handleSaveChecklist(),
-            style: {
-              width: "100%",
-              padding: "12px 16px",
-              borderRadius: 12,
-              border: `1px solid ${COLORS.border}`,
-              fontSize: 16,
-              backgroundColor: COLORS.inputBg,
-              outline: "none",
-              boxSizing: "border-box"
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: 0, fontSize: 18, fontWeight: 700 }, children: editingChecklistId ? "Update Checklist" : "Save Checklist" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => {
+            setShowSaveModal(false);
+            setSaveChecklistName("");
+            setEditingChecklistId(null);
+          }, style: {
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 4
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 20, color: COLORS.textSecondary }) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: 20 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { style: { fontWeight: 600, color: COLORS.textMain, fontSize: 14, marginBottom: 8, display: "block" }, children: "Checklist Name" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "input",
+            {
+              type: "text",
+              value: saveChecklistName,
+              onChange: (e) => setSaveChecklistName(e.target.value),
+              placeholder: "e.g., Paris Summer 2024",
+              autoFocus: true,
+              onKeyDown: (e) => e.key === "Enter" && handleSaveChecklist(),
+              style: {
+                width: "100%",
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: `1px solid ${COLORS.border}`,
+                fontSize: 16,
+                backgroundColor: COLORS.inputBg,
+                outline: "none",
+                boxSizing: "border-box"
+              }
             }
-          }
-        )
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "button",
-          {
-            onClick: () => {
-              setShowSaveModal(false);
-              setSaveChecklistName("");
-              setEditingChecklistId(null);
-            },
-            style: {
-              flex: 1,
-              padding: "12px 16px",
-              borderRadius: 12,
-              border: `1px solid ${COLORS.border}`,
-              backgroundColor: "white",
-              color: COLORS.textMain,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer"
-            },
-            children: "Cancel"
-          }
-        ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "button",
-          {
-            onClick: handleSaveChecklist,
-            disabled: !saveChecklistName.trim(),
-            style: {
-              flex: 1,
-              padding: "12px 16px",
-              borderRadius: 12,
-              border: "none",
-              backgroundColor: saveChecklistName.trim() ? COLORS.primary : COLORS.border,
-              color: saveChecklistName.trim() ? "white" : COLORS.textSecondary,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: saveChecklistName.trim() ? "pointer" : "not-allowed"
-            },
-            children: editingChecklistId ? "Update" : "Save"
-          }
-        )
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 12 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "button",
+            {
+              onClick: () => {
+                setShowSaveModal(false);
+                setSaveChecklistName("");
+                setEditingChecklistId(null);
+              },
+              style: {
+                flex: 1,
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: `1px solid ${COLORS.border}`,
+                backgroundColor: "white",
+                color: COLORS.textMain,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer"
+              },
+              children: "Cancel"
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "button",
+            {
+              onClick: handleSaveChecklist,
+              disabled: !saveChecklistName.trim(),
+              style: {
+                flex: 1,
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: "none",
+                backgroundColor: saveChecklistName.trim() ? COLORS.primary : COLORS.border,
+                color: saveChecklistName.trim() ? "white" : COLORS.textSecondary,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: saveChecklistName.trim() ? "pointer" : "not-allowed"
+              },
+              children: editingChecklistId ? "Update" : "Save"
+            }
+          )
+        ] })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.footer, className: "no-print", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: resetAll, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { size: 16 }),
+          " Reset"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 16 }),
+          " Donate"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MessageSquare, { size: 16 }),
+          " Feedback"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: () => window.print(), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 16 }),
+          " Print"
+        ] })
       ] })
-    ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.footer, className: "no-print", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: resetAll, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { size: 16 }),
-        " Reset"
+    ] }),
+    checklistGenerated && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "print-view", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "print-header", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", { children: [
+          "\u2708\uFE0F Travel Checklist ",
+          profile.startDate && profile.endDate ? `${new Date(profile.startDate).toLocaleDateString("en-US", { month: "numeric", day: "numeric" })} - ${new Date(profile.endDate).toLocaleDateString("en-US", { month: "numeric", day: "numeric" })}` : ""
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "trip-info", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: profile.destination }),
+          " \u2022 ",
+          profile.tripDuration,
+          " days \u2022 ",
+          profile.isInternational ? "International" : "Domestic",
+          weatherForecast && ` \u2022 ${weatherForecast.avgTemp}\xB0C ${weatherForecast.conditions}`
+        ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 16 }),
-        " Donate"
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MessageSquare, { size: 16 }),
-        " Feedback"
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: () => window.print(), children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 16 }),
-        " Print"
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "print-columns", children: Object.entries(groupedItems).map(([category, items]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `print-category ${category === "preDeparture" ? "pre-departure" : ""}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: CATEGORY_INFO[category]?.name || category }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "print-items", children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "print-item", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `print-checkbox ${item.checked ? "checked" : ""}` }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+            item.name,
+            item.quantity && Number(item.quantity) > 1 ? ` (\xD7${item.quantity})` : ""
+          ] })
+        ] }, item.id)) })
+      ] }, category)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "print-footer", children: [
+        "Generated by Smart Travel Checklist \u2022 ",
+        progress.checked,
+        "/",
+        progress.total,
+        " items packed"
       ] })
     ] })
   ] });

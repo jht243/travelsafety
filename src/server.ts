@@ -241,16 +241,16 @@ function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
       "Help me pack for an international trip",
       "Beach vacation packing checklist",
       "Business trip essentials",
-      "What documents do I need to travel?",
+      "What clothing do I need to travel to New York?",
       "Family vacation packing list",
     ],
     "openai/widgetPrefersBorder": true,
     "openai/widgetCSP": {
       connect_domains: [
-        "https://travel-checklist.onrender.com"
+        "https://travel-checklist-q79n.onrender.com"
       ],
       resource_domains: [
-        "https://travel-checklist.onrender.com"
+        "https://travel-checklist-q79n.onrender.com"
       ],
     },
     "openai/widgetDomain": "https://web-sandbox.oaiusercontent.com",
@@ -286,11 +286,18 @@ const toolInputSchema = {
   type: "object",
   properties: {
     destination: { type: "string", description: "Travel destination (city, country, or region)." },
-    trip_duration: { type: "number", description: "Trip duration in days." },
+    start_date: { type: "string", description: "Trip start date in YYYY-MM-DD format." },
+    end_date: { type: "string", description: "Trip end date in YYYY-MM-DD format." },
+    trip_duration: { type: "number", description: "Trip duration in days (calculated from dates if not provided)." },
     is_international: { type: "boolean", description: "Whether this is an international trip." },
     climate: { type: "string", enum: ["summer", "winter", "spring", "tropical", "variable"], description: "Expected weather/climate at destination." },
     purpose: { type: "string", enum: ["leisure", "business", "adventure", "beach", "city"], description: "Primary purpose of the trip." },
-    travelers: { type: "number", description: "Number of travelers." },
+    adult_males: { type: "number", description: "Number of adult male travelers." },
+    adult_females: { type: "number", description: "Number of adult female travelers." },
+    male_children: { type: "number", description: "Number of male children." },
+    female_children: { type: "number", description: "Number of female children." },
+    infants: { type: "number", description: "Number of infants." },
+    travelers: { type: "number", description: "Total number of travelers (if breakdown not specified, assume adult males)." },
     packing_constraint: { type: "string", enum: ["carry_on_only", "checked_bags", "minimal"], description: "Luggage type constraint." },
     has_children: { type: "boolean", description: "Whether traveling with children." },
     has_infants: { type: "boolean", description: "Whether traveling with infants." },
@@ -304,10 +311,17 @@ const toolInputSchema = {
 
 const toolInputParser = z.object({
   destination: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
   trip_duration: z.number().optional(),
   is_international: z.boolean().optional(),
   climate: z.enum(["summer", "winter", "spring", "tropical", "variable"]).optional(),
   purpose: z.enum(["leisure", "business", "adventure", "beach", "city"]).optional(),
+  adult_males: z.number().optional(),
+  adult_females: z.number().optional(),
+  male_children: z.number().optional(),
+  female_children: z.number().optional(),
+  infants: z.number().optional(),
   travelers: z.number().optional(),
   packing_constraint: z.enum(["carry_on_only", "checked_bags", "minimal"]).optional(),
   has_children: z.boolean().optional(),
@@ -319,7 +333,7 @@ const toolInputParser = z.object({
 const tools: Tool[] = widgets.map((widget) => ({
   name: widget.id,
   description:
-    "Use this to generate a personalized travel packing checklist. Helps users create customized packing lists based on their trip details. Call this tool immediately with NO arguments to let the user enter their trip details manually. Only provide arguments if the user has explicitly stated them.",
+    "Use this tool to generate a personalized travel packing checklist based on location, number of travelers, travel preferences, and other details. Helps users create customized packing lists based on their trip details. Call this tool immediately with NO arguments to let the user enter their trip details manually. Only provide arguments if the user has explicitly stated them.",
   inputSchema: toolInputSchema,
   outputSchema: {
     type: "object",
@@ -848,8 +862,8 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       : "N/A";
 
   const paramUsage: Record<string, number> = {};
-  const yieldStatusDist: Record<string, number> = {};
-  const riskPreferenceDist: Record<string, number> = {};
+  const tripPurposeDist: Record<string, number> = {};
+  const climateDist: Record<string, number> = {};
   
   successLogs.forEach((log) => {
     if (log.params) {
@@ -858,15 +872,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           paramUsage[key] = (paramUsage[key] || 0) + 1;
         }
       });
-      // Track risk preference distribution
-      if (log.params.risk_preference) {
-        const risk = log.params.risk_preference;
-        riskPreferenceDist[risk] = (riskPreferenceDist[risk] || 0) + 1;
+      // Track trip purpose distribution
+      if (log.params.purpose) {
+        const purpose = log.params.purpose;
+        tripPurposeDist[purpose] = (tripPurposeDist[purpose] || 0) + 1;
       }
-    }
-    if (log.structuredContent?.summary?.yield_status) {
-       const cat = log.structuredContent.summary.yield_status;
-       yieldStatusDist[cat] = (yieldStatusDist[cat] || 0) + 1;
+      // Track climate distribution
+      if (log.params.climate) {
+        const climate = log.params.climate;
+        climateDist[climate] = (climateDist[climate] || 0) + 1;
+      }
     }
   });
   
@@ -876,68 +891,55 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     widgetInteractions[humanName] = (widgetInteractions[humanName] || 0) + 1;
   });
   
-  // Crypto holdings distribution (BTC)
-  const btcHoldingsDist: Record<string, number> = {};
+  // Trip duration distribution
+  const tripDurationDist: Record<string, number> = {};
   successLogs.forEach((log) => {
-    if (log.params?.btc) {
-      const amount = log.params.btc;
+    if (log.params?.trip_duration) {
+      const days = log.params.trip_duration;
       let bucket = "Unknown";
-      if (amount < 1000) bucket = "Under $1k";
-      else if (amount < 10000) bucket = "$1k-$10k";
-      else if (amount < 50000) bucket = "$10k-$50k";
-      else if (amount < 100000) bucket = "$50k-$100k";
-      else bucket = "$100k+";
-      btcHoldingsDist[bucket] = (btcHoldingsDist[bucket] || 0) + 1;
+      if (days <= 3) bucket = "1-3 days";
+      else if (days <= 7) bucket = "4-7 days";
+      else if (days <= 14) bucket = "8-14 days";
+      else bucket = "15+ days";
+      tripDurationDist[bucket] = (tripDurationDist[bucket] || 0) + 1;
     }
   });
 
-  // ETH holdings distribution
-  const ethHoldingsDist: Record<string, number> = {};
+  // International vs Domestic distribution
+  const tripTypeDist: Record<string, number> = {};
   successLogs.forEach((log) => {
-    if (log.params?.eth) {
-      const amount = log.params.eth;
-      let bucket = "Unknown";
-      if (amount < 1000) bucket = "Under $1k";
-      else if (amount < 10000) bucket = "$1k-$10k";
-      else if (amount < 50000) bucket = "$10k-$50k";
-      else if (amount < 100000) bucket = "$50k-$100k";
-      else bucket = "$100k+";
-      ethHoldingsDist[bucket] = (ethHoldingsDist[bucket] || 0) + 1;
+    if (log.params?.is_international !== undefined) {
+      const tripType = log.params.is_international ? "International" : "Domestic";
+      tripTypeDist[tripType] = (tripTypeDist[tripType] || 0) + 1;
     }
   });
 
-  // Current yield distribution
-  const currentYieldDist: Record<string, number> = {};
+  // Destinations (top 10)
+  const destinationDist: Record<string, number> = {};
   successLogs.forEach((log) => {
-    if (log.params?.current_yield_percent !== undefined) {
-      const yieldPct = log.params.current_yield_percent;
-      let bucket = "Unknown";
-      if (yieldPct === 0) bucket = "0% (None)";
-      else if (yieldPct < 3) bucket = "0-3%";
-      else if (yieldPct < 6) bucket = "3-6%";
-      else if (yieldPct < 10) bucket = "6-10%";
-      else bucket = "10%+";
-      currentYieldDist[bucket] = (currentYieldDist[bucket] || 0) + 1;
+    if (log.params?.destination) {
+      const dest = log.params.destination;
+      destinationDist[dest] = (destinationDist[dest] || 0) + 1;
     }
   });
 
-  // Calculator Actions
+  // Checklist Actions
   const actionCounts: Record<string, number> = {
-    "Calculate": 0,
+    "Generate Checklist": 0,
     "Subscribe": 0,
-    "View Graph": 0, 
-    "View Summary": 0,
-    "View Tips": 0,
-    "Advanced Toggle": 0
+    "Check Item": 0, 
+    "Add Custom Item": 0,
+    "Save Checklist": 0,
+    "Print/Share": 0
   };
 
   widgetEvents.forEach(log => {
-      if (log.event === "widget_calculate_click") actionCounts["Calculate"]++;
+      if (log.event === "widget_generate_checklist") actionCounts["Generate Checklist"]++;
       if (log.event === "widget_notify_me_subscribe") actionCounts["Subscribe"]++;
-      if (log.event === "widget_view_graph") actionCounts["View Graph"]++;
-      if (log.event === "widget_view_summary") actionCounts["View Summary"]++;
-      if (log.event === "widget_view_tips") actionCounts["View Tips"]++;
-      if (log.event === "widget_advanced_toggle") actionCounts["Advanced Toggle"]++;
+      if (log.event === "widget_check_item") actionCounts["Check Item"]++;
+      if (log.event === "widget_add_custom_item") actionCounts["Add Custom Item"]++;
+      if (log.event === "widget_save_checklist") actionCounts["Save Checklist"]++;
+      if (log.event === "widget_print_share") actionCounts["Print/Share"]++;
   });
 
   return `<!DOCTYPE html>
@@ -1030,16 +1032,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
-        <h2>Yield Status</h2>
+        <h2>Trip Purpose</h2>
         <table>
-          <thead><tr><th>Status</th><th>Count</th></tr></thead>
+          <thead><tr><th>Purpose</th><th>Count</th></tr></thead>
           <tbody>
-            ${Object.entries(yieldStatusDist).length > 0 ? Object.entries(yieldStatusDist)
+            ${Object.entries(tripPurposeDist).length > 0 ? Object.entries(tripPurposeDist)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
               .map(
-                ([cat, count]) => `
+                ([purpose, count]) => `
               <tr>
-                <td>${cat}</td>
+                <td>${purpose}</td>
                 <td>${count}</td>
               </tr>
             `
@@ -1093,16 +1095,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
-        <h2>BTC Holdings</h2>
+        <h2>Trip Duration</h2>
         <table>
-          <thead><tr><th>Amount</th><th>Users</th></tr></thead>
+          <thead><tr><th>Duration</th><th>Users</th></tr></thead>
           <tbody>
-            ${Object.entries(btcHoldingsDist).length > 0 ? Object.entries(btcHoldingsDist)
+            ${Object.entries(tripDurationDist).length > 0 ? Object.entries(tripDurationDist)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
               .map(
-                ([amount, count]) => `
+                ([duration, count]) => `
               <tr>
-                <td>${amount}</td>
+                <td>${duration}</td>
                 <td>${count}</td>
               </tr>
             `
@@ -1113,16 +1115,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       </div>
       
       <div class="card">
-        <h2>ETH Holdings</h2>
+        <h2>Trip Type</h2>
         <table>
-          <thead><tr><th>Amount</th><th>Users</th></tr></thead>
+          <thead><tr><th>Type</th><th>Users</th></tr></thead>
           <tbody>
-            ${Object.entries(ethHoldingsDist).length > 0 ? Object.entries(ethHoldingsDist)
+            ${Object.entries(tripTypeDist).length > 0 ? Object.entries(tripTypeDist)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
               .map(
-                ([amount, count]) => `
+                ([tripType, count]) => `
               <tr>
-                <td>${amount}</td>
+                <td>${tripType}</td>
                 <td>${count}</td>
               </tr>
             `
@@ -1133,16 +1135,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       </div>
       
       <div class="card">
-        <h2>Current Yield %</h2>
+        <h2>Top Destinations</h2>
         <table>
-          <thead><tr><th>APY Range</th><th>Users</th></tr></thead>
+          <thead><tr><th>Destination</th><th>Users</th></tr></thead>
           <tbody>
-            ${Object.entries(currentYieldDist).length > 0 ? Object.entries(currentYieldDist)
+            ${Object.entries(destinationDist).length > 0 ? Object.entries(destinationDist)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
               .map(
-                ([yieldRange, count]) => `
+                ([dest, count]) => `
               <tr>
-                <td>${yieldRange}</td>
+                <td>${dest}</td>
                 <td>${count}</td>
               </tr>
             `
@@ -1459,7 +1462,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
       await subscribeToButtondown(email, topicId, topicName);
       res.writeHead(200).end(JSON.stringify({ 
         success: true, 
-        message: "Successfully subscribed! You'll receive portfolio optimization tips and updates." 
+        message: "Successfully subscribed! You'll receive travel tips and packing list updates." 
       }));
     } catch (subscribeError: any) {
       const rawMessage = String(subscribeError?.message ?? "").trim();
@@ -1630,7 +1633,7 @@ const httpServer = createServer(
     }
 
     // Serve alias for legacy loader path -> our main widget HTML
-    if (req.method === "GET" && (url.pathname === "/assets/travel-checklist.html" || url.pathname === "/assets/crypto-portfolio-optimizer.html")) {
+    if (req.method === "GET" && url.pathname === "/assets/travel-checklist.html") {
       const mainAssetPath = path.join(ASSETS_DIR, "travel-checklist.html");
       console.log(`[Debug Legacy] Request: ${url.pathname}, Main Path: ${mainAssetPath}, Exists: ${fs.existsSync(mainAssetPath)}`);
       if (fs.existsSync(mainAssetPath) && fs.statSync(mainAssetPath).isFile()) {
