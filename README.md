@@ -101,7 +101,25 @@ ANALYTICS_PASSWORD=your_password
 ## Monitoring & Alerts
 
 - Visit `/analytics` (Basic Auth protected) to review the live dashboard.
-- Alerts for tool failures and subscription issues are logged automatically.
+- Automated alerts trigger for:
+  - **Tool failures**: >5 per day (critical)
+  - **Parameter parse errors**: >3 per week (warning)
+  - **Empty results**: >20% of calls (warning)
+  - **Widget crashes**: Any occurrence (critical)
+  - **Buttondown failures**: >10% failure rate (warning)
+
+## Security
+
+- **Production**: All traffic uses HTTPS via Render.com
+- **Local development**: HTTP (`localhost:8000`) is for development only
+- Widget runs in a sandboxed iframe with strict CSP
+
+## Support
+
+For questions, bug reports, or support:
+- **Email**: support@layer3labs.io
+
+**Note:** GitHub issues are not monitored for support requests. Please use email for all inquiries.
 
 ## License
 

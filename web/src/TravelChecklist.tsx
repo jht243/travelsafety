@@ -1922,7 +1922,18 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
   };
   
   const toggleCategory = (cat: string) => setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
-  const resetAll = () => { localStorage.removeItem(STORAGE_KEY); setProfile(DEFAULT_PROFILE); setChecklist([]); setIndividualChecklists({}); setChecklistGenerated(false); setSelectedTab("shared"); };
+  const resetAll = () => { 
+    trackEvent("widget_clear_data", {});
+    localStorage.removeItem(STORAGE_KEY); 
+    localStorage.removeItem(SAVED_CHECKLISTS_KEY);
+    setProfile(DEFAULT_PROFILE); 
+    setChecklist([]); 
+    setIndividualChecklists({}); 
+    setIndividualPrefs({});
+    setSavedChecklists([]);
+    setChecklistGenerated(false); 
+    setSelectedTab("shared"); 
+  };
 
   // Save checklist functions
   const persistSavedChecklists = (lists: SavedChecklist[]) => {
@@ -2897,9 +2908,9 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
       )}
 
       <div style={styles.footer} className="no-print">
-        <button style={styles.footerBtn} onClick={resetAll}><RotateCcw size={16} /> Reset</button>
+        <button style={styles.footerBtn} onClick={() => { if (window.confirm("Clear all saved data? This will remove your checklist and saved trips.")) resetAll(); }}><RotateCcw size={16} /> Clear Data</button>
         <button style={styles.footerBtn}><Heart size={16} /> Donate</button>
-        <button style={styles.footerBtn}><MessageSquare size={16} /> Feedback</button>
+        <button style={styles.footerBtn} onClick={() => window.open("mailto:support@layer3labs.io?subject=Travel%20Checklist%20Feedback", "_blank")}><MessageSquare size={16} /> Feedback</button>
         <button style={styles.footerBtn} onClick={() => { trackEvent("widget_print_share", { destination: profile.destination }); window.print(); }}><Printer size={16} /> Print</button>
       </div>
       </div>{/* End screen-view */}

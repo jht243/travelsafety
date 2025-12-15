@@ -26488,10 +26488,14 @@ function TravelChecklist({ initialData: initialData2 }) {
   };
   const toggleCategory = (cat) => setExpandedCategories((prev) => ({ ...prev, [cat]: !prev[cat] }));
   const resetAll = () => {
+    trackEvent("widget_clear_data", {});
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SAVED_CHECKLISTS_KEY);
     setProfile(DEFAULT_PROFILE);
     setChecklist([]);
     setIndividualChecklists({});
+    setIndividualPrefs({});
+    setSavedChecklists([]);
     setChecklistGenerated(false);
     setSelectedTab("shared");
   };
@@ -27561,15 +27565,17 @@ function TravelChecklist({ initialData: initialData2 }) {
         ] })
       ] }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: styles.footer, className: "no-print", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: resetAll, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: () => {
+          if (window.confirm("Clear all saved data? This will remove your checklist and saved trips.")) resetAll();
+        }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { size: 16 }),
-          " Reset"
+          " Clear Data"
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, { size: 16 }),
           " Donate"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, onClick: () => window.open("mailto:support@layer3labs.io?subject=Travel%20Checklist%20Feedback", "_blank"), children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MessageSquare, { size: 16 }),
           " Feedback"
         ] }),

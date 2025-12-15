@@ -1,11 +1,11 @@
 # Privacy Policy
 
-**Crypto Yield Optimizer**  
+**Smart Travel Checklist**  
 *Last Updated: December 2024*
 
 ## Overview
 
-Crypto Yield Optimizer is an educational DeFi yield optimization tool that runs entirely in your browser within ChatGPT. We are committed to protecting your privacy and being transparent about our data practices.
+Smart Travel Checklist is a personalized packing list generator that runs entirely in your browser within ChatGPT. We are committed to protecting your privacy and being transparent about our data practices.
 
 ## Data Collection
 
@@ -24,14 +24,14 @@ Crypto Yield Optimizer is an educational DeFi yield optimization tool that runs 
 
 ## Data Processing
 
-All portfolio calculations and simulations are performed:
+All checklist generation and customization is performed:
 - **Client-side**: In your browser within the ChatGPT sandbox
-- **Locally**: Your allocation inputs are processed locally and not stored on our servers
+- **Locally**: Your trip details and checklist are processed locally and not stored on our servers
 - **Ephemerally**: Session data is not persisted beyond the active session
 
 ## Data Storage
 
-- **Browser LocalStorage**: Your portfolio inputs may be cached in your browser's localStorage for convenience (30-day expiration). This data never leaves your device.
+- **Browser LocalStorage**: Your trip details and checklist may be cached in your browser's localStorage for convenience (30-day expiration). This data never leaves your device.
 - **Server Logs**: Anonymous analytics are logged for up to 30 days for service improvement.
 
 ## Third-Party Sharing
@@ -52,9 +52,9 @@ You can:
 
 ## Security
 
-- All communications use HTTPS encryption
+- All communications use HTTPS encryption (HTTP is for local development only)
 - The widget runs in a sandboxed iframe with strict Content Security Policy
-- No sensitive financial data is transmitted or stored
+- No sensitive personal data is transmitted or stored
 
 ## Children's Privacy
 
@@ -66,9 +66,11 @@ We may update this policy periodically. Significant changes will be noted in the
 
 ## Contact
 
-For privacy questions or data deletion requests:
-- **Email**: support@layer3labs.com
+For privacy questions, support, or data deletion requests:
+- **Email**: support@layer3labs.io
 - **Deletion requests**: Include the UTC timestamp of your ChatGPT session; we will delete associated logs within 7 business days.
+
+**Note:** Please contact us via email for all support inquiries. GitHub issues are not monitored for support requests.
 
 ---
 
