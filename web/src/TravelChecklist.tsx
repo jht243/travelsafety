@@ -1773,6 +1773,19 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
   const toggleActivity = (id: string) => setProfile(p => ({ ...p, activities: p.activities.includes(id) ? p.activities.filter(a => a !== id) : [...p.activities, id] }));
   const togglePreset = (id: string) => setProfile(p => ({ ...p, presets: p.presets.includes(id) ? p.presets.filter(a => a !== id) : [...p.presets, id] }));
   
+  // Print handler with fallback for sandboxed environments
+  const handlePrint = () => {
+    trackEvent("widget_print_share", { destination: profile.destination });
+    // Check if we're in a sandboxed iframe (ChatGPT widget)
+    const isInIframe = window !== window.parent;
+    if (isInIframe) {
+      // In ChatGPT iframe, window.print() is blocked - show message
+      alert("To print your checklist:\n\n1. Take a screenshot of this checklist\n2. Or copy the items manually\n\nPrinting is not available in embedded widgets.");
+    } else {
+      window.print();
+    }
+  };
+  
   // Per-individual preference functions
   const toggleIndividualPreset = (travelerId: string, presetId: string) => {
     setIndividualPrefs(prev => {
@@ -2786,7 +2799,7 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
                 {getTraveler("pet").male > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3 }}>🐕 {getTraveler("pet").male}</span>}
                 {getTraveler("pet").female > 0 && <span style={{ display: "flex", alignItems: "center", gap: 3 }}>🐈 {getTraveler("pet").female}</span>}
               </span>
-              <button onClick={() => { trackEvent("widget_print_share", { destination: profile.destination }); window.print(); }} className="btn-press" style={{ marginLeft: "auto", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              <button onClick={handlePrint} className="btn-press" style={{ marginLeft: "auto", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
                 <Printer size={14} /> Print
               </button>
             </div>
@@ -3030,7 +3043,7 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
         <button style={styles.footerBtn} className="btn-press" onClick={resetAll}><RotateCcw size={16} /> Reset</button>
         <button style={styles.footerBtn} className="btn-press"><Heart size={16} /> Donate</button>
         <button style={styles.footerBtn} className="btn-press" onClick={() => setShowFeedbackModal(true)}><MessageSquare size={16} /> Feedback</button>
-        <button style={styles.footerBtn} className="btn-press" onClick={() => { trackEvent("widget_print_share", { destination: profile.destination }); window.print(); }}><Printer size={16} /> Print</button>
+        <button style={styles.footerBtn} className="btn-press" onClick={handlePrint}><Printer size={16} /> Print</button>
       </div>
       </div>{/* End screen-view */}
 

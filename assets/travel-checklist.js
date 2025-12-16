@@ -26380,6 +26380,15 @@ function TravelChecklist({ initialData: initialData2 }) {
   ]);
   const toggleActivity = (id) => setProfile((p) => ({ ...p, activities: p.activities.includes(id) ? p.activities.filter((a) => a !== id) : [...p.activities, id] }));
   const togglePreset = (id) => setProfile((p) => ({ ...p, presets: p.presets.includes(id) ? p.presets.filter((a) => a !== id) : [...p.presets, id] }));
+  const handlePrint = () => {
+    trackEvent("widget_print_share", { destination: profile.destination });
+    const isInIframe = window !== window.parent;
+    if (isInIframe) {
+      alert("To print your checklist:\n\n1. Take a screenshot of this checklist\n2. Or copy the items manually\n\nPrinting is not available in embedded widgets.");
+    } else {
+      window.print();
+    }
+  };
   const toggleIndividualPreset = (travelerId, presetId) => {
     setIndividualPrefs((prev) => {
       const current = prev[travelerId] || { notes: "", presets: [] };
@@ -27374,10 +27383,7 @@ function TravelChecklist({ initialData: initialData2 }) {
                 getTraveler("pet").female
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => {
-              trackEvent("widget_print_share", { destination: profile.destination });
-              window.print();
-            }, className: "btn-press", style: { marginLeft: "auto", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: handlePrint, className: "btn-press", style: { marginLeft: "auto", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "6px 10px", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 14 }),
               " Print"
             ] })
@@ -27686,10 +27692,7 @@ function TravelChecklist({ initialData: initialData2 }) {
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MessageSquare, { size: 16 }),
           " Feedback"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, className: "btn-press", onClick: () => {
-          trackEvent("widget_print_share", { destination: profile.destination });
-          window.print();
-        }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { style: styles.footerBtn, className: "btn-press", onClick: handlePrint, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 16 }),
           " Print"
         ] })
