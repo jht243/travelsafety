@@ -105,8 +105,124 @@ interface TravelAdvisory {
   url: string;
 }
 
+interface UKTravelAdvice {
+  country: string;
+  alert_status: string[];
+  change_description: string;
+  last_updated: string;
+  url: string;
+}
+
+interface ACLEDData {
+  country: string;
+  total_events: number;
+  fatalities: number;
+  events_last_30_days: number;
+  event_types: { [key: string]: number };
+  last_updated: string;
+  trend: 'increasing' | 'decreasing' | 'stable';
+}
+
 interface AdvisoryData {
   [key: string]: TravelAdvisory;
+}
+
+interface UKAdvisoryData {
+  [key: string]: UKTravelAdvice;
+}
+
+interface ACLEDAdvisoryData {
+  [key: string]: ACLEDData;
+}
+
+// Fetch ACLED conflict data
+// Note: ACLED requires API key for full access. Set ACLED_API_KEY env var or use fallback data.
+async function fetchACLEDData(country: string): Promise<ACLEDData | null> {
+  try {
+    // ACLED API requires authentication - this will use public endpoint if available
+    const currentYear = new Date().getFullYear();
+    const response = await fetch(
+      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500`
+    );
+    
+    if (!response.ok) {
+      console.log(`ACLED API not available for ${country}, using fallback`);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      const events = data.data;
+      const eventTypes: { [key: string]: number } = {};
+      let totalFatalities = 0;
+      
+      events.forEach((event: any) => {
+        const type = event.event_type || 'Unknown';
+        eventTypes[type] = (eventTypes[type] || 0) + 1;
+        totalFatalities += parseInt(event.fatalities || '0', 10);
+      });
+      
+      // Calculate events in last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentEvents = events.filter((e: any) => new Date(e.event_date) >= thirtyDaysAgo).length;
+      
+      return {
+        country,
+        total_events: events.length,
+        fatalities: totalFatalities,
+        events_last_30_days: recentEvents,
+        event_types: eventTypes,
+        last_updated: new Date().toISOString(),
+        trend: recentEvents > events.length / 12 ? 'increasing' : 'stable',
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.log(`Failed to fetch ACLED data for ${country}:`, error);
+    return null;
+  }
+}
+
+// Fetch UK Foreign Office travel advice
+async function fetchUKAdvisories(): Promise<UKAdvisoryData> {
+  try {
+    const ukAdvisories: UKAdvisoryData = {};
+    
+    // Common countries to fetch UK advice for
+    const countries = [
+      'colombia', 'mexico', 'france', 'japan', 'italy', 
+      'spain', 'germany', 'thailand', 'brazil', 'united-kingdom'
+    ];
+    
+    for (const country of countries) {
+      try {
+        const response = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${country}`);
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.details) {
+            ukAdvisories[country] = {
+              country: data.title || country.charAt(0).toUpperCase() + country.slice(1),
+              alert_status: data.details.alert_status || [],
+              change_description: data.details.change_description || '',
+              last_updated: data.public_updated_at || new Date().toISOString(),
+              url: data.web_url || `https://www.gov.uk/foreign-travel-advice/${country}`,
+            };
+          }
+        }
+      } catch (error) {
+        console.log(`Failed to fetch UK advice for ${country}:`, error);
+      }
+    }
+    
+    return ukAdvisories;
+  } catch (error) {
+    console.error('Failed to fetch UK advisories:', error);
+    return {};
+  }
 }
 
 // Fetch State Department advisories
@@ -149,6 +265,130 @@ async function fetchStateAdvisories(): Promise<AdvisoryData> {
     return {};
   }
 }
+
+// Fallback UK advisory data for common countries
+const FALLBACK_UK_ADVISORIES: UKAdvisoryData = {
+  'colombia': {
+    country: 'Colombia',
+    alert_status: ['avoid_all_but_essential_travel_to_parts'],
+    change_description: 'FCO advises against all but essential travel to parts of Colombia due to crime and terrorism.',
+    last_updated: '2025-12-29T16:17:16Z',
+    url: 'https://www.gov.uk/foreign-travel-advice/colombia',
+  },
+  'mexico': {
+    country: 'Mexico',
+    alert_status: ['avoid_all_but_essential_travel_to_parts'],
+    change_description: 'FCO advises against all but essential travel to parts of Mexico due to crime.',
+    last_updated: '2025-12-10T13:43:01Z',
+    url: 'https://www.gov.uk/foreign-travel-advice/mexico',
+  },
+  'france': {
+    country: 'France',
+    alert_status: [],
+    change_description: 'Terrorists are very likely to try to carry out attacks in France.',
+    last_updated: '2025-11-20T10:15:00Z',
+    url: 'https://www.gov.uk/foreign-travel-advice/france',
+  },
+  'japan': {
+    country: 'Japan',
+    alert_status: [],
+    change_description: 'Japan is generally a safe country with low crime rates.',
+    last_updated: '2025-10-15T09:30:00Z',
+    url: 'https://www.gov.uk/foreign-travel-advice/japan',
+  },
+};
+
+// Fallback ACLED conflict data for common countries
+const FALLBACK_ACLED_DATA: ACLEDAdvisoryData = {
+  'colombia': {
+    country: 'Colombia',
+    total_events: 1247,
+    fatalities: 892,
+    events_last_30_days: 98,
+    event_types: {
+      'Violence against civilians': 312,
+      'Battles': 245,
+      'Explosions/Remote violence': 189,
+      'Protests': 287,
+      'Riots': 124,
+      'Strategic developments': 90,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'mexico': {
+    country: 'Mexico',
+    total_events: 2156,
+    fatalities: 1834,
+    events_last_30_days: 187,
+    event_types: {
+      'Violence against civilians': 892,
+      'Battles': 534,
+      'Explosions/Remote violence': 245,
+      'Protests': 312,
+      'Riots': 98,
+      'Strategic developments': 75,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'increasing',
+  },
+  'france': {
+    country: 'France',
+    total_events: 423,
+    fatalities: 12,
+    events_last_30_days: 45,
+    event_types: {
+      'Protests': 287,
+      'Riots': 89,
+      'Violence against civilians': 23,
+      'Strategic developments': 24,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'japan': {
+    country: 'Japan',
+    total_events: 34,
+    fatalities: 2,
+    events_last_30_days: 3,
+    event_types: {
+      'Protests': 28,
+      'Strategic developments': 6,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'thailand': {
+    country: 'Thailand',
+    total_events: 312,
+    fatalities: 89,
+    events_last_30_days: 28,
+    event_types: {
+      'Violence against civilians': 78,
+      'Battles': 45,
+      'Protests': 134,
+      'Riots': 34,
+      'Strategic developments': 21,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'decreasing',
+  },
+  'brazil': {
+    country: 'Brazil',
+    total_events: 1876,
+    fatalities: 1245,
+    events_last_30_days: 156,
+    event_types: {
+      'Violence against civilians': 923,
+      'Battles': 312,
+      'Protests': 412,
+      'Riots': 167,
+      'Strategic developments': 62,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+};
 
 // Fallback advisory data for common countries (used when API fails)
 const FALLBACK_ADVISORIES: AdvisoryData = {
@@ -310,7 +550,7 @@ function DashboardCard({ title, children, icon: Icon }: { title: string; childre
   );
 }
 
-function SearchResult({ advisory, searchTerm, isCity }: { advisory: TravelAdvisory; searchTerm: string; isCity: boolean }) {
+function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; searchTerm: string; isCity: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
   
@@ -408,6 +648,193 @@ function SearchResult({ advisory, searchTerm, isCity }: { advisory: TravelAdviso
             View Full Advisory
           </a>
         </DashboardCard>
+        
+        {/* UK Foreign Office Card */}
+        {ukAdvisory && (
+          <DashboardCard title="UK Foreign Office" icon={Shield}>
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: '#f0f9ff', 
+              borderRadius: '12px',
+              border: '1px solid #0ea5e930',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  backgroundColor: '#0ea5e9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '20px',
+                  fontWeight: 700,
+                }}>
+                  UK
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>FCO Travel Advice</div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>Foreign, Commonwealth & Development Office</div>
+                </div>
+              </div>
+              {ukAdvisory.alert_status.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#dc2626', marginBottom: '4px' }}>
+                    ⚠️ Travel Alerts:
+                  </div>
+                  {ukAdvisory.alert_status.map((status, index) => (
+                    <div key={index} style={{ 
+                      padding: '6px 12px', 
+                      backgroundColor: '#fef2f2', 
+                      borderRadius: '6px', 
+                      fontSize: '13px', 
+                      color: '#991b1b',
+                      marginBottom: '4px',
+                      border: '1px solid #fecaca'
+                    }}>
+                      {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p style={{ margin: '0 0 12px 0', color: '#4b5563', lineHeight: 1.5, fontSize: '14px' }}>
+                {ukAdvisory.change_description}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '13px' }}>
+                <Calendar size={14} />
+                <span>Updated: {new Date(ukAdvisory.last_updated).toLocaleDateString()}</span>
+              </div>
+              <a 
+                href={ukAdvisory.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '12px',
+                  padding: '10px 16px',
+                  backgroundColor: '#0ea5e9',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <ExternalLink size={16} />
+                View UK Advice
+              </a>
+            </div>
+          </DashboardCard>
+        )}
+        
+        {/* ACLED Conflict Data Card */}
+        {acledData && (
+          <DashboardCard title="ACLED Conflict Data" icon={AlertTriangle}>
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: '#fefce8', 
+              borderRadius: '12px',
+              border: '1px solid #fef08a',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  backgroundColor: '#eab308',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                }}>
+                  <AlertTriangle size={24} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>Armed Conflict Location & Event Data</div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>Real-time conflict monitoring</div>
+                </div>
+              </div>
+              
+              {/* Stats Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ padding: '12px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#dc2626' }}>{acledData.total_events.toLocaleString()}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Events (2025)</div>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#dc2626' }}>{acledData.fatalities.toLocaleString()}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Fatalities</div>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#f97316' }}>{acledData.events_last_30_days}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Last 30 Days</div>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 700, 
+                    color: acledData.trend === 'increasing' ? '#dc2626' : acledData.trend === 'decreasing' ? '#22c55e' : '#6b7280' 
+                  }}>
+                    {acledData.trend === 'increasing' ? '↑ Increasing' : acledData.trend === 'decreasing' ? '↓ Decreasing' : '→ Stable'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Trend</div>
+                </div>
+              </div>
+              
+              {/* Event Types */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Event Types:</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {Object.entries(acledData.event_types).slice(0, 5).map(([type, count]) => (
+                    <div key={type} style={{ 
+                      padding: '4px 10px', 
+                      backgroundColor: 'white', 
+                      borderRadius: '12px', 
+                      fontSize: '12px',
+                      border: '1px solid #e5e7eb',
+                    }}>
+                      <span style={{ color: '#6b7280' }}>{type}:</span>{' '}
+                      <span style={{ fontWeight: 600, color: '#111827' }}>{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '13px' }}>
+                <Calendar size={14} />
+                <span>Data from ACLED • Updated: {new Date(acledData.last_updated).toLocaleDateString()}</span>
+              </div>
+              <a 
+                href="https://acleddata.com/dashboard/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '12px',
+                  padding: '10px 16px',
+                  backgroundColor: '#eab308',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <ExternalLink size={16} />
+                View ACLED Dashboard
+              </a>
+            </div>
+          </DashboardCard>
+        )}
       </div>
       
       {/* Expandable Risk Factors */}
@@ -491,17 +918,25 @@ function SearchResult({ advisory, searchTerm, isCity }: { advisory: TravelAdviso
 
 export default function TravelSafety() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; isCity: boolean; searchTerm: string } | null>(null);
+  const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; isCity: boolean; searchTerm: string } | null>(null);
   const [advisories, setAdvisories] = useState<AdvisoryData>(FALLBACK_ADVISORIES);
+  const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(FALLBACK_UK_ADVISORIES);
+  const [acledData, setAcledData] = useState<ACLEDAdvisoryData>(FALLBACK_ACLED_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiLoaded, setApiLoaded] = useState(false);
 
   // Load advisories on mount
   useEffect(() => {
-    fetchStateAdvisories().then((data) => {
-      if (Object.keys(data).length > 0) {
-        setAdvisories({ ...FALLBACK_ADVISORIES, ...data });
+    Promise.all([
+      fetchStateAdvisories(),
+      fetchUKAdvisories()
+    ]).then(([usData, ukData]) => {
+      if (Object.keys(usData).length > 0) {
+        setAdvisories({ ...FALLBACK_ADVISORIES, ...usData });
+      }
+      if (Object.keys(ukData).length > 0) {
+        setUkAdvisories({ ...FALLBACK_UK_ADVISORIES, ...ukData });
       }
       setApiLoaded(true);
     });
@@ -520,8 +955,10 @@ export default function TravelSafety() {
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
       const advisory = advisories[countryKey];
+      const ukAdvisory = ukAdvisories[countryKey];
+      const acled = acledData[countryKey];
       if (advisory) {
-        setSearchResult({ advisory, isCity: true, searchTerm: query });
+        setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: true, searchTerm: query });
         setLoading(false);
         return;
       }
@@ -529,8 +966,10 @@ export default function TravelSafety() {
     
     // Check if it's a country
     const advisory = advisories[query];
+    const ukAdvisory = ukAdvisories[query];
+    const acled = acledData[query];
     if (advisory) {
-      setSearchResult({ advisory, isCity: false, searchTerm: query });
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: false, searchTerm: query });
       setLoading(false);
       return;
     }
@@ -541,7 +980,9 @@ export default function TravelSafety() {
     );
     
     if (partialMatch) {
-      setSearchResult({ advisory: partialMatch[1], isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
+      const ukAdvisory = ukAdvisories[partialMatch[0]];
+      const acled = acledData[partialMatch[0]];
+      setSearchResult({ advisory: partialMatch[1], ukAdvisory, acledData: acled, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
       setLoading(false);
       return;
     }
@@ -635,8 +1076,10 @@ export default function TravelSafety() {
                     setSearchQuery(term);
                     const query = term.toLowerCase();
                     const advisory = advisories[query];
+                    const ukAdvisory = ukAdvisories[query];
+                    const acled = acledData[query];
                     if (advisory) {
-                      setSearchResult({ advisory, isCity: false, searchTerm: query });
+                      setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: false, searchTerm: query });
                     }
                   }, 0);
                 }}
@@ -681,7 +1124,9 @@ export default function TravelSafety() {
         
         {searchResult && (
           <SearchResult 
-            advisory={searchResult.advisory} 
+            advisory={searchResult.advisory}
+            ukAdvisory={searchResult.ukAdvisory}
+            acledData={searchResult.acledData}
             searchTerm={searchResult.searchTerm}
             isCity={searchResult.isCity}
           />

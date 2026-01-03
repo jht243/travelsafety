@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild src/main.tsx --bundle --format=esm --outfile=../assets/travel-checklist.js",
-    "dev": "esbuild src/main.tsx --bundle --format=esm --outfile=dist/bundle.js --watch --servedir=. --serve=8080"
+    "dev": "esbuild src/main.tsx --bundle --format=esm --outfile=dist/bundle.js --watch --servedir=. --serve=8000"
   },
   "dependencies": {
     "lucide-react": "^0.554.0",
