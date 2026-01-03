@@ -1,12 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
-// State Department Advisory Levels
+// Gen-Z Modern Color Palette
+const COLORS = {
+  lime: '#DCFF00',
+  purple: '#8B5CF6',
+  orange: '#FF6B35',
+  blue: '#60A5FA',
+  pink: '#F472B6',
+  dark: '#1a1a2e',
+  darkPurple: '#4C1D95',
+  cream: '#FFFBF5',
+  mint: '#34D399',
+};
+
+// State Department Advisory Levels - Gen-Z Colors
 const ADVISORY_LEVELS = {
-  1: { label: 'Exercise Normal Precautions', color: '#22c55e', bgColor: '#dcfce7', icon: CheckCircle },
-  2: { label: 'Exercise Increased Caution', color: '#eab308', bgColor: '#fef9c3', icon: Info },
-  3: { label: 'Reconsider Travel', color: '#f97316', bgColor: '#ffedd5', icon: AlertTriangle },
-  4: { label: 'Do Not Travel', color: '#ef4444', bgColor: '#fee2e2', icon: AlertCircle },
+  1: { label: 'Exercise Normal Precautions', color: COLORS.mint, bgColor: '#D1FAE5', icon: CheckCircle },
+  2: { label: 'Exercise Increased Caution', color: COLORS.lime, bgColor: '#FEFCE8', icon: Info },
+  3: { label: 'Reconsider Travel', color: COLORS.orange, bgColor: '#FFF1EB', icon: AlertTriangle },
+  4: { label: 'Do Not Travel', color: '#EF4444', bgColor: '#FEE2E2', icon: AlertCircle },
 };
 
 // City coordinates for nearby city calculations (lat, lng)
@@ -1299,9 +1312,9 @@ function calculateSafetyScore(advisory: TravelAdvisory, acledData?: ACLEDData, g
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 75) return '#22c55e'; // Green
-  if (score >= 50) return '#eab308'; // Yellow
-  if (score >= 25) return '#f97316'; // Orange
+  if (score >= 75) return COLORS.mint; // Mint green
+  if (score >= 50) return COLORS.purple; // Purple
+  if (score >= 25) return COLORS.orange; // Orange
   return '#dc2626'; // Red
 }
 
@@ -1324,23 +1337,30 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
   return (
     <div style={{
       backgroundColor: 'white',
-      borderRadius: '20px',
-      padding: '32px',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.05), 0 10px 15px rgba(0,0,0,0.1)',
-      border: '1px solid #e5e7eb',
-      maxWidth: '900px',
+      borderRadius: '24px',
+      padding: '20px',
+      boxShadow: '0 8px 32px rgba(139,92,246,0.12)',
+      border: '2px solid #E5E7EB',
+      maxWidth: '500px',
       margin: '0 auto',
     }}>
       {/* MAIN VIEW - Always Visible */}
       {/* Header with Location */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '8px' }}>
-          <MapPin size={24} style={{ color: scoreColor }} />
-          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: '#111827' }}>
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '4px' }}>
+          <div style={{ 
+            backgroundColor: scoreColor, 
+            borderRadius: '8px', 
+            padding: '4px',
+            display: 'flex',
+          }}>
+            <MapPin size={16} style={{ color: 'white' }} />
+          </div>
+          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: COLORS.dark, letterSpacing: '-0.5px' }}>
             {isCity ? (
               <>
                 <span style={{ textTransform: 'capitalize' }}>{searchTerm}</span>
-                <span style={{ color: '#6b7280', fontWeight: 400, fontSize: '20px' }}>, {advisory.country}</span>
+                <span style={{ color: '#9CA3AF', fontWeight: 500, fontSize: '16px' }}>, {advisory.country}</span>
               </>
             ) : (
               advisory.country
@@ -1353,23 +1373,23 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '16px',
-        marginBottom: '16px',
-        padding: '16px',
-        backgroundColor: `${scoreColor}10`,
-        borderRadius: '12px',
-        border: `2px solid ${scoreColor}30`,
+        gap: '12px',
+        marginBottom: '12px',
+        padding: '12px',
+        backgroundColor: `${scoreColor}15`,
+        borderRadius: '16px',
+        border: `2px solid ${scoreColor}40`,
       }}>
         <div style={{ 
-          width: '80px', 
-          height: '80px', 
-          borderRadius: '50%', 
+          width: '60px', 
+          height: '60px', 
+          borderRadius: '16px', 
           backgroundColor: scoreColor,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: `0 4px 12px ${scoreColor}40`,
+          boxShadow: `0 4px 16px ${scoreColor}50`,
           flexShrink: 0,
         }}>
           <div style={{ fontSize: '28px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{safetyScore}</div>
@@ -1388,25 +1408,25 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       
       {/* KEY INSIGHTS - Compact Grid */}
       <div style={{ marginBottom: '12px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
           {/* Local News (GDELT) */}
           {gdeltData && (
             <div style={{ 
-              padding: '10px', 
-              backgroundColor: '#f9fafb', 
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
+              padding: '10px 8px', 
+              backgroundColor: COLORS.cream, 
+              borderRadius: '12px',
+              border: '2px solid #E5E7EB',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>News Tone</div>
+              <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '2px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>News</div>
               <div style={{ 
-                fontSize: '18px', 
-                fontWeight: 700, 
-                color: gdeltData.tone_score > 0 ? '#22c55e' : gdeltData.tone_score < -3 ? '#dc2626' : '#f97316',
+                fontSize: '16px', 
+                fontWeight: 800, 
+                color: gdeltData.tone_score > 0 ? COLORS.mint : gdeltData.tone_score < -3 ? COLORS.orange : COLORS.purple,
               }}>
                 {gdeltData.tone_score > 0 ? '+' : ''}{gdeltData.tone_score}
               </div>
-              <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+              <div style={{ fontSize: '9px', color: '#9ca3af', fontWeight: 500 }}>
                 {gdeltData.volume_level === 'spike' ? '🔴 Spike' : gdeltData.volume_level === 'elevated' ? '🟡 High' : '🟢 Normal'}
               </div>
             </div>
@@ -1415,21 +1435,21 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           {/* Local Incidents (ACLED) */}
           {acledData && (
             <div style={{ 
-              padding: '10px', 
-              backgroundColor: '#f9fafb', 
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
+              padding: '10px 8px', 
+              backgroundColor: COLORS.cream, 
+              borderRadius: '12px',
+              border: '2px solid #E5E7EB',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Incidents</div>
+              <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '2px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Events</div>
               <div style={{ 
-                fontSize: '18px', 
-                fontWeight: 700, 
-                color: acledData.total_events > 500 ? '#dc2626' : acledData.total_events > 100 ? '#f97316' : '#22c55e',
+                fontSize: '16px', 
+                fontWeight: 800, 
+                color: acledData.total_events > 500 ? COLORS.orange : acledData.total_events > 100 ? COLORS.purple : COLORS.mint,
               }}>
                 {acledData.total_events.toLocaleString()}
               </div>
-              <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+              <div style={{ fontSize: '9px', color: '#9ca3af', fontWeight: 500 }}>
                 {acledData.trend === 'increasing' ? '↑ Rising' : acledData.trend === 'decreasing' ? '↓ Falling' : '→ Stable'}
               </div>
             </div>
@@ -1437,16 +1457,16 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           
           {/* US Advisory Level */}
           <div style={{ 
-            padding: '10px', 
-            backgroundColor: '#f9fafb', 
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb',
+            padding: '10px 8px', 
+            backgroundColor: COLORS.cream, 
+            borderRadius: '12px',
+            border: '2px solid #E5E7EB',
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>US Level</div>
+            <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '2px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>US Level</div>
             <div style={{ 
-              fontSize: '18px', 
-              fontWeight: 700, 
+              fontSize: '16px', 
+              fontWeight: 800, 
               color: config.color,
             }}>
               {advisory.advisory_level}
@@ -1500,29 +1520,31 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         <button
           onClick={() => setShowMore(!showMore)}
           style={{
-            padding: '12px 32px',
-            backgroundColor: showMore ? '#f3f4f6' : '#2563eb',
-            color: showMore ? '#374151' : 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '15px',
-            fontWeight: 600,
+            padding: '10px 24px',
+            backgroundColor: showMore ? COLORS.cream : COLORS.purple,
+            color: showMore ? COLORS.purple : 'white',
+            border: showMore ? `2px solid ${COLORS.purple}` : 'none',
+            borderRadius: '50px',
+            fontSize: '13px',
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             transition: 'all 0.2s',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
           }}
         >
           {showMore ? (
             <>
-              <ChevronUp size={20} />
-              Show Less
+              <ChevronUp size={16} />
+              Less
             </>
           ) : (
             <>
-              <ChevronDown size={20} />
-              See Full Analysis
+              <ChevronDown size={16} />
+              More Details
             </>
           )}
         </button>
@@ -2100,52 +2122,64 @@ export default function TravelSafety() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#f3f4f6',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      backgroundColor: COLORS.cream,
+      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     }}>
-      {/* Hero Section */}
+      {/* Hero Section - Gen-Z Style */}
       <div style={{
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-        padding: '48px 24px',
+        background: `linear-gradient(135deg, ${COLORS.darkPurple} 0%, ${COLORS.purple} 100%)`,
+        padding: '32px 20px',
         textAlign: 'center',
+        borderBottomLeftRadius: '32px',
+        borderBottomRightRadius: '32px',
       }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
-            <Globe size={40} style={{ color: 'white' }} />
-            <h1 style={{ margin: 0, fontSize: '36px', fontWeight: 700, color: 'white' }}>
-              Is It Safe To Travel?
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ 
+              backgroundColor: COLORS.lime, 
+              borderRadius: '12px', 
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <Globe size={28} style={{ color: COLORS.dark }} />
+            </div>
+            <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>
+              Safe to Travel?
             </h1>
           </div>
-          <p style={{ margin: '0 0 32px 0', fontSize: '18px', color: '#bfdbfe', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-            Get real-time travel safety information from official government sources. 
-            Search any city or country to see current advisories.
+          <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: 'rgba(255,255,255,0.8)', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+            Real-time safety info from official sources
           </p>
           
           {/* Search Bar */}
           <div style={{
             display: 'flex',
-            maxWidth: '600px',
+            maxWidth: '500px',
             margin: '0 auto',
             backgroundColor: 'white',
-            borderRadius: '16px',
+            borderRadius: '50px',
             overflow: 'hidden',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1), 0 10px 15px rgba(0,0,0,0.1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            border: '3px solid ' + COLORS.lime,
           }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+              <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: COLORS.purple }} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Search a city or country (e.g., Medellin, Colombia)"
+                placeholder="Search city or country..."
                 style={{
                   width: '100%',
-                  padding: '18px 16px 18px 48px',
-                  fontSize: '16px',
+                  padding: '14px 16px 14px 44px',
+                  fontSize: '15px',
                   border: 'none',
                   outline: 'none',
                   backgroundColor: 'transparent',
+                  fontWeight: 500,
                 }}
               />
             </div>
@@ -2153,23 +2187,27 @@ export default function TravelSafety() {
               onClick={handleSearch}
               disabled={loading}
               style={{
-                padding: '18px 32px',
-                backgroundColor: '#2563eb',
+                padding: '14px 24px',
+                backgroundColor: COLORS.orange,
                 color: 'white',
                 border: 'none',
+                borderRadius: '50px',
+                margin: '4px',
                 cursor: loading ? 'wait' : 'pointer',
-                fontSize: '16px',
-                fontWeight: 600,
-                transition: 'background-color 0.2s',
+                fontSize: '14px',
+                fontWeight: 700,
+                transition: 'all 0.2s',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
               }}
             >
-              {loading ? 'Searching...' : 'Search'}
+              {loading ? '...' : 'Go'}
             </button>
           </div>
           
           {/* Popular Searches */}
-          <div style={{ marginTop: '24px' }}>
-            <span style={{ color: '#bfdbfe', fontSize: '14px', marginRight: '12px' }}>Popular:</span>
+          <div style={{ marginTop: '16px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginRight: '8px' }}>Try:</span>
             {popularSearches.map((term) => (
               <button
                 key={term}
@@ -2188,15 +2226,16 @@ export default function TravelSafety() {
                   }, 0);
                 }}
                 style={{
-                  padding: '6px 12px',
-                  margin: '4px',
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  borderRadius: '20px',
+                  padding: '5px 12px',
+                  margin: '3px',
+                  backgroundColor: 'rgba(220,255,0,0.2)',
+                  color: COLORS.lime,
+                  border: '1px solid ' + COLORS.lime,
+                  borderRadius: '50px',
                   cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background-color 0.2s',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
                 }}
               >
                 {term}
@@ -2207,7 +2246,7 @@ export default function TravelSafety() {
       </div>
       
       {/* Results Section */}
-      <div style={{ padding: '48px 24px' }}>
+      <div style={{ padding: '24px 16px' }}>
         {error && (
           <div style={{
             maxWidth: '600px',
