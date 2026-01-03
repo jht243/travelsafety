@@ -1128,9 +1128,71 @@ function DashboardCard({ title, children, icon: Icon }: { title: string; childre
   );
 }
 
+// Calculate composite safety score (1-100) from all data sources
+function calculateSafetyScore(advisory: TravelAdvisory, acledData?: ACLEDData, gdeltData?: GDELTData): number {
+  let score = 100;
+  
+  // State Dept advisory level (major factor for country-level)
+  // Level 1 = -0, Level 2 = -15, Level 3 = -30, Level 4 = -50
+  score -= (advisory.advisory_level - 1) * 15;
+  
+  // ACLED conflict data (local factor - weighted higher for cities)
+  if (acledData) {
+    // Events impact: more events = lower score
+    if (acledData.total_events > 1000) score -= 15;
+    else if (acledData.total_events > 500) score -= 10;
+    else if (acledData.total_events > 100) score -= 5;
+    
+    // Fatalities impact
+    if (acledData.fatalities > 500) score -= 10;
+    else if (acledData.fatalities > 100) score -= 5;
+    
+    // Trend impact
+    if (acledData.trend === 'increasing') score -= 5;
+    else if (acledData.trend === 'decreasing') score += 3;
+  }
+  
+  // GDELT news tone (local sentiment indicator)
+  if (gdeltData) {
+    // Tone impact: negative tone = concerning
+    if (gdeltData.tone_score < -5) score -= 10;
+    else if (gdeltData.tone_score < -2) score -= 5;
+    else if (gdeltData.tone_score > 2) score += 3;
+    
+    // Volume spike = something happening
+    if (gdeltData.volume_level === 'spike') score -= 8;
+    else if (gdeltData.volume_level === 'elevated') score -= 3;
+    
+    // Trend
+    if (gdeltData.trend_7day === 'worsening') score -= 5;
+    else if (gdeltData.trend_7day === 'improving') score += 3;
+  }
+  
+  return Math.max(1, Math.min(100, Math.round(score)));
+}
+
+function getScoreColor(score: number): string {
+  if (score >= 75) return '#22c55e'; // Green
+  if (score >= 50) return '#eab308'; // Yellow
+  if (score >= 25) return '#f97316'; // Orange
+  return '#dc2626'; // Red
+}
+
+function getScoreLabel(score: number): string {
+  if (score >= 75) return 'Low Risk';
+  if (score >= 50) return 'Moderate Risk';
+  if (score >= 25) return 'Elevated Risk';
+  return 'High Risk';
+}
+
 function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean }) {
-  const [expanded, setExpanded] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
+  
+  // Calculate composite safety score
+  const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
+  const scoreColor = getScoreColor(safetyScore);
+  const scoreLabel = getScoreLabel(safetyScore);
   
   return (
     <div style={{
@@ -1142,36 +1204,228 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       maxWidth: '900px',
       margin: '0 auto',
     }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
-          <MapPin size={28} style={{ color: config.color }} />
-          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 700, color: '#111827' }}>
+      {/* MAIN VIEW - Always Visible */}
+      {/* Header with Location */}
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '8px' }}>
+          <MapPin size={24} style={{ color: scoreColor }} />
+          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: '#111827' }}>
             {isCity ? (
               <>
                 <span style={{ textTransform: 'capitalize' }}>{searchTerm}</span>
-                <span style={{ color: '#6b7280', fontWeight: 400 }}>, {advisory.country}</span>
+                <span style={{ color: '#6b7280', fontWeight: 400, fontSize: '20px' }}>, {advisory.country}</span>
               </>
             ) : (
               advisory.country
             )}
           </h1>
         </div>
-        <AdvisoryLevelBadge level={advisory.advisory_level} />
       </div>
       
-      {/* Main Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '24px' }}>
-        {/* State Department Card */}
-        <DashboardCard title="US State Department" icon={Shield}>
+      {/* BIG SAFETY SCORE - The Main Visual */}
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        marginBottom: '32px',
+        padding: '24px',
+        backgroundColor: `${scoreColor}10`,
+        borderRadius: '16px',
+        border: `2px solid ${scoreColor}30`,
+      }}>
+        <div style={{ 
+          width: '140px', 
+          height: '140px', 
+          borderRadius: '50%', 
+          backgroundColor: scoreColor,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: `0 8px 24px ${scoreColor}40`,
+          marginBottom: '16px',
+        }}>
+          <div style={{ fontSize: '48px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{safetyScore}</div>
+          <div style={{ fontSize: '14px', fontWeight: 500, color: 'white', opacity: 0.9 }}>/ 100</div>
+        </div>
+        <div style={{ fontSize: '20px', fontWeight: 700, color: scoreColor, marginBottom: '4px' }}>{scoreLabel}</div>
+        <div style={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', maxWidth: '400px' }}>
+          {safetyScore >= 75 ? 'Generally safe for travelers with normal precautions.' :
+           safetyScore >= 50 ? 'Exercise increased caution. Be aware of your surroundings.' :
+           safetyScore >= 25 ? 'Reconsider travel. Significant safety concerns exist.' :
+           'Avoid travel if possible. Serious risks present.'}
+        </div>
+      </div>
+      
+      {/* KEY INSIGHTS - Quick Summary */}
+      <div style={{ marginBottom: '24px' }}>
+        <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 600, color: '#374151' }}>Key Insights</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+          {/* Local News Sentiment (GDELT) */}
+          {gdeltData && (
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: '#f9fafb', 
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <Globe size={18} style={{ color: '#6b7280' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Local News Sentiment</span>
+              </div>
+              <div style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                color: gdeltData.tone_score > 0 ? '#22c55e' : gdeltData.tone_score < -3 ? '#dc2626' : '#f97316',
+                marginBottom: '4px',
+              }}>
+                {gdeltData.tone_score > 0 ? '+' : ''}{gdeltData.tone_score}
+              </div>
+              <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                {gdeltData.volume_level === 'spike' ? '🔴 News spike detected' : 
+                 gdeltData.volume_level === 'elevated' ? '🟡 Elevated coverage' : 
+                 '🟢 Normal coverage'} • {gdeltData.trend_7day === 'worsening' ? 'Trend ↓' : gdeltData.trend_7day === 'improving' ? 'Trend ↑' : 'Stable'}
+              </div>
+            </div>
+          )}
+          
+          {/* Local Conflict Events (ACLED) */}
+          {acledData && (
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: '#f9fafb', 
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <AlertTriangle size={18} style={{ color: '#6b7280' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>
+                  {acledData.location ? 'Local Incidents' : 'Country Incidents'}
+                </span>
+              </div>
+              <div style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                color: acledData.total_events > 500 ? '#dc2626' : acledData.total_events > 100 ? '#f97316' : '#22c55e',
+                marginBottom: '4px',
+              }}>
+                {acledData.total_events.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                Events in 2025 • {acledData.events_last_30_days} last 30 days • {acledData.trend === 'increasing' ? 'Trend ↑' : acledData.trend === 'decreasing' ? 'Trend ↓' : 'Stable'}
+              </div>
+            </div>
+          )}
+          
+          {/* Government Advisory Level */}
           <div style={{ 
             padding: '16px', 
-            backgroundColor: config.bgColor, 
+            backgroundColor: '#f9fafb', 
             borderRadius: '12px',
-            border: `1px solid ${config.color}20`,
+            border: '1px solid #e5e7eb',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <div style={{
+              <Shield size={18} style={{ color: '#6b7280' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>US Advisory Level</span>
+            </div>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: config.color,
+              marginBottom: '4px',
+            }}>
+              Level {advisory.advisory_level}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+              {config.label} • Country-wide
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Top Headlines (if available) */}
+      {gdeltData && gdeltData.headlines.length > 0 && (
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 600, color: '#374151' }}>Recent News</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {gdeltData.headlines.slice(0, 2).map((headline, index) => (
+              <a
+                key={index}
+                href={headline.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: '12px 16px',
+                  backgroundColor: '#f9fafb',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>{headline.title}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{headline.source}</div>
+                </div>
+                <ExternalLink size={16} style={{ color: '#9ca3af', flexShrink: 0, marginLeft: '12px' }} />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* SEE MORE BUTTON */}
+      <div style={{ textAlign: 'center', marginBottom: showMore ? '24px' : '0' }}>
+        <button
+          onClick={() => setShowMore(!showMore)}
+          style={{
+            padding: '12px 32px',
+            backgroundColor: showMore ? '#f3f4f6' : '#2563eb',
+            color: showMore ? '#374151' : 'white',
+            border: 'none',
+            borderRadius: '12px',
+            fontSize: '15px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s',
+          }}
+        >
+          {showMore ? (
+            <>
+              <ChevronUp size={20} />
+              Show Less
+            </>
+          ) : (
+            <>
+              <ChevronDown size={20} />
+              See Full Analysis
+            </>
+          )}
+        </button>
+      </div>
+      
+      {/* EXPANDED SECTION - Only visible when showMore is true */}
+      {showMore && (
+        <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: 600, color: '#111827' }}>Detailed Analysis</h3>
+          
+          {/* Full Data Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+            {/* US State Department Card */}
+            <DashboardCard title="US State Department" icon={Shield}>
+              <div style={{ 
+                padding: '16px', 
+                backgroundColor: config.bgColor, 
+                borderRadius: '12px',
+                border: `1px solid ${config.color}20`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
@@ -1581,37 +1835,17 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             </div>
           </DashboardCard>
         )}
-      </div>
-      
-      {/* Expandable Risk Factors */}
-      <div style={{
-        backgroundColor: '#f9fafb',
-        borderRadius: '12px',
-        border: '1px solid #e5e7eb',
-        overflow: 'hidden',
-      }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            width: '100%',
-            padding: '16px 24px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '16px',
-            fontWeight: 600,
-            color: '#111827',
-          }}
-        >
-          <span>Understanding the Advisory Levels</span>
-          {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </button>
-        {expanded && (
-          <div style={{ padding: '0 24px 24px' }}>
-            <div style={{ display: 'grid', gap: '12px' }}>
+          </div>
+          
+          {/* Advisory Level Legend */}
+          <div style={{ 
+            padding: '16px', 
+            backgroundColor: '#f9fafb', 
+            borderRadius: '12px',
+            border: '1px solid #e5e7eb',
+          }}>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 600, color: '#374151' }}>US Advisory Levels Explained</h4>
+            <div style={{ display: 'grid', gap: '8px' }}>
               {Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
                 const Icon = info.icon;
                 return (
@@ -1620,14 +1854,14 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '12px',
-                      padding: '12px',
+                      gap: '10px',
+                      padding: '8px 12px',
                       backgroundColor: info.bgColor,
-                      borderRadius: '8px',
-                      border: `1px solid ${info.color}30`,
+                      borderRadius: '6px',
+                      fontSize: '13px',
                     }}
                   >
-                    <Icon size={20} style={{ color: info.color }} />
+                    <Icon size={16} style={{ color: info.color }} />
                     <span style={{ fontWeight: 600, color: info.color }}>Level {level}:</span>
                     <span style={{ color: '#4b5563' }}>{info.label}</span>
                   </div>
@@ -1635,27 +1869,26 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
               })}
             </div>
           </div>
-        )}
-      </div>
-      
-      {/* City-specific note */}
-      {isCity && (
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          backgroundColor: '#eff6ff',
-          borderRadius: '12px',
-          border: '1px solid #bfdbfe',
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '12px',
-        }}>
-          <Info size={20} style={{ color: '#2563eb', flexShrink: 0, marginTop: '2px' }} />
-          <div style={{ color: '#1e40af', fontSize: '14px', lineHeight: 1.6 }}>
-            <strong>Note:</strong> This advisory applies to {advisory.country} as a whole. 
-            Safety conditions in <span style={{ textTransform: 'capitalize' }}>{searchTerm}</span> may differ from other regions. 
-            Always check for city-specific guidance and local news before traveling.
-          </div>
+          
+          {/* City-specific note in expanded */}
+          {isCity && (
+            <div style={{
+              marginTop: '16px',
+              padding: '14px',
+              backgroundColor: '#eff6ff',
+              borderRadius: '10px',
+              border: '1px solid #bfdbfe',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+            }}>
+              <Info size={18} style={{ color: '#2563eb', flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ color: '#1e40af', fontSize: '13px', lineHeight: 1.5 }}>
+                <strong>Note:</strong> Government advisories apply to {advisory.country} as a whole. 
+                Local data (ACLED, GDELT) is specific to <span style={{ textTransform: 'capitalize' }}>{searchTerm}</span>.
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

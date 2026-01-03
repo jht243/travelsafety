@@ -25491,36 +25491,6 @@ var FALLBACK_ADVISORIES = {
     url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/brazil-travel-advisory.html"
   }
 };
-function AdvisoryLevelBadge({ level }) {
-  const config = ADVISORY_LEVELS[level] || ADVISORY_LEVELS[1];
-  const Icon2 = config.icon;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    "div",
-    {
-      className: "advisory-badge",
-      style: {
-        backgroundColor: config.bgColor,
-        color: config.color,
-        border: `2px solid ${config.color}`,
-        borderRadius: "12px",
-        padding: "8px 16px",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        fontWeight: 600
-      },
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 20 }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-          "Level ",
-          level,
-          ": ",
-          config.label
-        ] })
-      ]
-    }
-  );
-}
 function SafetyMeter({ level }) {
   const percentage = (4 - level + 1) / 4 * 100;
   const config = ADVISORY_LEVELS[level] || ADVISORY_LEVELS[1];
@@ -25566,9 +25536,47 @@ function DashboardCard({ title, children, icon: Icon2 }) {
     children
   ] });
 }
+function calculateSafetyScore(advisory, acledData, gdeltData) {
+  let score = 100;
+  score -= (advisory.advisory_level - 1) * 15;
+  if (acledData) {
+    if (acledData.total_events > 1e3) score -= 15;
+    else if (acledData.total_events > 500) score -= 10;
+    else if (acledData.total_events > 100) score -= 5;
+    if (acledData.fatalities > 500) score -= 10;
+    else if (acledData.fatalities > 100) score -= 5;
+    if (acledData.trend === "increasing") score -= 5;
+    else if (acledData.trend === "decreasing") score += 3;
+  }
+  if (gdeltData) {
+    if (gdeltData.tone_score < -5) score -= 10;
+    else if (gdeltData.tone_score < -2) score -= 5;
+    else if (gdeltData.tone_score > 2) score += 3;
+    if (gdeltData.volume_level === "spike") score -= 8;
+    else if (gdeltData.volume_level === "elevated") score -= 3;
+    if (gdeltData.trend_7day === "worsening") score -= 5;
+    else if (gdeltData.trend_7day === "improving") score += 3;
+  }
+  return Math.max(1, Math.min(100, Math.round(score)));
+}
+function getScoreColor(score) {
+  if (score >= 75) return "#22c55e";
+  if (score >= 50) return "#eab308";
+  if (score >= 25) return "#f97316";
+  return "#dc2626";
+}
+function getScoreLabel(score) {
+  if (score >= 75) return "Low Risk";
+  if (score >= 50) return "Moderate Risk";
+  if (score >= 25) return "Elevated Risk";
+  return "High Risk";
+}
 function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }) {
-  const [expanded, setExpanded] = (0, import_react3.useState)(false);
+  const [showMore, setShowMore] = (0, import_react3.useState)(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
+  const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
+  const scoreColor = getScoreColor(safetyScore);
+  const scoreLabel = getScoreLabel(safetyScore);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     backgroundColor: "white",
     borderRadius: "20px",
@@ -25578,484 +25586,623 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
     maxWidth: "900px",
     margin: "0 auto"
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", marginBottom: "32px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "16px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 28, style: { color: config.color } }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "32px", fontWeight: 700, color: "#111827" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280", fontWeight: 400 }, children: [
-            ", ",
-            advisory.country
-          ] })
-        ] }) : advisory.country })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "8px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 24, style: { color: scoreColor } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "28px", fontWeight: 700, color: "#111827" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280", fontWeight: 400, fontSize: "20px" }, children: [
+          ", ",
+          advisory.country
+        ] })
+      ] }) : advisory.country })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      marginBottom: "32px",
+      padding: "24px",
+      backgroundColor: `${scoreColor}10`,
+      borderRadius: "16px",
+      border: `2px solid ${scoreColor}30`
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        width: "140px",
+        height: "140px",
+        borderRadius: "50%",
+        backgroundColor: scoreColor,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: `0 8px 24px ${scoreColor}40`,
+        marginBottom: "16px"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "48px", fontWeight: 800, color: "white", lineHeight: 1 }, children: safetyScore }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 500, color: "white", opacity: 0.9 }, children: "/ 100" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AdvisoryLevelBadge, { level: advisory.advisory_level })
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: scoreColor, marginBottom: "4px" }, children: scoreLabel }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280", textAlign: "center", maxWidth: "400px" }, children: safetyScore >= 75 ? "Generally safe for travelers with normal precautions." : safetyScore >= 50 ? "Exercise increased caution. Be aware of your surroundings." : safetyScore >= 25 ? "Reconsider travel. Significant safety concerns exist." : "Avoid travel if possible. Serious risks present." })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "24px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 16px 0", fontSize: "16px", fontWeight: 600, color: "#374151" }, children: "Key Insights" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }, children: [
+        gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
           padding: "16px",
-          backgroundColor: config.bgColor,
+          backgroundColor: "#f9fafb",
           borderRadius: "12px",
-          border: `1px solid ${config.color}20`
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            width: "48px",
-            height: "48px",
-            borderRadius: "50%",
-            backgroundColor: config.color,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
+          border: "1px solid #e5e7eb"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 18, style: { color: "#6b7280" } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "13px", fontWeight: 600, color: "#374151" }, children: "Local News Sentiment" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
             fontSize: "24px",
-            fontWeight: 700
-          }, children: advisory.advisory_level }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: "#111827" }, children: [
-              "Level ",
-              advisory.advisory_level
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: config.label })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "Advisory Details", icon: Info, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: "#4b5563", lineHeight: 1.6 }, children: advisory.advisory_text }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "14px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 16 }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-            "Updated: ",
-            advisory.date_updated
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "a",
-          {
-            href: advisory.url,
-            target: "_blank",
-            rel: "noopener noreferrer",
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "16px",
-              padding: "10px 16px",
-              backgroundColor: "#2563eb",
-              color: "white",
-              borderRadius: "8px",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background-color 0.2s"
-            },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
-              "View Full Advisory"
-            ]
-          }
-        )
-      ] }),
-      ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        padding: "16px",
-        backgroundColor: "#f0f9ff",
-        borderRadius: "12px",
-        border: "1px solid #0ea5e930"
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            width: "48px",
-            height: "48px",
-            borderRadius: "50%",
-            backgroundColor: "#0ea5e9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "20px",
-            fontWeight: 700
-          }, children: "UK" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: "FCO Travel Advice" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: "Foreign, Commonwealth & Development Office" })
-          ] })
-        ] }),
-        ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: "#dc2626", marginBottom: "4px" }, children: "\u26A0\uFE0F Travel Alerts:" }),
-          ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            padding: "6px 12px",
-            backgroundColor: "#fef2f2",
-            borderRadius: "6px",
-            fontSize: "13px",
-            color: "#991b1b",
-            marginBottom: "4px",
-            border: "1px solid #fecaca"
-          }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 12px 0", color: "#4b5563", lineHeight: 1.5, fontSize: "14px" }, children: ukAdvisory.change_description }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "13px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-            "Updated: ",
-            new Date(ukAdvisory.last_updated).toLocaleDateString()
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "a",
-          {
-            href: ukAdvisory.url,
-            target: "_blank",
-            rel: "noopener noreferrer",
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "12px",
-              padding: "10px 16px",
-              backgroundColor: "#0ea5e9",
-              color: "white",
-              borderRadius: "8px",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background-color 0.2s"
-            },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
-              "View UK Advice"
-            ]
-          }
-        )
-      ] }) }),
-      acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "ACLED Conflict Data", icon: TriangleAlert, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        padding: "16px",
-        backgroundColor: "#fefce8",
-        borderRadius: "12px",
-        border: "1px solid #fef08a"
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            width: "48px",
-            height: "48px",
-            borderRadius: "50%",
-            backgroundColor: "#eab308",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: 700
-          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 24 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
-              "ACLED Conflict Data ",
-              acledData.location ? "(City-level)" : "(Country-level)"
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#dc2626" }, children: acledData.total_events.toLocaleString() }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Events (2025)" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#dc2626" }, children: acledData.fatalities.toLocaleString() }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Fatalities" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#f97316" }, children: acledData.events_last_30_days }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Last 30 Days" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              fontSize: "16px",
-              fontWeight: 700,
-              color: acledData.trend === "increasing" ? "#dc2626" : acledData.trend === "decreasing" ? "#22c55e" : "#6b7280"
-            }, children: acledData.trend === "increasing" ? "\u2191 Increasing" : acledData.trend === "decreasing" ? "\u2193 Decreasing" : "\u2192 Stable" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Trend" })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Event Types:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(acledData.event_types).slice(0, 5).map(([type, count]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-            padding: "4px 10px",
-            backgroundColor: "white",
-            borderRadius: "12px",
-            fontSize: "12px",
-            border: "1px solid #e5e7eb"
+            fontWeight: 700,
+            color: gdeltData.tone_score > 0 ? "#22c55e" : gdeltData.tone_score < -3 ? "#dc2626" : "#f97316",
+            marginBottom: "4px"
           }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
-              type,
-              ":"
-            ] }),
-            " ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, color: "#111827" }, children: count })
-          ] }, type)) })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "13px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-            "Data from ACLED \u2022 Updated: ",
-            new Date(acledData.last_updated).toLocaleDateString()
+            gdeltData.tone_score > 0 ? "+" : "",
+            gdeltData.tone_score
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: [
+            gdeltData.volume_level === "spike" ? "\u{1F534} News spike detected" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated coverage" : "\u{1F7E2} Normal coverage",
+            " \u2022 ",
+            gdeltData.trend_7day === "worsening" ? "Trend \u2193" : gdeltData.trend_7day === "improving" ? "Trend \u2191" : "Stable"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "a",
-          {
-            href: "https://acleddata.com/dashboard/",
-            target: "_blank",
-            rel: "noopener noreferrer",
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "12px",
-              padding: "10px 16px",
-              backgroundColor: "#eab308",
-              color: "white",
-              borderRadius: "8px",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background-color 0.2s"
-            },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
-              "View ACLED Dashboard"
-            ]
-          }
-        )
-      ] }) }),
-      gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "GDELT News Analysis", icon: Globe, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        padding: "16px",
-        backgroundColor: "#f0fdf4",
-        borderRadius: "12px",
-        border: "1px solid #bbf7d0"
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
+        acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: "#f9fafb",
+          borderRadius: "12px",
+          border: "1px solid #e5e7eb"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 18, style: { color: "#6b7280" } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "13px", fontWeight: 600, color: "#374151" }, children: acledData.location ? "Local Incidents" : "Country Incidents" })
+          ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            width: "48px",
-            height: "48px",
-            borderRadius: "50%",
-            backgroundColor: "#22c55e",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: 700
-          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 24 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: gdeltData.location }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
-              "Global News Monitoring ",
-              gdeltData.location !== gdeltData.country ? "(City-level)" : "(Country-level)"
-            ] })
+            fontSize: "24px",
+            fontWeight: 700,
+            color: acledData.total_events > 500 ? "#dc2626" : acledData.total_events > 100 ? "#f97316" : "#22c55e",
+            marginBottom: "4px"
+          }, children: acledData.total_events.toLocaleString() }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: [
+            "Events in 2025 \u2022 ",
+            acledData.events_last_30_days,
+            " last 30 days \u2022 ",
+            acledData.trend === "increasing" ? "Trend \u2191" : acledData.trend === "decreasing" ? "Trend \u2193" : "Stable"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginBottom: "16px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-              fontSize: "20px",
-              fontWeight: 700,
-              color: gdeltData.tone_score > 0 ? "#22c55e" : gdeltData.tone_score < -3 ? "#dc2626" : "#f97316"
-            }, children: [
-              gdeltData.tone_score > 0 ? "+" : "",
-              gdeltData.tone_score
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "News Tone" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: "#f9fafb",
+          borderRadius: "12px",
+          border: "1px solid #e5e7eb"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 18, style: { color: "#6b7280" } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "13px", fontWeight: 600, color: "#374151" }, children: "US Advisory Level" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              fontSize: "14px",
-              fontWeight: 700,
-              color: gdeltData.volume_level === "spike" ? "#dc2626" : gdeltData.volume_level === "elevated" ? "#f97316" : "#22c55e"
-            }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "Volume" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              fontSize: "14px",
-              fontWeight: 700,
-              color: gdeltData.trend_7day === "worsening" ? "#dc2626" : gdeltData.trend_7day === "improving" ? "#22c55e" : "#6b7280"
-            }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "7-Day Trend" })
-          ] })
-        ] }),
-        Object.keys(gdeltData.themes).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "News Theme Breakdown:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-            padding: "4px 10px",
-            backgroundColor: "white",
-            borderRadius: "12px",
-            fontSize: "12px",
-            border: "1px solid #e5e7eb"
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+            fontSize: "24px",
+            fontWeight: 700,
+            color: config.color,
+            marginBottom: "4px"
           }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
-              theme,
-              ":"
+            "Level ",
+            advisory.advisory_level
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: [
+            config.label,
+            " \u2022 Country-wide"
+          ] })
+        ] })
+      ] })
+    ] }),
+    gdeltData && gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 12px 0", fontSize: "16px", fontWeight: 600, color: "#374151" }, children: "Recent News" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 2).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "a",
+        {
+          href: headline.url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          style: {
+            padding: "12px 16px",
+            backgroundColor: "#f9fafb",
+            borderRadius: "8px",
+            border: "1px solid #e5e7eb",
+            textDecoration: "none",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          },
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#111827", fontWeight: 500 }, children: headline.title }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280", marginTop: "4px" }, children: headline.source })
             ] }),
-            " ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: "#111827" }, children: [
-              pct,
-              "%"
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16, style: { color: "#9ca3af", flexShrink: 0, marginLeft: "12px" } })
+          ]
+        },
+        index
+      )) })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: showMore ? "24px" : "0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "button",
+      {
+        onClick: () => setShowMore(!showMore),
+        style: {
+          padding: "12px 32px",
+          backgroundColor: showMore ? "#f3f4f6" : "#2563eb",
+          color: showMore ? "#374151" : "white",
+          border: "none",
+          borderRadius: "12px",
+          fontSize: "15px",
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          transition: "all 0.2s"
+        },
+        children: showMore ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 20 }),
+          "Show Less"
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 20 }),
+          "See Full Analysis"
+        ] })
+      }
+    ) }),
+    showMore && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { borderTop: "1px solid #e5e7eb", paddingTop: "24px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 20px 0", fontSize: "18px", fontWeight: 600, color: "#111827" }, children: "Detailed Analysis" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "24px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+            padding: "16px",
+            backgroundColor: config.bgColor,
+            borderRadius: "12px",
+            border: `1px solid ${config.color}20`
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              backgroundColor: config.color,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "24px",
+              fontWeight: 700
+            }, children: advisory.advisory_level }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: "#111827" }, children: [
+                "Level ",
+                advisory.advisory_level
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: config.label })
             ] })
-          ] }, theme)) })
+          ] }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level })
         ] }),
-        gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Recent Headlines:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "Advisory Details", icon: Info, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: "#4b5563", lineHeight: 1.6 }, children: advisory.advisory_text }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "14px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 16 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              advisory.date_updated
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
             "a",
             {
-              href: headline.url,
+              href: advisory.url,
               target: "_blank",
               rel: "noopener noreferrer",
               style: {
-                padding: "10px 12px",
-                backgroundColor: "white",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "16px",
+                padding: "10px 16px",
+                backgroundColor: "#2563eb",
+                color: "white",
                 borderRadius: "8px",
-                border: "1px solid #e5e7eb",
                 textDecoration: "none",
-                display: "block"
+                fontSize: "14px",
+                fontWeight: 500,
+                transition: "background-color 0.2s"
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-                  fontSize: "13px",
-                  color: "#111827",
-                  fontWeight: 500,
-                  marginBottom: "4px",
-                  lineHeight: 1.4
-                }, children: headline.title }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "#6b7280" }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: headline.source }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u2022" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
-                    color: headline.tone > 0 ? "#22c55e" : headline.tone < -3 ? "#dc2626" : "#f97316",
-                    fontWeight: 500
-                  }, children: [
-                    "Tone: ",
-                    headline.tone > 0 ? "+" : "",
-                    headline.tone.toFixed(1)
-                  ] })
-                ] })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                "View Full Advisory"
               ]
-            },
-            index
-          )) })
+            }
+          )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "12px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-            "Data from GDELT \u2022 ",
-            gdeltData.article_count_24h,
-            " articles in 24h"
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "a",
-          {
-            href: `https://gdeltproject.org/`,
-            target: "_blank",
-            rel: "noopener noreferrer",
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "12px",
-              padding: "10px 16px",
-              backgroundColor: "#22c55e",
-              color: "white",
-              borderRadius: "8px",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-              transition: "background-color 0.2s"
-            },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
-              "View GDELT Project"
-            ]
-          }
-        )
-      ] }) })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-      backgroundColor: "#f9fafb",
-      borderRadius: "12px",
-      border: "1px solid #e5e7eb",
-      overflow: "hidden"
-    }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "button",
-        {
-          onClick: () => setExpanded(!expanded),
-          style: {
-            width: "100%",
-            padding: "16px 24px",
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "#111827"
-          },
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Understanding the Advisory Levels" }),
-            expanded ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 20 }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 20 })
-          ]
-        }
-      ),
-      expanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "0 24px 24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "12px" }, children: Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
-        const Icon2 = info.icon;
-        return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "div",
-          {
-            style: {
+        ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: "#f0f9ff",
+          borderRadius: "12px",
+          border: "1px solid #0ea5e930"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              backgroundColor: "#0ea5e9",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
-              padding: "12px",
-              backgroundColor: info.bgColor,
-              borderRadius: "8px",
-              border: `1px solid ${info.color}30`
-            },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 20, style: { color: info.color } }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: info.color }, children: [
-                "Level ",
-                level,
+              justifyContent: "center",
+              color: "white",
+              fontSize: "20px",
+              fontWeight: 700
+            }, children: "UK" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: "FCO Travel Advice" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: "Foreign, Commonwealth & Development Office" })
+            ] })
+          ] }),
+          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: "#dc2626", marginBottom: "4px" }, children: "\u26A0\uFE0F Travel Alerts:" }),
+            ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              padding: "6px 12px",
+              backgroundColor: "#fef2f2",
+              borderRadius: "6px",
+              fontSize: "13px",
+              color: "#991b1b",
+              marginBottom: "4px",
+              border: "1px solid #fecaca"
+            }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 12px 0", color: "#4b5563", lineHeight: 1.5, fontSize: "14px" }, children: ukAdvisory.change_description }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "13px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              new Date(ukAdvisory.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: ukAdvisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "12px",
+                padding: "10px 16px",
+                backgroundColor: "#0ea5e9",
+                color: "white",
+                borderRadius: "8px",
+                textDecoration: "none",
+                fontSize: "14px",
+                fontWeight: 500,
+                transition: "background-color 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                "View UK Advice"
+              ]
+            }
+          )
+        ] }) }),
+        acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "ACLED Conflict Data", icon: TriangleAlert, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: "#fefce8",
+          borderRadius: "12px",
+          border: "1px solid #fef08a"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              backgroundColor: "#eab308",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 24 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
+                "ACLED Conflict Data ",
+                acledData.location ? "(City-level)" : "(Country-level)"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#dc2626" }, children: acledData.total_events.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Events (2025)" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#dc2626" }, children: acledData.fatalities.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Fatalities" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#f97316" }, children: acledData.events_last_30_days }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Last 30 Days" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "16px",
+                fontWeight: 700,
+                color: acledData.trend === "increasing" ? "#dc2626" : acledData.trend === "decreasing" ? "#22c55e" : "#6b7280"
+              }, children: acledData.trend === "increasing" ? "\u2191 Increasing" : acledData.trend === "decreasing" ? "\u2193 Decreasing" : "\u2192 Stable" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Trend" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Event Types:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(acledData.event_types).slice(0, 5).map(([type, count]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              padding: "4px 10px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              fontSize: "12px",
+              border: "1px solid #e5e7eb"
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
+                type,
                 ":"
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#4b5563" }, children: info.label })
-            ]
-          },
-          level
-        );
-      }) }) })
-    ] }),
-    isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-      marginTop: "24px",
-      padding: "16px",
-      backgroundColor: "#eff6ff",
-      borderRadius: "12px",
-      border: "1px solid #bfdbfe",
-      display: "flex",
-      alignItems: "flex-start",
-      gap: "12px"
-    }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 20, style: { color: "#2563eb", flexShrink: 0, marginTop: "2px" } }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { color: "#1e40af", fontSize: "14px", lineHeight: 1.6 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Note:" }),
-        " This advisory applies to ",
-        advisory.country,
-        " as a whole. Safety conditions in ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
-        " may differ from other regions. Always check for city-specific guidance and local news before traveling."
+              " ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, color: "#111827" }, children: count })
+            ] }, type)) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "13px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Data from ACLED \u2022 Updated: ",
+              new Date(acledData.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: "https://acleddata.com/dashboard/",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "12px",
+                padding: "10px 16px",
+                backgroundColor: "#eab308",
+                color: "white",
+                borderRadius: "8px",
+                textDecoration: "none",
+                fontSize: "14px",
+                fontWeight: 500,
+                transition: "background-color 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                "View ACLED Dashboard"
+              ]
+            }
+          )
+        ] }) }),
+        gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "GDELT News Analysis", icon: Globe, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: "#f0fdf4",
+          borderRadius: "12px",
+          border: "1px solid #bbf7d0"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              backgroundColor: "#22c55e",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 24 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: gdeltData.location }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
+                "Global News Monitoring ",
+                gdeltData.location !== gdeltData.country ? "(City-level)" : "(Country-level)"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                fontSize: "20px",
+                fontWeight: 700,
+                color: gdeltData.tone_score > 0 ? "#22c55e" : gdeltData.tone_score < -3 ? "#dc2626" : "#f97316"
+              }, children: [
+                gdeltData.tone_score > 0 ? "+" : "",
+                gdeltData.tone_score
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "News Tone" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: gdeltData.volume_level === "spike" ? "#dc2626" : gdeltData.volume_level === "elevated" ? "#f97316" : "#22c55e"
+              }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "Volume" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: gdeltData.trend_7day === "worsening" ? "#dc2626" : gdeltData.trend_7day === "improving" ? "#22c55e" : "#6b7280"
+              }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "7-Day Trend" })
+            ] })
+          ] }),
+          Object.keys(gdeltData.themes).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "News Theme Breakdown:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              padding: "4px 10px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              fontSize: "12px",
+              border: "1px solid #e5e7eb"
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
+                theme,
+                ":"
+              ] }),
+              " ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: "#111827" }, children: [
+                pct,
+                "%"
+              ] })
+            ] }, theme)) })
+          ] }),
+          gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Recent Headlines:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "a",
+              {
+                href: headline.url,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                style: {
+                  padding: "10px 12px",
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  border: "1px solid #e5e7eb",
+                  textDecoration: "none",
+                  display: "block"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                    fontSize: "13px",
+                    color: "#111827",
+                    fontWeight: 500,
+                    marginBottom: "4px",
+                    lineHeight: 1.4
+                  }, children: headline.title }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "#6b7280" }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: headline.source }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u2022" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
+                      color: headline.tone > 0 ? "#22c55e" : headline.tone < -3 ? "#dc2626" : "#f97316",
+                      fontWeight: 500
+                    }, children: [
+                      "Tone: ",
+                      headline.tone > 0 ? "+" : "",
+                      headline.tone.toFixed(1)
+                    ] })
+                  ] })
+                ]
+              },
+              index
+            )) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Data from GDELT \u2022 ",
+              gdeltData.article_count_24h,
+              " articles in 24h"
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: `https://gdeltproject.org/`,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "12px",
+                padding: "10px 16px",
+                backgroundColor: "#22c55e",
+                color: "white",
+                borderRadius: "8px",
+                textDecoration: "none",
+                fontSize: "14px",
+                fontWeight: 500,
+                transition: "background-color 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                "View GDELT Project"
+              ]
+            }
+          )
+        ] }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "16px",
+        backgroundColor: "#f9fafb",
+        borderRadius: "12px",
+        border: "1px solid #e5e7eb"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 12px 0", fontSize: "14px", fontWeight: 600, color: "#374151" }, children: "US Advisory Levels Explained" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
+          const Icon2 = info.icon;
+          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "div",
+            {
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "8px 12px",
+                backgroundColor: info.bgColor,
+                borderRadius: "6px",
+                fontSize: "13px"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: info.color } }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: info.color }, children: [
+                  "Level ",
+                  level,
+                  ":"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#4b5563" }, children: info.label })
+              ]
+            },
+            level
+          );
+        }) })
+      ] }),
+      isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        marginTop: "16px",
+        padding: "14px",
+        backgroundColor: "#eff6ff",
+        borderRadius: "10px",
+        border: "1px solid #bfdbfe",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 18, style: { color: "#2563eb", flexShrink: 0, marginTop: "2px" } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { color: "#1e40af", fontSize: "13px", lineHeight: 1.5 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Note:" }),
+          " Government advisories apply to ",
+          advisory.country,
+          " as a whole. Local data (ACLED, GDELT) is specific to ",
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
+          "."
+        ] })
       ] })
     ] })
   ] });
