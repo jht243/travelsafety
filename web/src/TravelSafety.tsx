@@ -136,6 +136,84 @@ interface ACLEDAdvisoryData {
   [key: string]: ACLEDData;
 }
 
+interface GDELTHeadline {
+  title: string;
+  url: string;
+  source: string;
+  date: string;
+  tone: number;
+}
+
+interface GDELTData {
+  location: string;
+  country: string;
+  tone_score: number; // -100 to +100, negative = concerning
+  volume_level: 'normal' | 'elevated' | 'spike';
+  article_count_24h: number;
+  themes: { [key: string]: number }; // theme name -> percentage
+  headlines: GDELTHeadline[];
+  trend_7day: 'improving' | 'worsening' | 'stable';
+  last_updated: string;
+}
+
+interface GDELTAdvisoryData {
+  [key: string]: GDELTData;
+}
+
+// Fetch GDELT news data for a location
+async function fetchGDELTData(location: string): Promise<GDELTData | null> {
+  try {
+    // GDELT DOC 2.0 API - get articles and tone
+    const response = await fetch(
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(location)}&mode=artlist&maxrecords=10&format=json&timespan=7d`
+    );
+    
+    if (!response.ok) {
+      console.log(`GDELT API not available for ${location}, using fallback`);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data.articles && Array.isArray(data.articles)) {
+      const articles = data.articles;
+      
+      // Calculate average tone
+      const tones = articles.map((a: any) => a.tone || 0);
+      const avgTone = tones.length > 0 ? tones.reduce((a: number, b: number) => a + b, 0) / tones.length : 0;
+      
+      // Extract headlines
+      const headlines: GDELTHeadline[] = articles.slice(0, 5).map((a: any) => ({
+        title: a.title || 'Untitled',
+        url: a.url || '',
+        source: a.domain || 'Unknown',
+        date: a.seendate || new Date().toISOString(),
+        tone: a.tone || 0,
+      }));
+      
+      // Determine volume level based on article count
+      const volumeLevel = articles.length > 50 ? 'spike' : articles.length > 20 ? 'elevated' : 'normal';
+      
+      return {
+        location,
+        country: '',
+        tone_score: Math.round(avgTone * 10) / 10,
+        volume_level: volumeLevel,
+        article_count_24h: articles.length,
+        themes: {}, // Would need separate API call for themes
+        headlines,
+        trend_7day: avgTone > 0 ? 'improving' : avgTone < -5 ? 'worsening' : 'stable',
+        last_updated: new Date().toISOString(),
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.log(`Failed to fetch GDELT data for ${location}:`, error);
+    return null;
+  }
+}
+
 // Fetch ACLED conflict data
 // Note: ACLED requires API key for full access. Set ACLED_API_KEY env var or use fallback data.
 async function fetchACLEDData(country: string): Promise<ACLEDData | null> {
@@ -584,6 +662,312 @@ const FALLBACK_ACLED_DATA: ACLEDAdvisoryData = {
   },
 };
 
+// Fallback GDELT news data for cities and countries
+const FALLBACK_GDELT_DATA: GDELTAdvisoryData = {
+  // City-level data - Colombia
+  'medellin': {
+    location: 'Medellín',
+    country: 'Colombia',
+    tone_score: -2.8,
+    volume_level: 'normal',
+    article_count_24h: 23,
+    themes: {
+      'Tourism': 34,
+      'Crime': 22,
+      'Business': 18,
+      'Culture': 15,
+      'Politics': 11,
+    },
+    headlines: [
+      { title: 'Medellín named top destination for digital nomads in 2025', url: 'https://example.com/1', source: 'Travel Weekly', date: '2025-12-30', tone: 4.2 },
+      { title: 'Security concerns persist in Comuna 13 despite tourism boom', url: 'https://example.com/2', source: 'Colombia Reports', date: '2025-12-29', tone: -3.5 },
+      { title: 'New metro line expansion connects Medellín neighborhoods', url: 'https://example.com/3', source: 'Reuters', date: '2025-12-28', tone: 2.1 },
+      { title: 'Local authorities crack down on tourist scams', url: 'https://example.com/4', source: 'El Tiempo', date: '2025-12-27', tone: -1.8 },
+      { title: 'Medellín tech scene attracts international investment', url: 'https://example.com/5', source: 'Bloomberg', date: '2025-12-26', tone: 3.4 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'bogota': {
+    location: 'Bogotá',
+    country: 'Colombia',
+    tone_score: -3.2,
+    volume_level: 'elevated',
+    article_count_24h: 45,
+    themes: {
+      'Politics': 32,
+      'Crime': 24,
+      'Economy': 20,
+      'Protests': 14,
+      'Culture': 10,
+    },
+    headlines: [
+      { title: 'Colombia government announces new security measures for capital', url: 'https://example.com/1', source: 'AP News', date: '2025-12-30', tone: -2.1 },
+      { title: 'Bogotá mayor addresses rising theft concerns in tourist areas', url: 'https://example.com/2', source: 'Colombia Reports', date: '2025-12-29', tone: -4.5 },
+      { title: 'International film festival draws crowds to Bogotá', url: 'https://example.com/3', source: 'Variety', date: '2025-12-28', tone: 3.8 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'colombia': {
+    location: 'Colombia',
+    country: 'Colombia',
+    tone_score: -4.1,
+    volume_level: 'elevated',
+    article_count_24h: 156,
+    themes: {
+      'Politics': 28,
+      'Violence': 24,
+      'Economy': 18,
+      'Drug Trade': 15,
+      'Tourism': 15,
+    },
+    headlines: [
+      { title: 'Colombia peace process faces new challenges', url: 'https://example.com/1', source: 'Reuters', date: '2025-12-30', tone: -5.2 },
+      { title: 'Colombian exports reach record high in 2025', url: 'https://example.com/2', source: 'Bloomberg', date: '2025-12-29', tone: 4.1 },
+      { title: 'Rural violence continues in border regions', url: 'https://example.com/3', source: 'AP News', date: '2025-12-28', tone: -7.8 },
+    ],
+    trend_7day: 'worsening',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  // City-level data - Mexico
+  'mexico city': {
+    location: 'Mexico City',
+    country: 'Mexico',
+    tone_score: -1.9,
+    volume_level: 'normal',
+    article_count_24h: 67,
+    themes: {
+      'Culture': 28,
+      'Politics': 24,
+      'Tourism': 20,
+      'Crime': 16,
+      'Business': 12,
+    },
+    headlines: [
+      { title: 'Mexico City ranked among top culinary destinations', url: 'https://example.com/1', source: 'Food & Wine', date: '2025-12-30', tone: 5.2 },
+      { title: 'Air quality improvements in capital credited to new policies', url: 'https://example.com/2', source: 'Reuters', date: '2025-12-29', tone: 3.1 },
+      { title: 'Pickpocketing on metro remains concern for tourists', url: 'https://example.com/3', source: 'Travel Safety', date: '2025-12-28', tone: -4.2 },
+    ],
+    trend_7day: 'improving',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'cancun': {
+    location: 'Cancún',
+    country: 'Mexico',
+    tone_score: 1.2,
+    volume_level: 'normal',
+    article_count_24h: 34,
+    themes: {
+      'Tourism': 45,
+      'Weather': 20,
+      'Business': 18,
+      'Crime': 12,
+      'Environment': 5,
+    },
+    headlines: [
+      { title: 'Cancún hotels report record bookings for holiday season', url: 'https://example.com/1', source: 'Travel Weekly', date: '2025-12-30', tone: 4.8 },
+      { title: 'New coral reef restoration project launches near Cancún', url: 'https://example.com/2', source: 'National Geographic', date: '2025-12-29', tone: 5.2 },
+      { title: 'Tourist zone security increased ahead of New Year', url: 'https://example.com/3', source: 'Mexico News Daily', date: '2025-12-28', tone: 0.5 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'mexico': {
+    location: 'Mexico',
+    country: 'Mexico',
+    tone_score: -5.3,
+    volume_level: 'elevated',
+    article_count_24h: 234,
+    themes: {
+      'Crime': 32,
+      'Politics': 25,
+      'Economy': 18,
+      'Drug Trade': 15,
+      'Tourism': 10,
+    },
+    headlines: [
+      { title: 'Cartel violence surges in northern border states', url: 'https://example.com/1', source: 'AP News', date: '2025-12-30', tone: -8.5 },
+      { title: 'Mexican peso strengthens against dollar', url: 'https://example.com/2', source: 'Bloomberg', date: '2025-12-29', tone: 3.2 },
+      { title: 'Travel advisory updated for several Mexican states', url: 'https://example.com/3', source: 'State Dept', date: '2025-12-28', tone: -5.1 },
+    ],
+    trend_7day: 'worsening',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  // City-level data - France
+  'paris': {
+    location: 'Paris',
+    country: 'France',
+    tone_score: 0.8,
+    volume_level: 'normal',
+    article_count_24h: 89,
+    themes: {
+      'Culture': 35,
+      'Tourism': 28,
+      'Politics': 18,
+      'Protests': 12,
+      'Business': 7,
+    },
+    headlines: [
+      { title: 'Louvre sets new visitor record in 2025', url: 'https://example.com/1', source: 'France 24', date: '2025-12-30', tone: 4.5 },
+      { title: 'Paris public transport strike ends after negotiations', url: 'https://example.com/2', source: 'Reuters', date: '2025-12-29', tone: 1.2 },
+      { title: 'New Year celebrations planned across Paris landmarks', url: 'https://example.com/3', source: 'Le Monde', date: '2025-12-28', tone: 3.8 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'france': {
+    location: 'France',
+    country: 'France',
+    tone_score: -1.2,
+    volume_level: 'normal',
+    article_count_24h: 178,
+    themes: {
+      'Politics': 32,
+      'Economy': 24,
+      'Protests': 18,
+      'Culture': 16,
+      'Terrorism': 10,
+    },
+    headlines: [
+      { title: 'French government faces confidence vote', url: 'https://example.com/1', source: 'Reuters', date: '2025-12-30', tone: -3.2 },
+      { title: 'French tourism sector posts strong recovery', url: 'https://example.com/2', source: 'Bloomberg', date: '2025-12-29', tone: 4.1 },
+      { title: 'Security heightened at major attractions following threats', url: 'https://example.com/3', source: 'AP News', date: '2025-12-28', tone: -4.5 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  // City-level data - Japan
+  'tokyo': {
+    location: 'Tokyo',
+    country: 'Japan',
+    tone_score: 3.2,
+    volume_level: 'normal',
+    article_count_24h: 56,
+    themes: {
+      'Culture': 32,
+      'Business': 28,
+      'Tourism': 22,
+      'Technology': 12,
+      'Politics': 6,
+    },
+    headlines: [
+      { title: 'Tokyo named safest major city for travelers in 2025', url: 'https://example.com/1', source: 'Travel + Leisure', date: '2025-12-30', tone: 6.2 },
+      { title: 'Japanese yen weakness draws record foreign tourists', url: 'https://example.com/2', source: 'Bloomberg', date: '2025-12-29', tone: 2.8 },
+      { title: 'New bullet train route connects Tokyo to regional cities', url: 'https://example.com/3', source: 'Japan Times', date: '2025-12-28', tone: 4.5 },
+    ],
+    trend_7day: 'improving',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'japan': {
+    location: 'Japan',
+    country: 'Japan',
+    tone_score: 2.8,
+    volume_level: 'normal',
+    article_count_24h: 134,
+    themes: {
+      'Economy': 30,
+      'Culture': 25,
+      'Politics': 20,
+      'Tourism': 18,
+      'Technology': 7,
+    },
+    headlines: [
+      { title: 'Japan tourism boom continues despite yen fluctuations', url: 'https://example.com/1', source: 'Reuters', date: '2025-12-30', tone: 3.5 },
+      { title: 'Japanese companies report strong Q4 earnings', url: 'https://example.com/2', source: 'Nikkei', date: '2025-12-29', tone: 4.2 },
+      { title: 'Japan maintains strict entry requirements for some countries', url: 'https://example.com/3', source: 'AP News', date: '2025-12-28', tone: -1.2 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  // City-level data - Thailand
+  'bangkok': {
+    location: 'Bangkok',
+    country: 'Thailand',
+    tone_score: 1.5,
+    volume_level: 'normal',
+    article_count_24h: 45,
+    themes: {
+      'Tourism': 38,
+      'Politics': 22,
+      'Culture': 20,
+      'Crime': 12,
+      'Business': 8,
+    },
+    headlines: [
+      { title: 'Bangkok street food scene draws global attention', url: 'https://example.com/1', source: 'CNN Travel', date: '2025-12-30', tone: 5.1 },
+      { title: 'New airport express line reduces travel times', url: 'https://example.com/2', source: 'Bangkok Post', date: '2025-12-29', tone: 3.2 },
+      { title: 'Police warn tourists about common scams in tourist areas', url: 'https://example.com/3', source: 'Thailand News', date: '2025-12-28', tone: -2.1 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'thailand': {
+    location: 'Thailand',
+    country: 'Thailand',
+    tone_score: 0.8,
+    volume_level: 'normal',
+    article_count_24h: 98,
+    themes: {
+      'Tourism': 35,
+      'Politics': 28,
+      'Economy': 18,
+      'Crime': 12,
+      'Environment': 7,
+    },
+    headlines: [
+      { title: 'Thailand extends visa-free entry for more countries', url: 'https://example.com/1', source: 'Reuters', date: '2025-12-30', tone: 3.8 },
+      { title: 'Southern provinces see uptick in separatist activity', url: 'https://example.com/2', source: 'AP News', date: '2025-12-29', tone: -5.2 },
+      { title: 'Thai tourism authority launches new safety campaign', url: 'https://example.com/3', source: 'Travel Weekly', date: '2025-12-28', tone: 2.5 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  // City-level data - Brazil
+  'rio de janeiro': {
+    location: 'Rio de Janeiro',
+    country: 'Brazil',
+    tone_score: -3.8,
+    volume_level: 'normal',
+    article_count_24h: 56,
+    themes: {
+      'Crime': 32,
+      'Tourism': 25,
+      'Culture': 20,
+      'Politics': 15,
+      'Sports': 8,
+    },
+    headlines: [
+      { title: 'Rio police launch new favela pacification program', url: 'https://example.com/1', source: 'Reuters', date: '2025-12-30', tone: -2.5 },
+      { title: 'Copacabana beach preps for massive New Year celebration', url: 'https://example.com/2', source: 'BBC', date: '2025-12-29', tone: 4.2 },
+      { title: 'Tourist robbed at gunpoint near Christ the Redeemer', url: 'https://example.com/3', source: 'O Globo', date: '2025-12-28', tone: -7.8 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+  'brazil': {
+    location: 'Brazil',
+    country: 'Brazil',
+    tone_score: -4.5,
+    volume_level: 'elevated',
+    article_count_24h: 189,
+    themes: {
+      'Crime': 30,
+      'Politics': 28,
+      'Economy': 22,
+      'Environment': 12,
+      'Sports': 8,
+    },
+    headlines: [
+      { title: 'Brazil struggles with rising urban violence', url: 'https://example.com/1', source: 'AP News', date: '2025-12-30', tone: -6.5 },
+      { title: 'Brazilian real stabilizes after central bank intervention', url: 'https://example.com/2', source: 'Bloomberg', date: '2025-12-29', tone: 2.1 },
+      { title: 'Amazon deforestation rates show slight decline', url: 'https://example.com/3', source: 'Reuters', date: '2025-12-28', tone: 1.5 },
+    ],
+    trend_7day: 'stable',
+    last_updated: '2025-12-30T12:00:00Z',
+  },
+};
+
 // Fallback advisory data for common countries (used when API fails)
 const FALLBACK_ADVISORIES: AdvisoryData = {
   'colombia': {
@@ -744,7 +1128,7 @@ function DashboardCard({ title, children, icon: Icon }: { title: string; childre
   );
 }
 
-function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; searchTerm: string; isCity: boolean }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
   
@@ -1033,6 +1417,170 @@ function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }: {
             </div>
           </DashboardCard>
         )}
+        
+        {/* GDELT News Analysis Card */}
+        {gdeltData && (
+          <DashboardCard title="GDELT News Analysis" icon={Globe}>
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: '#f0fdf4', 
+              borderRadius: '12px',
+              border: '1px solid #bbf7d0',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  backgroundColor: '#22c55e',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                }}>
+                  <Globe size={24} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>
+                    {gdeltData.location}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    Global News Monitoring {gdeltData.location !== gdeltData.country ? '(City-level)' : '(Country-level)'}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Sentiment & Volume Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ 
+                    fontSize: '20px', 
+                    fontWeight: 700, 
+                    color: gdeltData.tone_score > 0 ? '#22c55e' : gdeltData.tone_score < -3 ? '#dc2626' : '#f97316' 
+                  }}>
+                    {gdeltData.tone_score > 0 ? '+' : ''}{gdeltData.tone_score}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#6b7280' }}>News Tone</div>
+                </div>
+                <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 700, 
+                    color: gdeltData.volume_level === 'spike' ? '#dc2626' : gdeltData.volume_level === 'elevated' ? '#f97316' : '#22c55e' 
+                  }}>
+                    {gdeltData.volume_level === 'spike' ? '🔴 Spike' : gdeltData.volume_level === 'elevated' ? '🟡 Elevated' : '🟢 Normal'}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#6b7280' }}>Volume</div>
+                </div>
+                <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 700, 
+                    color: gdeltData.trend_7day === 'worsening' ? '#dc2626' : gdeltData.trend_7day === 'improving' ? '#22c55e' : '#6b7280' 
+                  }}>
+                    {gdeltData.trend_7day === 'worsening' ? '↓ Worsening' : gdeltData.trend_7day === 'improving' ? '↑ Improving' : '→ Stable'}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#6b7280' }}>7-Day Trend</div>
+                </div>
+              </div>
+              
+              {/* Theme Breakdown */}
+              {Object.keys(gdeltData.themes).length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>News Theme Breakdown:</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => (
+                      <div key={theme} style={{ 
+                        padding: '4px 10px', 
+                        backgroundColor: 'white', 
+                        borderRadius: '12px', 
+                        fontSize: '12px',
+                        border: '1px solid #e5e7eb',
+                      }}>
+                        <span style={{ color: '#6b7280' }}>{theme}:</span>{' '}
+                        <span style={{ fontWeight: 600, color: '#111827' }}>{pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Recent Headlines */}
+              {gdeltData.headlines.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Recent Headlines:</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {gdeltData.headlines.slice(0, 3).map((headline, index) => (
+                      <a
+                        key={index}
+                        href={headline.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '10px 12px',
+                          backgroundColor: 'white',
+                          borderRadius: '8px',
+                          border: '1px solid #e5e7eb',
+                          textDecoration: 'none',
+                          display: 'block',
+                        }}
+                      >
+                        <div style={{ 
+                          fontSize: '13px', 
+                          color: '#111827', 
+                          fontWeight: 500,
+                          marginBottom: '4px',
+                          lineHeight: 1.4,
+                        }}>
+                          {headline.title}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#6b7280' }}>
+                          <span>{headline.source}</span>
+                          <span>•</span>
+                          <span style={{ 
+                            color: headline.tone > 0 ? '#22c55e' : headline.tone < -3 ? '#dc2626' : '#f97316',
+                            fontWeight: 500,
+                          }}>
+                            Tone: {headline.tone > 0 ? '+' : ''}{headline.tone.toFixed(1)}
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '12px' }}>
+                <Calendar size={14} />
+                <span>Data from GDELT • {gdeltData.article_count_24h} articles in 24h</span>
+              </div>
+              <a 
+                href={`https://gdeltproject.org/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '12px',
+                  padding: '10px 16px',
+                  backgroundColor: '#22c55e',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  transition: 'background-color 0.2s',
+                }}
+              >
+                <ExternalLink size={16} />
+                View GDELT Project
+              </a>
+            </div>
+          </DashboardCard>
+        )}
       </div>
       
       {/* Expandable Risk Factors */}
@@ -1116,10 +1664,11 @@ function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }: {
 
 export default function TravelSafety() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; isCity: boolean; searchTerm: string } | null>(null);
+  const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; isCity: boolean; searchTerm: string } | null>(null);
   const [advisories, setAdvisories] = useState<AdvisoryData>(FALLBACK_ADVISORIES);
   const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(FALLBACK_UK_ADVISORIES);
   const [acledData, setAcledData] = useState<ACLEDAdvisoryData>(FALLBACK_ACLED_DATA);
+  const [gdeltData, setGdeltData] = useState<GDELTAdvisoryData>(FALLBACK_GDELT_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiLoaded, setApiLoaded] = useState(false);
@@ -1154,10 +1703,11 @@ export default function TravelSafety() {
       const countryKey = countryFromCity.toLowerCase();
       const advisory = advisories[countryKey];
       const ukAdvisory = ukAdvisories[countryKey];
-      // Use city-specific ACLED data if available, otherwise fall back to country
+      // Use city-specific ACLED and GDELT data if available, otherwise fall back to country
       const acled = acledData[query] || acledData[countryKey];
+      const gdelt = gdeltData[query] || gdeltData[countryKey];
       if (advisory) {
-        setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: true, searchTerm: query });
+        setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: query });
         setLoading(false);
         return;
       }
@@ -1167,8 +1717,9 @@ export default function TravelSafety() {
     const advisory = advisories[query];
     const ukAdvisory = ukAdvisories[query];
     const acled = acledData[query];
+    const gdelt = gdeltData[query];
     if (advisory) {
-      setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: false, searchTerm: query });
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
       setLoading(false);
       return;
     }
@@ -1181,7 +1732,8 @@ export default function TravelSafety() {
     if (partialMatch) {
       const ukAdvisory = ukAdvisories[partialMatch[0]];
       const acled = acledData[partialMatch[0]];
-      setSearchResult({ advisory: partialMatch[1], ukAdvisory, acledData: acled, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
+      const gdelt = gdeltData[partialMatch[0]];
+      setSearchResult({ advisory: partialMatch[1], ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
       setLoading(false);
       return;
     }
@@ -1277,8 +1829,9 @@ export default function TravelSafety() {
                     const advisory = advisories[query];
                     const ukAdvisory = ukAdvisories[query];
                     const acled = acledData[query];
+                    const gdelt = gdeltData[query];
                     if (advisory) {
-                      setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: false, searchTerm: query });
+                      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
                     }
                   }, 0);
                 }}
@@ -1326,6 +1879,7 @@ export default function TravelSafety() {
             advisory={searchResult.advisory}
             ukAdvisory={searchResult.ukAdvisory}
             acledData={searchResult.acledData}
+            gdeltData={searchResult.gdeltData}
             searchTerm={searchResult.searchTerm}
             isCity={searchResult.isCity}
           />

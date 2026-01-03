@@ -25105,6 +25105,310 @@ var FALLBACK_ACLED_DATA = {
     trend: "stable"
   }
 };
+var FALLBACK_GDELT_DATA = {
+  // City-level data - Colombia
+  "medellin": {
+    location: "Medell\xEDn",
+    country: "Colombia",
+    tone_score: -2.8,
+    volume_level: "normal",
+    article_count_24h: 23,
+    themes: {
+      "Tourism": 34,
+      "Crime": 22,
+      "Business": 18,
+      "Culture": 15,
+      "Politics": 11
+    },
+    headlines: [
+      { title: "Medell\xEDn named top destination for digital nomads in 2025", url: "https://example.com/1", source: "Travel Weekly", date: "2025-12-30", tone: 4.2 },
+      { title: "Security concerns persist in Comuna 13 despite tourism boom", url: "https://example.com/2", source: "Colombia Reports", date: "2025-12-29", tone: -3.5 },
+      { title: "New metro line expansion connects Medell\xEDn neighborhoods", url: "https://example.com/3", source: "Reuters", date: "2025-12-28", tone: 2.1 },
+      { title: "Local authorities crack down on tourist scams", url: "https://example.com/4", source: "El Tiempo", date: "2025-12-27", tone: -1.8 },
+      { title: "Medell\xEDn tech scene attracts international investment", url: "https://example.com/5", source: "Bloomberg", date: "2025-12-26", tone: 3.4 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "bogota": {
+    location: "Bogot\xE1",
+    country: "Colombia",
+    tone_score: -3.2,
+    volume_level: "elevated",
+    article_count_24h: 45,
+    themes: {
+      "Politics": 32,
+      "Crime": 24,
+      "Economy": 20,
+      "Protests": 14,
+      "Culture": 10
+    },
+    headlines: [
+      { title: "Colombia government announces new security measures for capital", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -2.1 },
+      { title: "Bogot\xE1 mayor addresses rising theft concerns in tourist areas", url: "https://example.com/2", source: "Colombia Reports", date: "2025-12-29", tone: -4.5 },
+      { title: "International film festival draws crowds to Bogot\xE1", url: "https://example.com/3", source: "Variety", date: "2025-12-28", tone: 3.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "colombia": {
+    location: "Colombia",
+    country: "Colombia",
+    tone_score: -4.1,
+    volume_level: "elevated",
+    article_count_24h: 156,
+    themes: {
+      "Politics": 28,
+      "Violence": 24,
+      "Economy": 18,
+      "Drug Trade": 15,
+      "Tourism": 15
+    },
+    headlines: [
+      { title: "Colombia peace process faces new challenges", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -5.2 },
+      { title: "Colombian exports reach record high in 2025", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 4.1 },
+      { title: "Rural violence continues in border regions", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -7.8 }
+    ],
+    trend_7day: "worsening",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Mexico
+  "mexico city": {
+    location: "Mexico City",
+    country: "Mexico",
+    tone_score: -1.9,
+    volume_level: "normal",
+    article_count_24h: 67,
+    themes: {
+      "Culture": 28,
+      "Politics": 24,
+      "Tourism": 20,
+      "Crime": 16,
+      "Business": 12
+    },
+    headlines: [
+      { title: "Mexico City ranked among top culinary destinations", url: "https://example.com/1", source: "Food & Wine", date: "2025-12-30", tone: 5.2 },
+      { title: "Air quality improvements in capital credited to new policies", url: "https://example.com/2", source: "Reuters", date: "2025-12-29", tone: 3.1 },
+      { title: "Pickpocketing on metro remains concern for tourists", url: "https://example.com/3", source: "Travel Safety", date: "2025-12-28", tone: -4.2 }
+    ],
+    trend_7day: "improving",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "cancun": {
+    location: "Canc\xFAn",
+    country: "Mexico",
+    tone_score: 1.2,
+    volume_level: "normal",
+    article_count_24h: 34,
+    themes: {
+      "Tourism": 45,
+      "Weather": 20,
+      "Business": 18,
+      "Crime": 12,
+      "Environment": 5
+    },
+    headlines: [
+      { title: "Canc\xFAn hotels report record bookings for holiday season", url: "https://example.com/1", source: "Travel Weekly", date: "2025-12-30", tone: 4.8 },
+      { title: "New coral reef restoration project launches near Canc\xFAn", url: "https://example.com/2", source: "National Geographic", date: "2025-12-29", tone: 5.2 },
+      { title: "Tourist zone security increased ahead of New Year", url: "https://example.com/3", source: "Mexico News Daily", date: "2025-12-28", tone: 0.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "mexico": {
+    location: "Mexico",
+    country: "Mexico",
+    tone_score: -5.3,
+    volume_level: "elevated",
+    article_count_24h: 234,
+    themes: {
+      "Crime": 32,
+      "Politics": 25,
+      "Economy": 18,
+      "Drug Trade": 15,
+      "Tourism": 10
+    },
+    headlines: [
+      { title: "Cartel violence surges in northern border states", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -8.5 },
+      { title: "Mexican peso strengthens against dollar", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 3.2 },
+      { title: "Travel advisory updated for several Mexican states", url: "https://example.com/3", source: "State Dept", date: "2025-12-28", tone: -5.1 }
+    ],
+    trend_7day: "worsening",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - France
+  "paris": {
+    location: "Paris",
+    country: "France",
+    tone_score: 0.8,
+    volume_level: "normal",
+    article_count_24h: 89,
+    themes: {
+      "Culture": 35,
+      "Tourism": 28,
+      "Politics": 18,
+      "Protests": 12,
+      "Business": 7
+    },
+    headlines: [
+      { title: "Louvre sets new visitor record in 2025", url: "https://example.com/1", source: "France 24", date: "2025-12-30", tone: 4.5 },
+      { title: "Paris public transport strike ends after negotiations", url: "https://example.com/2", source: "Reuters", date: "2025-12-29", tone: 1.2 },
+      { title: "New Year celebrations planned across Paris landmarks", url: "https://example.com/3", source: "Le Monde", date: "2025-12-28", tone: 3.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "france": {
+    location: "France",
+    country: "France",
+    tone_score: -1.2,
+    volume_level: "normal",
+    article_count_24h: 178,
+    themes: {
+      "Politics": 32,
+      "Economy": 24,
+      "Protests": 18,
+      "Culture": 16,
+      "Terrorism": 10
+    },
+    headlines: [
+      { title: "French government faces confidence vote", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -3.2 },
+      { title: "French tourism sector posts strong recovery", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 4.1 },
+      { title: "Security heightened at major attractions following threats", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -4.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Japan
+  "tokyo": {
+    location: "Tokyo",
+    country: "Japan",
+    tone_score: 3.2,
+    volume_level: "normal",
+    article_count_24h: 56,
+    themes: {
+      "Culture": 32,
+      "Business": 28,
+      "Tourism": 22,
+      "Technology": 12,
+      "Politics": 6
+    },
+    headlines: [
+      { title: "Tokyo named safest major city for travelers in 2025", url: "https://example.com/1", source: "Travel + Leisure", date: "2025-12-30", tone: 6.2 },
+      { title: "Japanese yen weakness draws record foreign tourists", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 2.8 },
+      { title: "New bullet train route connects Tokyo to regional cities", url: "https://example.com/3", source: "Japan Times", date: "2025-12-28", tone: 4.5 }
+    ],
+    trend_7day: "improving",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "japan": {
+    location: "Japan",
+    country: "Japan",
+    tone_score: 2.8,
+    volume_level: "normal",
+    article_count_24h: 134,
+    themes: {
+      "Economy": 30,
+      "Culture": 25,
+      "Politics": 20,
+      "Tourism": 18,
+      "Technology": 7
+    },
+    headlines: [
+      { title: "Japan tourism boom continues despite yen fluctuations", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: 3.5 },
+      { title: "Japanese companies report strong Q4 earnings", url: "https://example.com/2", source: "Nikkei", date: "2025-12-29", tone: 4.2 },
+      { title: "Japan maintains strict entry requirements for some countries", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -1.2 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Thailand
+  "bangkok": {
+    location: "Bangkok",
+    country: "Thailand",
+    tone_score: 1.5,
+    volume_level: "normal",
+    article_count_24h: 45,
+    themes: {
+      "Tourism": 38,
+      "Politics": 22,
+      "Culture": 20,
+      "Crime": 12,
+      "Business": 8
+    },
+    headlines: [
+      { title: "Bangkok street food scene draws global attention", url: "https://example.com/1", source: "CNN Travel", date: "2025-12-30", tone: 5.1 },
+      { title: "New airport express line reduces travel times", url: "https://example.com/2", source: "Bangkok Post", date: "2025-12-29", tone: 3.2 },
+      { title: "Police warn tourists about common scams in tourist areas", url: "https://example.com/3", source: "Thailand News", date: "2025-12-28", tone: -2.1 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "thailand": {
+    location: "Thailand",
+    country: "Thailand",
+    tone_score: 0.8,
+    volume_level: "normal",
+    article_count_24h: 98,
+    themes: {
+      "Tourism": 35,
+      "Politics": 28,
+      "Economy": 18,
+      "Crime": 12,
+      "Environment": 7
+    },
+    headlines: [
+      { title: "Thailand extends visa-free entry for more countries", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: 3.8 },
+      { title: "Southern provinces see uptick in separatist activity", url: "https://example.com/2", source: "AP News", date: "2025-12-29", tone: -5.2 },
+      { title: "Thai tourism authority launches new safety campaign", url: "https://example.com/3", source: "Travel Weekly", date: "2025-12-28", tone: 2.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Brazil
+  "rio de janeiro": {
+    location: "Rio de Janeiro",
+    country: "Brazil",
+    tone_score: -3.8,
+    volume_level: "normal",
+    article_count_24h: 56,
+    themes: {
+      "Crime": 32,
+      "Tourism": 25,
+      "Culture": 20,
+      "Politics": 15,
+      "Sports": 8
+    },
+    headlines: [
+      { title: "Rio police launch new favela pacification program", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -2.5 },
+      { title: "Copacabana beach preps for massive New Year celebration", url: "https://example.com/2", source: "BBC", date: "2025-12-29", tone: 4.2 },
+      { title: "Tourist robbed at gunpoint near Christ the Redeemer", url: "https://example.com/3", source: "O Globo", date: "2025-12-28", tone: -7.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "brazil": {
+    location: "Brazil",
+    country: "Brazil",
+    tone_score: -4.5,
+    volume_level: "elevated",
+    article_count_24h: 189,
+    themes: {
+      "Crime": 30,
+      "Politics": 28,
+      "Economy": 22,
+      "Environment": 12,
+      "Sports": 8
+    },
+    headlines: [
+      { title: "Brazil struggles with rising urban violence", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -6.5 },
+      { title: "Brazilian real stabilizes after central bank intervention", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 2.1 },
+      { title: "Amazon deforestation rates show slight decline", url: "https://example.com/3", source: "Reuters", date: "2025-12-28", tone: 1.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  }
+};
 var FALLBACK_ADVISORIES = {
   "colombia": {
     country: "Colombia",
@@ -25262,7 +25566,7 @@ function DashboardCard({ title, children, icon: Icon2 }) {
     children
   ] });
 }
-function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }) {
   const [expanded, setExpanded] = (0, import_react3.useState)(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
@@ -25523,6 +25827,158 @@ function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }) {
             ]
           }
         )
+      ] }) }),
+      gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "GDELT News Analysis", icon: Globe, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "16px",
+        backgroundColor: "#f0fdf4",
+        borderRadius: "12px",
+        border: "1px solid #bbf7d0"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+            width: "48px",
+            height: "48px",
+            borderRadius: "50%",
+            backgroundColor: "#22c55e",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "white",
+            fontSize: "16px",
+            fontWeight: 700
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 24 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: gdeltData.location }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
+              "Global News Monitoring ",
+              gdeltData.location !== gdeltData.country ? "(City-level)" : "(Country-level)"
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginBottom: "16px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              fontSize: "20px",
+              fontWeight: 700,
+              color: gdeltData.tone_score > 0 ? "#22c55e" : gdeltData.tone_score < -3 ? "#dc2626" : "#f97316"
+            }, children: [
+              gdeltData.tone_score > 0 ? "+" : "",
+              gdeltData.tone_score
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "News Tone" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              fontSize: "14px",
+              fontWeight: 700,
+              color: gdeltData.volume_level === "spike" ? "#dc2626" : gdeltData.volume_level === "elevated" ? "#f97316" : "#22c55e"
+            }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "Volume" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              fontSize: "14px",
+              fontWeight: 700,
+              color: gdeltData.trend_7day === "worsening" ? "#dc2626" : gdeltData.trend_7day === "improving" ? "#22c55e" : "#6b7280"
+            }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "7-Day Trend" })
+          ] })
+        ] }),
+        Object.keys(gdeltData.themes).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "News Theme Breakdown:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+            padding: "4px 10px",
+            backgroundColor: "white",
+            borderRadius: "12px",
+            fontSize: "12px",
+            border: "1px solid #e5e7eb"
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
+              theme,
+              ":"
+            ] }),
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: "#111827" }, children: [
+              pct,
+              "%"
+            ] })
+          ] }, theme)) })
+        ] }),
+        gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Recent Headlines:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: headline.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                padding: "10px 12px",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                textDecoration: "none",
+                display: "block"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                  fontSize: "13px",
+                  color: "#111827",
+                  fontWeight: 500,
+                  marginBottom: "4px",
+                  lineHeight: 1.4
+                }, children: headline.title }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "#6b7280" }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: headline.source }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u2022" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
+                    color: headline.tone > 0 ? "#22c55e" : headline.tone < -3 ? "#dc2626" : "#f97316",
+                    fontWeight: 500
+                  }, children: [
+                    "Tone: ",
+                    headline.tone > 0 ? "+" : "",
+                    headline.tone.toFixed(1)
+                  ] })
+                ] })
+              ]
+            },
+            index
+          )) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "12px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+            "Data from GDELT \u2022 ",
+            gdeltData.article_count_24h,
+            " articles in 24h"
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "a",
+          {
+            href: `https://gdeltproject.org/`,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: {
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "12px",
+              padding: "10px 16px",
+              backgroundColor: "#22c55e",
+              color: "white",
+              borderRadius: "8px",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: 500,
+              transition: "background-color 0.2s"
+            },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+              "View GDELT Project"
+            ]
+          }
+        )
       ] }) })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
@@ -25610,6 +26066,7 @@ function TravelSafety() {
   const [advisories, setAdvisories] = (0, import_react3.useState)(FALLBACK_ADVISORIES);
   const [ukAdvisories, setUkAdvisories] = (0, import_react3.useState)(FALLBACK_UK_ADVISORIES);
   const [acledData, setAcledData] = (0, import_react3.useState)(FALLBACK_ACLED_DATA);
+  const [gdeltData, setGdeltData] = (0, import_react3.useState)(FALLBACK_GDELT_DATA);
   const [loading, setLoading] = (0, import_react3.useState)(false);
   const [error, setError] = (0, import_react3.useState)(null);
   const [apiLoaded, setApiLoaded] = (0, import_react3.useState)(false);
@@ -25638,8 +26095,9 @@ function TravelSafety() {
       const advisory2 = advisories[countryKey];
       const ukAdvisory2 = ukAdvisories[countryKey];
       const acled2 = acledData[query] || acledData[countryKey];
+      const gdelt2 = gdeltData[query] || gdeltData[countryKey];
       if (advisory2) {
-        setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, isCity: true, searchTerm: query });
+        setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: query });
         setLoading(false);
         return;
       }
@@ -25647,8 +26105,9 @@ function TravelSafety() {
     const advisory = advisories[query];
     const ukAdvisory = ukAdvisories[query];
     const acled = acledData[query];
+    const gdelt = gdeltData[query];
     if (advisory) {
-      setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: false, searchTerm: query });
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
       setLoading(false);
       return;
     }
@@ -25658,7 +26117,8 @@ function TravelSafety() {
     if (partialMatch) {
       const ukAdvisory2 = ukAdvisories[partialMatch[0]];
       const acled2 = acledData[partialMatch[0]];
-      setSearchResult({ advisory: partialMatch[1], ukAdvisory: ukAdvisory2, acledData: acled2, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
+      const gdelt2 = gdeltData[partialMatch[0]];
+      setSearchResult({ advisory: partialMatch[1], ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
       setLoading(false);
       return;
     }
@@ -25744,8 +26204,9 @@ function TravelSafety() {
                 const advisory = advisories[query];
                 const ukAdvisory = ukAdvisories[query];
                 const acled = acledData[query];
+                const gdelt = gdeltData[query];
                 if (advisory) {
-                  setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: false, searchTerm: query });
+                  setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
                 }
               }, 0);
             },
@@ -25788,6 +26249,7 @@ function TravelSafety() {
           advisory: searchResult.advisory,
           ukAdvisory: searchResult.ukAdvisory,
           acledData: searchResult.acledData,
+          gdeltData: searchResult.gdeltData,
           searchTerm: searchResult.searchTerm,
           isCity: searchResult.isCity
         }
