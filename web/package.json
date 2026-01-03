@@ -1,9 +1,10 @@
 {
-  "name": "travel-checklist-web",
+  "name": "is-it-safe-travel-web",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/main.tsx --bundle --format=esm --outfile=../assets/travel-checklist.js"
+    "build": "esbuild src/main.tsx --bundle --format=esm --outfile=../assets/travel-checklist.js",
+    "dev": "esbuild src/main.tsx --bundle --format=esm --outfile=dist/bundle.js --watch --servedir=. --serve=8080"
   },
   "dependencies": {
     "lucide-react": "^0.554.0",

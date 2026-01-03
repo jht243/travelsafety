@@ -1,14 +1,14 @@
 {
-  "name": "travel-checklist-mcp-node",
+  "name": "is-it-safe-travel",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Smart Travel Checklist — generate personalized, customizable packing lists based on your trip profile.",
+  "description": "Is It Safe To Travel — get real-time travel safety information from official government sources.",
   "keywords": [
-    "travel checklist",
-    "packing list",
-    "travel planner",
-    "vacation"
+    "travel safety",
+    "travel advisory",
+    "state department",
+    "travel warnings"
   ],
   "scripts": {
     "start": "tsx src/server.ts",

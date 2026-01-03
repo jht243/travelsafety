@@ -1,29 +1,23 @@
-# Smart Travel Checklist - ChatGPT MCP Connector
+# Is It Safe To Travel?
 
-A Model Context Protocol (MCP) server that provides an interactive travel checklist widget for ChatGPT. Helps users generate personalized, customizable packing lists based on their trip profile.
-
-**[Privacy Policy](PRIVACY.md)** | **[OpenAI Apps SDK](https://developers.openai.com/apps-sdk)**
+Get real-time travel safety information from official government sources. Search any city or country to see current travel advisories.
 
 ## Features
 
-- ✈️ Generate personalized packing checklists based on trip details
-- 📋 Smart rules engine for documents, clothing, toiletries, health, tech, and more
-- 🌍 International vs domestic trip support with appropriate items
-- 👨‍👩‍👧‍👦 Family-specific items for children, infants, seniors, and pets
-- 🎿 Activity-specific gear recommendations (hiking, beach, camping, etc.)
-- ✅ Interactive checklist with progress tracking
-- 🖨️ Print-friendly output
+- 🔍 **Search by city or country** - Type "Medellin" or "Colombia" to get safety info
+- 🛡️ **US State Department advisories** - Official travel advisory levels (1-4)
+- 📊 **Visual safety dashboard** - Clear ratings and safety scores
+- 🌍 **100+ countries supported** - Comprehensive coverage
+- 📱 **Mobile-friendly** - Works on all devices
 
-## Checklist Categories
+## Advisory Levels
 
-1. **Mandatory Documents** - ID, passport, visa, insurance, itinerary
-2. **Clothing & Accessories** - Climate-appropriate items with quantities
-3. **Toiletries** - TSA-compliant options for carry-on travelers
-4. **Health & Safety** - First aid, medications, sanitizer
-5. **Tech & Gadgets** - Phone, chargers, adapters
-6. **Activity-Specific Gear** - Based on planned activities
-7. **Family-Specific Items** - For children, infants, seniors, pets
-8. **Pre-Departure Tasks** - Confirmations, bank notifications, home prep
+| Level | Rating | Meaning |
+|-------|--------|---------|
+| 1 | 🟢 | Exercise Normal Precautions |
+| 2 | 🟡 | Exercise Increased Caution |
+| 3 | 🟠 | Reconsider Travel |
+| 4 | 🔴 | Do Not Travel |
 
 ## Quick Start
 
@@ -35,91 +29,49 @@ A Model Context Protocol (MCP) server that provides an interactive travel checkl
 ### Installation
 
 ```bash
+# Install dependencies
 pnpm install
+
+# Install web dependencies
+cd web && pnpm install
 ```
 
-### Build the Widget
+### Development
 
 ```bash
+cd web
+pnpm run dev
+```
+
+Open http://localhost:8080 in your browser.
+
+### Build for Production
+
+```bash
+cd web
 pnpm run build
 ```
 
-### Run Locally
+## Data Sources
 
-```bash
-pnpm start
-```
+- **US Department of State** - [travel.state.gov](https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html)
 
-Server runs on `http://localhost:8000`. **Note:** HTTP endpoints are for local development only.
-
-### Deploy to Render.com
-
-1. Push this repo to GitHub
-2. Connect to Render.com
-3. Create new Web Service from this repo
-4. Render will auto-detect `render.yaml` and deploy
-
-## How to Use in ChatGPT
-
-1. Open ChatGPT in **Developer Mode**
-2. Add MCP Connector with your deployed URL
-3. Say: **"What should I pack for my trip?"** or **"Create a packing list for Paris"**
-4. The interactive widget appears!
-
-### Example Prompts
-
-- "I'm going to Paris for 7 days"
-- "Help me pack for a beach vacation in Hawaii"
-- "Business trip packing list for London"
-- "Family vacation checklist with 2 kids"
-- "What documents do I need for international travel?"
+*More data sources coming soon: CDC health advisories, local crime statistics, etc.*
 
 ## Tech Stack
 
-- **MCP SDK** - Model Context Protocol for ChatGPT integration
-- **Node.js + TypeScript** - Server runtime
-- **Server-Sent Events (SSE)** - Real-time communication
-- **React** - Widget UI components
+- **React** - UI framework
+- **TypeScript** - Type safety
+- **esbuild** - Fast bundling
 - **Lucide Icons** - Beautiful icons
 
-## Environment Variables
+## Roadmap
 
-Copy `.env.example` to `.env` and configure:
-
-```bash
-BUTTONDOWN_API_KEY=your_api_key
-ANALYTICS_PASSWORD=your_password
-```
-
-## Privacy & Data Use
-
-- **What we collect:** When the widget runs inside ChatGPT we receive the location (city/region/country), locale, device/browser fingerprint, and trip query details via `_meta`.
-- **How we use it:** These fields feed the `/analytics` dashboard only; we do not sell or share this data.
-- **Retention:** Logs are stored for **30 days** in the `/logs` folder and then automatically rotated.
-- **User input storage:** The widget caches your checklist progress in `localStorage`; entries expire after **30 days**. Clear anytime with the "Reset" button.
-
-## Monitoring & Alerts
-
-- Visit `/analytics` (Basic Auth protected) to review the live dashboard.
-- Automated alerts trigger for:
-  - **Tool failures**: >5 per day (critical)
-  - **Parameter parse errors**: >3 per week (warning)
-  - **Empty results**: >20% of calls (warning)
-  - **Widget crashes**: Any occurrence (critical)
-  - **Buttondown failures**: >10% failure rate (warning)
-
-## Security
-
-- **Production**: All traffic uses HTTPS via Render.com
-- **Local development**: HTTP (`localhost:8000`) is for development only
-- Widget runs in a sandboxed iframe with strict CSP
-
-## Support
-
-For questions, bug reports, or support:
-- **Email**: support@layer3labs.io
-
-**Note:** GitHub issues are not monitored for support requests. Please use email for all inquiries.
+- [ ] CDC health advisories integration
+- [ ] Local crime statistics
+- [ ] Weather and natural disaster alerts
+- [ ] User reviews and reports
+- [ ] Trip planning features
 
 ## License
 
