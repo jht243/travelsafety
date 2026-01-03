@@ -24628,21 +24628,45 @@ var TriangleAlert = createLucideIcon("triangle-alert", __iconNode12);
 // src/TravelSafety.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var COLORS = {
-  lime: "#DCFF00",
-  purple: "#8B5CF6",
-  orange: "#FF6B35",
-  blue: "#60A5FA",
-  pink: "#F472B6",
-  dark: "#1a1a2e",
-  darkPurple: "#4C1D95",
-  cream: "#FFFBF5",
-  mint: "#34D399"
+  // Semantic Status Colors (Subtle & Professional)
+  safe: { text: "#059669", bg: "#ECFDF5", border: "#A7F3D0", icon: "#10B981" },
+  // Emerald
+  caution: { text: "#D97706", bg: "#FFFBEB", border: "#FDE68A", icon: "#F59E0B" },
+  // Amber
+  warning: { text: "#EA580C", bg: "#FFF7ED", border: "#FED7AA", icon: "#F97316" },
+  // Orange
+  danger: { text: "#DC2626", bg: "#FEF2F2", border: "#FECACA", icon: "#EF4444" },
+  // Red
+  // Neutrals
+  slate: {
+    900: "#0F172A",
+    // Headings
+    800: "#1E293B",
+    700: "#334155",
+    // Body text
+    600: "#475569",
+    500: "#64748B",
+    // Secondary text
+    400: "#94A3B8",
+    // Icons/Borders
+    300: "#CBD5E1",
+    200: "#E2E8F0",
+    // Dividers/Borders
+    100: "#F1F5F9",
+    // Backgrounds
+    50: "#F8FAFC"
+    // Cards
+  },
+  // Brand
+  primary: "#2563EB",
+  // Royal Blue (Clean)
+  white: "#FFFFFF"
 };
 var ADVISORY_LEVELS = {
-  1: { label: "Exercise Normal Precautions", color: COLORS.mint, bgColor: "#D1FAE5", icon: CircleCheckBig },
-  2: { label: "Exercise Increased Caution", color: COLORS.lime, bgColor: "#FEFCE8", icon: Info },
-  3: { label: "Reconsider Travel", color: COLORS.orange, bgColor: "#FFF1EB", icon: TriangleAlert },
-  4: { label: "Do Not Travel", color: "#EF4444", bgColor: "#FEE2E2", icon: CircleAlert }
+  1: { label: "Exercise Normal Precautions", style: COLORS.safe, icon: CircleCheckBig },
+  2: { label: "Exercise Increased Caution", style: COLORS.caution, icon: Info },
+  3: { label: "Reconsider Travel", style: COLORS.warning, icon: TriangleAlert },
+  4: { label: "Do Not Travel", style: COLORS.danger, icon: CircleAlert }
 };
 var CITY_COORDINATES = {
   "medellin": { lat: 6.2442, lng: -75.5812, name: "Medell\xEDn", country: "Colombia" },
@@ -25550,43 +25574,43 @@ function SafetyMeter({ level }) {
   const percentage = (4 - level + 1) / 4 * 100;
   const config = ADVISORY_LEVELS[level] || ADVISORY_LEVELS[1];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: "100%", marginTop: "16px" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#6b7280" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "13px", color: COLORS.slate[500], fontWeight: 500 }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Safety Score" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: config.color }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: config.style.text }, children: [
         Math.round(percentage),
         "%"
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
       width: "100%",
-      height: "12px",
-      backgroundColor: "#e5e7eb",
-      borderRadius: "6px",
+      height: "8px",
+      backgroundColor: COLORS.slate[200],
+      borderRadius: "4px",
       overflow: "hidden"
     }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
       width: `${percentage}%`,
       height: "100%",
-      backgroundColor: config.color,
-      borderRadius: "6px",
+      backgroundColor: config.style.icon,
+      borderRadius: "4px",
       transition: "width 0.5s ease-out"
     } }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginTop: "4px", fontSize: "12px", color: "#9ca3af" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Higher Risk" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Lower Risk" })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "11px", color: COLORS.slate[400] }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "High Risk" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Low Risk" })
     ] })
   ] });
 }
 function DashboardCard({ title, children, icon: Icon2 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-    backgroundColor: "white",
-    borderRadius: "16px",
-    padding: "24px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)",
-    border: "1px solid #e5e7eb"
+    backgroundColor: COLORS.white,
+    borderRadius: "8px",
+    padding: "20px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+    border: `1px solid ${COLORS.slate[200]}`
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
-      Icon2 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 24, style: { color: "#6b7280" } }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: 0, fontSize: "18px", fontWeight: 600, color: "#111827" }, children: title })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }, children: [
+      Icon2 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 20, style: { color: COLORS.slate[400] } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: 0, fontSize: "16px", fontWeight: 600, color: COLORS.slate[900] }, children: title })
     ] }),
     children
   ] });
@@ -25594,9 +25618,9 @@ function DashboardCard({ title, children, icon: Icon2 }) {
 function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories }) {
   const nearbyCities = getNearbyCities(currentCity);
   if (nearbyCities.length === 0) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", fontWeight: 600, color: "#374151", marginBottom: "8px" }, children: "Compare Nearby" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: nearbyCities.map((cityKey) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", fontWeight: 500, color: COLORS.slate[500], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Nearby Cities" }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: nearbyCities.map((cityKey) => {
       const cityInfo = CITY_COORDINATES[cityKey];
       if (!cityInfo) return null;
       const cityAcled = FALLBACK_ACLED_DATA[cityKey];
@@ -25604,19 +25628,20 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
       const countryKey = cityInfo.country.toLowerCase();
       const cityAdvisory = FALLBACK_ADVISORIES[countryKey] || advisories;
       const score = calculateSafetyScore(cityAdvisory, cityAcled, cityGdelt);
-      const color = getScoreColor(score);
+      const config = getScoreConfig(score);
       return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "div",
         {
           style: {
             display: "flex",
             alignItems: "center",
-            gap: "6px",
-            padding: "6px 10px",
-            backgroundColor: "#f9fafb",
-            borderRadius: "8px",
-            border: "1px solid #e5e7eb",
-            cursor: "pointer"
+            gap: "8px",
+            padding: "8px 12px",
+            backgroundColor: COLORS.white,
+            borderRadius: "6px",
+            border: `1px solid ${COLORS.slate[200]}`,
+            cursor: "pointer",
+            transition: "all 0.2s"
           },
           title: `${cityInfo.name}, ${cityInfo.country}`,
           children: [
@@ -25624,17 +25649,18 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
               width: "24px",
               height: "24px",
               borderRadius: "50%",
-              backgroundColor: color,
+              backgroundColor: config.bg,
+              border: `1px solid ${config.border}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: "10px",
               fontWeight: 700,
-              color: "white"
+              color: config.text
             }, children: score }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", fontWeight: 600, color: "#111827" }, children: cityInfo.name }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "9px", color: "#6b7280" }, children: cityInfo.country })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[700] }, children: cityInfo.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: cityInfo.country })
             ] })
           ]
         },
@@ -25666,11 +25692,11 @@ function calculateSafetyScore(advisory, acledData, gdeltData) {
   }
   return Math.max(1, Math.min(100, Math.round(score)));
 }
-function getScoreColor(score) {
-  if (score >= 75) return COLORS.mint;
-  if (score >= 50) return COLORS.purple;
-  if (score >= 25) return COLORS.orange;
-  return "#dc2626";
+function getScoreConfig(score) {
+  if (score >= 75) return COLORS.safe;
+  if (score >= 50) return COLORS.caution;
+  if (score >= 25) return COLORS.warning;
+  return COLORS.danger;
 }
 function getScoreLabel(score) {
   if (score >= 75) return "Low Risk";
@@ -25682,27 +25708,22 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
   const [showMore, setShowMore] = (0, import_react3.useState)(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
   const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
-  const scoreColor = getScoreColor(safetyScore);
+  const scoreConfig = getScoreConfig(safetyScore);
   const scoreLabel = getScoreLabel(safetyScore);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-    backgroundColor: "white",
-    borderRadius: "24px",
-    padding: "20px",
-    boxShadow: "0 8px 32px rgba(139,92,246,0.12)",
-    border: "2px solid #E5E7EB",
-    maxWidth: "500px",
+    backgroundColor: COLORS.white,
+    borderRadius: "12px",
+    padding: "24px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1)",
+    border: `1px solid ${COLORS.slate[200]}`,
+    maxWidth: "600px",
     margin: "0 auto"
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "16px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "4px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-        backgroundColor: scoreColor,
-        borderRadius: "8px",
-        padding: "4px",
-        display: "flex"
-      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 16, style: { color: "white" } }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "22px", fontWeight: 800, color: COLORS.dark, letterSpacing: "-0.5px" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, style: { color: COLORS.slate[400] } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "24px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#9CA3AF", fontWeight: 500, fontSize: "16px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500], fontWeight: 400, fontSize: "20px" }, children: [
           ", ",
           advisory.country
         ] })
@@ -25711,81 +25732,81 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
       display: "flex",
       alignItems: "center",
-      gap: "12px",
-      marginBottom: "12px",
-      padding: "12px",
-      backgroundColor: `${scoreColor}15`,
-      borderRadius: "16px",
-      border: `2px solid ${scoreColor}40`
+      gap: "20px",
+      marginBottom: "24px",
+      padding: "20px",
+      backgroundColor: COLORS.slate[50],
+      borderRadius: "8px",
+      border: `1px solid ${COLORS.slate[200]}`
     }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        width: "60px",
-        height: "60px",
-        borderRadius: "16px",
-        backgroundColor: scoreColor,
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        width: "72px",
+        height: "72px",
+        borderRadius: "50%",
+        backgroundColor: COLORS.white,
+        border: `4px solid ${scoreConfig.text}`,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        boxShadow: `0 4px 16px ${scoreColor}50`,
         flexShrink: 0
-      }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "28px", fontWeight: 800, color: "white", lineHeight: 1 }, children: safetyScore }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", fontWeight: 500, color: "white", opacity: 0.9 }, children: "/ 100" })
-      ] }),
+      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, color: scoreConfig.text, lineHeight: 1 }, children: safetyScore }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "16px", fontWeight: 700, color: scoreColor, marginBottom: "2px" }, children: scoreLabel }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }, children: safetyScore >= 75 ? "Generally safe with normal precautions." : safetyScore >= 50 ? "Exercise caution. Be aware of surroundings." : safetyScore >= 25 ? "Reconsider travel. Safety concerns exist." : "Avoid if possible. Serious risks." })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "18px", fontWeight: 600, color: scoreConfig.text, marginBottom: "4px" }, children: scoreLabel }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.5 }, children: safetyScore >= 75 ? "Likely safe for travel. Exercise normal precautions." : safetyScore >= 50 ? "Exercise increased caution. Be aware of surroundings." : safetyScore >= 25 ? "Reconsider travel. Significant safety concerns exist." : "Do not travel. Extreme risks present." })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }, children: [
       gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        padding: "10px 8px",
-        backgroundColor: COLORS.cream,
-        borderRadius: "12px",
-        border: "2px solid #E5E7EB",
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.slate[200]}`,
         textAlign: "center"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: "#9CA3AF", marginBottom: "2px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }, children: "News" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "News Tone" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          fontSize: "16px",
-          fontWeight: 800,
-          color: gdeltData.tone_score > 0 ? COLORS.mint : gdeltData.tone_score < -3 ? COLORS.orange : COLORS.purple
+          fontSize: "18px",
+          fontWeight: 700,
+          color: gdeltData.tone_score > 0 ? COLORS.safe.text : gdeltData.tone_score < -3 ? COLORS.danger.text : COLORS.warning.text
         }, children: [
           gdeltData.tone_score > 0 ? "+" : "",
           gdeltData.tone_score
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "9px", color: "#9ca3af", fontWeight: 500 }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} High" : "\u{1F7E2} Normal" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: gdeltData.volume_level === "spike" ? "High Volume" : "Normal Vol" })
       ] }),
       acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        padding: "10px 8px",
-        backgroundColor: COLORS.cream,
-        borderRadius: "12px",
-        border: "2px solid #E5E7EB",
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.slate[200]}`,
         textAlign: "center"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: "#9CA3AF", marginBottom: "2px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }, children: "Events" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "Events" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-          fontSize: "16px",
-          fontWeight: 800,
-          color: acledData.total_events > 500 ? COLORS.orange : acledData.total_events > 100 ? COLORS.purple : COLORS.mint
+          fontSize: "18px",
+          fontWeight: 700,
+          color: acledData.total_events > 500 ? COLORS.danger.text : acledData.total_events > 100 ? COLORS.warning.text : COLORS.safe.text
         }, children: acledData.total_events.toLocaleString() }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "9px", color: "#9ca3af", fontWeight: 500 }, children: acledData.trend === "increasing" ? "\u2191 Rising" : acledData.trend === "decreasing" ? "\u2193 Falling" : "\u2192 Stable" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "Past Year" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        padding: "10px 8px",
-        backgroundColor: COLORS.cream,
-        borderRadius: "12px",
-        border: "2px solid #E5E7EB",
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.slate[200]}`,
         textAlign: "center"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: "#9CA3AF", marginBottom: "2px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }, children: "US Level" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-          fontSize: "16px",
-          fontWeight: 800,
-          color: config.color
-        }, children: advisory.advisory_level }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: "#9ca3af" }, children: advisory.advisory_level === 1 ? "Safe" : advisory.advisory_level === 2 ? "Caution" : advisory.advisory_level === 3 ? "Reconsider" : "Avoid" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "US Advisory" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          fontSize: "18px",
+          fontWeight: 700,
+          color: config.style.text
+        }, children: [
+          "Level ",
+          advisory.advisory_level
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "of 4" })
       ] })
     ] }) }),
     isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -25805,20 +25826,21 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         rel: "noopener noreferrer",
         style: {
           padding: "10px 12px",
-          backgroundColor: "#f9fafb",
+          backgroundColor: COLORS.slate[50],
           borderRadius: "8px",
-          border: "1px solid #e5e7eb",
+          border: `1px solid ${COLORS.slate[200]}`,
           textDecoration: "none",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center"
+          alignItems: "center",
+          transition: "all 0.2s"
         },
         children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", color: "#111827", fontWeight: 500, lineHeight: 1.3 }, children: gdeltData.headlines[0].title }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280", marginTop: "2px" }, children: gdeltData.headlines[0].source })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }, children: gdeltData.headlines[0].title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginTop: "2px" }, children: gdeltData.headlines[0].source })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14, style: { color: "#9ca3af", flexShrink: 0, marginLeft: "8px" } })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14, style: { color: COLORS.slate[400], flexShrink: 0, marginLeft: "8px" } })
         ]
       }
     ) }),
@@ -25828,65 +25850,64 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         onClick: () => setShowMore(!showMore),
         style: {
           padding: "10px 24px",
-          backgroundColor: showMore ? COLORS.cream : COLORS.purple,
-          color: showMore ? COLORS.purple : "white",
-          border: showMore ? `2px solid ${COLORS.purple}` : "none",
+          backgroundColor: showMore ? COLORS.slate[100] : COLORS.white,
+          color: showMore ? COLORS.slate[600] : COLORS.primary,
+          border: `1px solid ${showMore ? COLORS.slate[300] : COLORS.slate[200]}`,
           borderRadius: "50px",
           fontSize: "13px",
-          fontWeight: 700,
+          fontWeight: 600,
           cursor: "pointer",
           display: "inline-flex",
           alignItems: "center",
           gap: "6px",
           transition: "all 0.2s",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px"
+          boxShadow: showMore ? "none" : "0 1px 2px rgba(0,0,0,0.05)"
         },
         children: showMore ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16 }),
-          "Less"
+          "Show Less"
         ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 16 }),
-          "More Details"
+          "Full Analysis"
         ] })
       }
     ) }),
-    showMore && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { borderTop: "1px solid #e5e7eb", paddingTop: "24px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 20px 0", fontSize: "18px", fontWeight: 600, color: "#111827" }, children: "Detailed Analysis" }),
+    showMore && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { borderTop: `1px solid ${COLORS.slate[200]}`, paddingTop: "32px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 24px 0", fontSize: "18px", fontWeight: 600, color: COLORS.slate[900] }, children: "Detailed Analysis" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "24px" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
             padding: "16px",
-            backgroundColor: config.bgColor,
-            borderRadius: "12px",
-            border: `1px solid ${config.color}20`
-          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }, children: [
+            backgroundColor: config.style.bg,
+            borderRadius: "8px",
+            border: `1px solid ${config.style.border}`
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              width: "48px",
-              height: "48px",
+              width: "40px",
+              height: "40px",
               borderRadius: "50%",
-              backgroundColor: config.color,
+              backgroundColor: config.style.icon,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "white",
-              fontSize: "24px",
+              color: COLORS.white,
+              fontSize: "18px",
               fontWeight: 700
             }, children: advisory.advisory_level }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: "#111827" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
                 "Level ",
                 advisory.advisory_level
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: config.label })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: config.style.text }, children: config.label })
             ] })
           ] }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "Advisory Details", icon: Info, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: "#4b5563", lineHeight: 1.6 }, children: advisory.advisory_text }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "14px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 16 }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: advisory.advisory_text }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
               "Updated: ",
               advisory.date_updated
@@ -25903,17 +25924,18 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 alignItems: "center",
                 gap: "8px",
                 marginTop: "16px",
-                padding: "10px 16px",
-                backgroundColor: "#2563eb",
-                color: "white",
-                borderRadius: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
                 textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: 500,
-                transition: "background-color 0.2s"
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
                 "View Full Advisory"
               ]
             }
@@ -25921,42 +25943,43 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         ] }),
         ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
           padding: "16px",
-          backgroundColor: "#f0f9ff",
-          borderRadius: "12px",
-          border: "1px solid #0ea5e930"
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
         }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              width: "48px",
-              height: "48px",
+              width: "40px",
+              height: "40px",
               borderRadius: "50%",
-              backgroundColor: "#0ea5e9",
+              backgroundColor: COLORS.primary,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "white",
-              fontSize: "20px",
+              color: COLORS.white,
+              fontSize: "16px",
               fontWeight: 700
             }, children: "UK" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: "FCO Travel Advice" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: "Foreign, Commonwealth & Development Office" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: "FCO Travel Advice" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: "Foreign, Commonwealth & Development Office" })
             ] })
           ] }),
-          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: "#dc2626", marginBottom: "4px" }, children: "\u26A0\uFE0F Travel Alerts:" }),
+          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.danger.text, marginBottom: "8px", textTransform: "uppercase" }, children: "Travel Alerts" }),
             ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              padding: "6px 12px",
-              backgroundColor: "#fef2f2",
+              padding: "8px 12px",
+              backgroundColor: COLORS.danger.bg,
               borderRadius: "6px",
               fontSize: "13px",
-              color: "#991b1b",
-              marginBottom: "4px",
-              border: "1px solid #fecaca"
+              color: COLORS.danger.text,
+              marginBottom: "6px",
+              border: `1px solid ${COLORS.danger.border}`,
+              fontWeight: 500
             }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 12px 0", color: "#4b5563", lineHeight: 1.5, fontSize: "14px" }, children: ukAdvisory.change_description }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "13px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: ukAdvisory.change_description }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
               "Updated: ",
@@ -25973,18 +25996,18 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                marginTop: "12px",
-                padding: "10px 16px",
-                backgroundColor: "#0ea5e9",
-                color: "white",
-                borderRadius: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
                 textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: 500,
-                transition: "background-color 0.2s"
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
                 "View UK Advice"
               ]
             }
@@ -25992,74 +26015,76 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         ] }) }),
         acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "ACLED Conflict Data", icon: TriangleAlert, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
           padding: "16px",
-          backgroundColor: "#fefce8",
-          borderRadius: "12px",
-          border: "1px solid #fef08a"
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
         }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              width: "48px",
-              height: "48px",
+              width: "40px",
+              height: "40px",
               borderRadius: "50%",
-              backgroundColor: "#eab308",
+              backgroundColor: COLORS.warning.icon,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "white",
+              color: COLORS.white,
               fontSize: "16px",
               fontWeight: 700
-            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 24 }) }),
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 20 }) }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
-                "ACLED Conflict Data ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: [
+                "Conflict Data ",
                 acledData.location ? "(City-level)" : "(Country-level)"
               ] })
             ] })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#dc2626" }, children: acledData.total_events.toLocaleString() }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Events (2025)" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.danger.text }, children: acledData.total_events.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Events (2025)" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#dc2626" }, children: acledData.fatalities.toLocaleString() }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Fatalities" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.danger.text }, children: acledData.fatalities.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Fatalities" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 700, color: "#f97316" }, children: acledData.events_last_30_days }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Last 30 Days" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.warning.text }, children: acledData.events_last_30_days }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Last 30 Days" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-                fontSize: "16px",
+                fontSize: "14px",
                 fontWeight: 700,
-                color: acledData.trend === "increasing" ? "#dc2626" : acledData.trend === "decreasing" ? "#22c55e" : "#6b7280"
+                color: acledData.trend === "increasing" ? COLORS.danger.text : acledData.trend === "decreasing" ? COLORS.safe.text : COLORS.slate[500]
               }, children: acledData.trend === "increasing" ? "\u2191 Increasing" : acledData.trend === "decreasing" ? "\u2193 Decreasing" : "\u2192 Stable" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: "#6b7280" }, children: "Trend" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Trend" })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Event Types:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Event Types" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(acledData.event_types).slice(0, 5).map(([type, count]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-              padding: "4px 10px",
-              backgroundColor: "white",
-              borderRadius: "12px",
+              padding: "6px 10px",
+              backgroundColor: COLORS.white,
+              borderRadius: "6px",
               fontSize: "12px",
-              border: "1px solid #e5e7eb"
+              border: `1px solid ${COLORS.slate[200]}`,
+              color: COLORS.slate[700],
+              fontWeight: 500
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500] }, children: [
                 type,
                 ":"
               ] }),
               " ",
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, color: "#111827" }, children: count })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: count })
             ] }, type)) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "13px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-              "Data from ACLED \u2022 Updated: ",
+              "Updated: ",
               new Date(acledData.last_updated).toLocaleDateString()
             ] })
           ] }),
@@ -26073,18 +26098,18 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                marginTop: "12px",
-                padding: "10px 16px",
-                backgroundColor: "#eab308",
-                color: "white",
-                borderRadius: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
                 textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: 500,
-                transition: "background-color 0.2s"
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
                 "View ACLED Dashboard"
               ]
             }
@@ -26092,82 +26117,84 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         ] }) }),
         gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "GDELT News Analysis", icon: Globe, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
           padding: "16px",
-          backgroundColor: "#f0fdf4",
-          borderRadius: "12px",
-          border: "1px solid #bbf7d0"
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
         }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              width: "48px",
-              height: "48px",
+              width: "40px",
+              height: "40px",
               borderRadius: "50%",
-              backgroundColor: "#22c55e",
+              backgroundColor: COLORS.safe.icon,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "white",
+              color: COLORS.white,
               fontSize: "16px",
               fontWeight: 700
-            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 24 }) }),
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 20 }) }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: gdeltData.location }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: gdeltData.location }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: [
                 "Global News Monitoring ",
                 gdeltData.location !== gdeltData.country ? "(City-level)" : "(Country-level)"
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginBottom: "16px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
                 fontSize: "20px",
                 fontWeight: 700,
-                color: gdeltData.tone_score > 0 ? "#22c55e" : gdeltData.tone_score < -3 ? "#dc2626" : "#f97316"
+                color: gdeltData.tone_score > 0 ? COLORS.safe.text : gdeltData.tone_score < -3 ? COLORS.danger.text : COLORS.warning.text
               }, children: [
                 gdeltData.tone_score > 0 ? "+" : "",
                 gdeltData.tone_score
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "News Tone" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "News Tone" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
                 fontSize: "14px",
                 fontWeight: 700,
-                color: gdeltData.volume_level === "spike" ? "#dc2626" : gdeltData.volume_level === "elevated" ? "#f97316" : "#22c55e"
+                color: gdeltData.volume_level === "spike" ? COLORS.danger.text : gdeltData.volume_level === "elevated" ? COLORS.warning.text : COLORS.safe.text
               }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "Volume" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Volume" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", backgroundColor: "white", borderRadius: "8px", textAlign: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
                 fontSize: "14px",
                 fontWeight: 700,
-                color: gdeltData.trend_7day === "worsening" ? "#dc2626" : gdeltData.trend_7day === "improving" ? "#22c55e" : "#6b7280"
+                color: gdeltData.trend_7day === "worsening" ? COLORS.danger.text : gdeltData.trend_7day === "improving" ? COLORS.safe.text : COLORS.slate[500]
               }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: "#6b7280" }, children: "7-Day Trend" })
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "7-Day Trend" })
             ] })
           ] }),
           Object.keys(gdeltData.themes).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "News Theme Breakdown:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Themes" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-              padding: "4px 10px",
-              backgroundColor: "white",
-              borderRadius: "12px",
+              padding: "6px 10px",
+              backgroundColor: COLORS.white,
+              borderRadius: "6px",
               fontSize: "12px",
-              border: "1px solid #e5e7eb"
+              border: `1px solid ${COLORS.slate[200]}`,
+              color: COLORS.slate[700],
+              fontWeight: 500
             }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: "#6b7280" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500] }, children: [
                 theme,
                 ":"
               ] }),
               " ",
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: "#111827" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
                 pct,
                 "%"
               ] })
             ] }, theme)) })
           ] }),
-          gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "12px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: "#111827", marginBottom: "8px" }, children: "Recent Headlines:" }),
+          gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Headlines" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
               "a",
               {
@@ -26175,26 +26202,27 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 target: "_blank",
                 rel: "noopener noreferrer",
                 style: {
-                  padding: "10px 12px",
-                  backgroundColor: "white",
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
+                  padding: "12px",
+                  backgroundColor: COLORS.white,
+                  borderRadius: "6px",
+                  border: `1px solid ${COLORS.slate[200]}`,
                   textDecoration: "none",
-                  display: "block"
+                  display: "block",
+                  transition: "all 0.2s"
                 },
                 children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-                    fontSize: "13px",
-                    color: "#111827",
+                    fontSize: "14px",
+                    color: COLORS.slate[900],
                     fontWeight: 500,
                     marginBottom: "4px",
                     lineHeight: 1.4
                   }, children: headline.title }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "11px", color: "#6b7280" }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: COLORS.slate[500] }, children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: headline.source }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "\u2022" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[300] }, children: "\u2022" }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
-                      color: headline.tone > 0 ? "#22c55e" : headline.tone < -3 ? "#dc2626" : "#f97316",
+                      color: headline.tone > 0 ? COLORS.safe.text : headline.tone < -3 ? COLORS.danger.text : COLORS.warning.text,
                       fontWeight: 500
                     }, children: [
                       "Tone: ",
@@ -26207,7 +26235,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
               index
             )) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: "#6b7280", fontSize: "12px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
               "Data from GDELT \u2022 ",
@@ -26225,18 +26253,18 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                marginTop: "12px",
-                padding: "10px 16px",
-                backgroundColor: "#22c55e",
-                color: "white",
-                borderRadius: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
                 textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: 500,
-                transition: "background-color 0.2s"
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
                 "View GDELT Project"
               ]
             }
@@ -26245,11 +26273,11 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
         padding: "16px",
-        backgroundColor: "#f9fafb",
+        backgroundColor: COLORS.slate[50],
         borderRadius: "12px",
-        border: "1px solid #e5e7eb"
+        border: `1px solid ${COLORS.slate[200]}`
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 12px 0", fontSize: "14px", fontWeight: 600, color: "#374151" }, children: "US Advisory Levels Explained" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 12px 0", fontSize: "14px", fontWeight: 600, color: COLORS.slate[900], textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Advisory Levels" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
           const Icon2 = info.icon;
           return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -26260,18 +26288,19 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 alignItems: "center",
                 gap: "10px",
                 padding: "8px 12px",
-                backgroundColor: info.bgColor,
+                backgroundColor: info.style.bg,
                 borderRadius: "6px",
-                fontSize: "13px"
+                fontSize: "13px",
+                border: `1px solid ${info.style.border}`
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: info.color } }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: info.color }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: info.style.icon } }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: info.style.text }, children: [
                   "Level ",
                   level,
                   ":"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#4b5563" }, children: info.label })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[600] }, children: info.label })
               ]
             },
             level
@@ -26281,20 +26310,21 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
         marginTop: "16px",
         padding: "14px",
-        backgroundColor: "#eff6ff",
+        backgroundColor: COLORS.primary + "10",
+        // 10% opacity
         borderRadius: "10px",
-        border: "1px solid #bfdbfe",
+        border: `1px solid ${COLORS.primary}30`,
         display: "flex",
         alignItems: "flex-start",
         gap: "10px"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 18, style: { color: "#2563eb", flexShrink: 0, marginTop: "2px" } }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { color: "#1e40af", fontSize: "13px", lineHeight: 1.5 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Note:" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 18, style: { color: COLORS.primary, flexShrink: 0, marginTop: "2px" } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { color: COLORS.slate[700], fontSize: "13px", lineHeight: 1.5 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { style: { color: COLORS.primary }, children: "Note:" }),
           " Government advisories apply to ",
           advisory.country,
           " as a whole. Local data (ACLED, GDELT) is specific to ",
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize", fontWeight: 600 }, children: searchTerm }),
           "."
         ] })
       ] })
@@ -26370,40 +26400,42 @@ function TravelSafety() {
   const popularSearches = ["Colombia", "Mexico", "Japan", "France", "Thailand", "Italy"];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     minHeight: "100vh",
-    backgroundColor: COLORS.cream,
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    backgroundColor: COLORS.slate[50],
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    color: COLORS.slate[900]
   }, children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-      background: `linear-gradient(135deg, ${COLORS.darkPurple} 0%, ${COLORS.purple} 100%)`,
-      padding: "32px 20px",
+      backgroundColor: COLORS.white,
+      padding: "64px 24px 48px",
       textAlign: "center",
-      borderBottomLeftRadius: "32px",
-      borderBottomRightRadius: "32px"
+      borderBottom: `1px solid ${COLORS.slate[200]}`
     }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "800px", margin: "0 auto" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "12px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "16px" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-          backgroundColor: COLORS.lime,
-          borderRadius: "12px",
+          backgroundColor: COLORS.primary,
+          borderRadius: "10px",
           padding: "8px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 28, style: { color: COLORS.dark } }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "28px", fontWeight: 800, color: "white", letterSpacing: "-0.5px" }, children: "Safe to Travel?" })
+          justifyContent: "center",
+          boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06)"
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 24, style: { color: "white" } }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "32px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: "Travel Safety Index" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 20px 0", fontSize: "14px", color: "rgba(255,255,255,0.8)", maxWidth: "400px", marginLeft: "auto", marginRight: "auto" }, children: "Real-time safety info from official sources" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 32px 0", fontSize: "16px", color: COLORS.slate[500], maxWidth: "480px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }, children: "Real-time safety assessments from official government sources and global news data." }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
         display: "flex",
-        maxWidth: "500px",
+        maxWidth: "560px",
         margin: "0 auto",
         backgroundColor: "white",
-        borderRadius: "50px",
+        borderRadius: "12px",
         overflow: "hidden",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
-        border: "3px solid " + COLORS.lime
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        border: `1px solid ${COLORS.slate[200]}`,
+        transition: "box-shadow 0.2s, border-color 0.2s"
       }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 18, style: { position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: COLORS.purple } }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 18, style: { position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: COLORS.slate[400] } }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "input",
             {
@@ -26411,15 +26443,15 @@ function TravelSafety() {
               value: searchQuery,
               onChange: (e) => setSearchQuery(e.target.value),
               onKeyDown: (e) => e.key === "Enter" && handleSearch(),
-              placeholder: "Search city or country...",
+              placeholder: "Search city or country (e.g. Tokyo)...",
               style: {
                 width: "100%",
-                padding: "14px 16px 14px 44px",
-                fontSize: "15px",
+                padding: "16px 16px 16px 48px",
+                fontSize: "16px",
                 border: "none",
                 outline: "none",
                 backgroundColor: "transparent",
-                fontWeight: 500
+                color: COLORS.slate[900]
               }
             }
           )
@@ -26430,25 +26462,22 @@ function TravelSafety() {
             onClick: handleSearch,
             disabled: loading,
             style: {
-              padding: "14px 24px",
-              backgroundColor: COLORS.orange,
-              color: "white",
+              padding: "0 24px",
+              backgroundColor: COLORS.white,
+              color: COLORS.primary,
               border: "none",
-              borderRadius: "50px",
-              margin: "4px",
+              borderLeft: `1px solid ${COLORS.slate[100]}`,
               cursor: loading ? "wait" : "pointer",
               fontSize: "14px",
-              fontWeight: 700,
-              transition: "all 0.2s",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px"
+              fontWeight: 600,
+              transition: "all 0.2s"
             },
-            children: loading ? "..." : "Go"
+            children: loading ? "Searching..." : "Search"
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: "16px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "rgba(255,255,255,0.6)", fontSize: "12px", marginRight: "8px" }, children: "Try:" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: "24px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[400], fontSize: "12px", marginRight: "8px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Trending:" }),
         popularSearches.map((term) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           "button",
           {
@@ -26467,15 +26496,15 @@ function TravelSafety() {
               }, 0);
             },
             style: {
-              padding: "5px 12px",
-              margin: "3px",
-              backgroundColor: "rgba(220,255,0,0.2)",
-              color: COLORS.lime,
-              border: "1px solid " + COLORS.lime,
-              borderRadius: "50px",
+              padding: "6px 12px",
+              margin: "4px",
+              backgroundColor: COLORS.white,
+              color: COLORS.slate[700],
+              border: `1px solid ${COLORS.slate[200]}`,
+              borderRadius: "6px",
               cursor: "pointer",
-              fontSize: "12px",
-              fontWeight: 600,
+              fontSize: "13px",
+              fontWeight: 500,
               transition: "all 0.2s"
             },
             children: term
@@ -26484,18 +26513,20 @@ function TravelSafety() {
         ))
       ] })
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "24px 16px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "40px 24px", maxWidth: "1000px", margin: "0 auto" }, children: [
       error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
         maxWidth: "600px",
         margin: "0 auto 32px",
         padding: "16px 24px",
-        backgroundColor: "#fef2f2",
-        borderRadius: "12px",
-        border: "1px solid #fecaca",
-        color: "#991b1b",
+        backgroundColor: COLORS.danger.bg,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.danger.border}`,
+        color: COLORS.danger.text,
         display: "flex",
         alignItems: "center",
-        gap: "12px"
+        gap: "12px",
+        fontSize: "14px",
+        fontWeight: 500
       }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, { size: 20 }),
         error
@@ -26511,32 +26542,71 @@ function TravelSafety() {
           isCity: searchResult.isCity
         }
       ),
-      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", color: "#6b7280", maxWidth: "500px", margin: "0 auto" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 64, style: { marginBottom: "16px", opacity: 0.3 } }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { style: { margin: "0 0 8px 0", fontSize: "24px", fontWeight: 600, color: "#374151" }, children: "Search for a Destination" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: 0, lineHeight: 1.6 }, children: "Enter a city or country name above to see the latest travel safety information from the US Department of State." })
+      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", color: COLORS.slate[400], maxWidth: "480px", margin: "64px auto" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 48, style: { marginBottom: "24px", opacity: 0.2 } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { style: { margin: "0 0 12px 0", fontSize: "20px", fontWeight: 600, color: COLORS.slate[900] }, children: "Search for a Destination" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: 0, lineHeight: 1.6, fontSize: "15px", color: COLORS.slate[500] }, children: "Enter a city or country name above to view comprehensive safety data, news sentiment, and travel advisories." })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-      padding: "24px",
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      padding: "32px 24px",
       textAlign: "center",
-      borderTop: "1px solid #e5e7eb",
-      backgroundColor: "white"
-    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: 0, color: "#6b7280", fontSize: "14px" }, children: [
-      "Data sourced from the",
-      " ",
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "a",
-        {
-          href: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html",
-          target: "_blank",
-          rel: "noopener noreferrer",
-          style: { color: "#2563eb", textDecoration: "none" },
-          children: "US Department of State"
-        }
-      ),
-      ". Always verify with official sources before traveling."
-    ] }) })
+      borderTop: `1px solid ${COLORS.slate[200]}`,
+      backgroundColor: COLORS.white
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: 0, color: COLORS.slate[400], fontSize: "13px" }, children: [
+        "Data sourced from the",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "US Department of State"
+          }
+        ),
+        ",",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://www.gov.uk/foreign-travel-advice",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "UK Foreign Office"
+          }
+        ),
+        ",",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://acleddata.com",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "ACLED"
+          }
+        ),
+        ", and",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://www.gdeltproject.org/",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "GDELT Project"
+          }
+        ),
+        "."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "8px 0 0 0", color: COLORS.slate[300], fontSize: "12px" }, children: "For informational purposes only. Always verify with official sources before traveling." })
+    ] })
   ] });
 }
 
