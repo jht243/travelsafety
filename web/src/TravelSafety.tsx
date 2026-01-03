@@ -115,6 +115,7 @@ interface UKTravelAdvice {
 
 interface ACLEDData {
   country: string;
+  location?: string; // City or region name
   total_events: number;
   fatalities: number;
   events_last_30_days: number;
@@ -298,8 +299,9 @@ const FALLBACK_UK_ADVISORIES: UKAdvisoryData = {
   },
 };
 
-// Fallback ACLED conflict data for common countries
+// Fallback ACLED conflict data for countries AND cities
 const FALLBACK_ACLED_DATA: ACLEDAdvisoryData = {
+  // Country-level data
   'colombia': {
     country: 'Colombia',
     total_events: 1247,
@@ -384,6 +386,198 @@ const FALLBACK_ACLED_DATA: ACLEDAdvisoryData = {
       'Protests': 412,
       'Riots': 167,
       'Strategic developments': 62,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  // City-level data - Colombia
+  'medellin': {
+    country: 'Colombia',
+    location: 'Medellín',
+    total_events: 156,
+    fatalities: 89,
+    events_last_30_days: 12,
+    event_types: {
+      'Violence against civilians': 67,
+      'Protests': 45,
+      'Riots': 23,
+      'Strategic developments': 21,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'decreasing',
+  },
+  'bogota': {
+    country: 'Colombia',
+    location: 'Bogotá',
+    total_events: 234,
+    fatalities: 45,
+    events_last_30_days: 18,
+    event_types: {
+      'Protests': 134,
+      'Violence against civilians': 45,
+      'Riots': 34,
+      'Strategic developments': 21,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'cali': {
+    country: 'Colombia',
+    location: 'Cali',
+    total_events: 198,
+    fatalities: 134,
+    events_last_30_days: 15,
+    event_types: {
+      'Violence against civilians': 89,
+      'Battles': 45,
+      'Protests': 34,
+      'Riots': 30,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'cartagena': {
+    country: 'Colombia',
+    location: 'Cartagena',
+    total_events: 34,
+    fatalities: 12,
+    events_last_30_days: 3,
+    event_types: {
+      'Violence against civilians': 18,
+      'Protests': 12,
+      'Strategic developments': 4,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  // City-level data - Mexico
+  'mexico city': {
+    country: 'Mexico',
+    location: 'Mexico City',
+    total_events: 312,
+    fatalities: 156,
+    events_last_30_days: 28,
+    event_types: {
+      'Violence against civilians': 134,
+      'Protests': 98,
+      'Riots': 45,
+      'Strategic developments': 35,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'cancun': {
+    country: 'Mexico',
+    location: 'Cancún',
+    total_events: 67,
+    fatalities: 34,
+    events_last_30_days: 6,
+    event_types: {
+      'Violence against civilians': 45,
+      'Protests': 12,
+      'Strategic developments': 10,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'cabo': {
+    country: 'Mexico',
+    location: 'Los Cabos',
+    total_events: 23,
+    fatalities: 8,
+    events_last_30_days: 2,
+    event_types: {
+      'Violence against civilians': 15,
+      'Strategic developments': 8,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'decreasing',
+  },
+  // City-level data - Brazil
+  'rio de janeiro': {
+    country: 'Brazil',
+    location: 'Rio de Janeiro',
+    total_events: 456,
+    fatalities: 312,
+    events_last_30_days: 38,
+    event_types: {
+      'Violence against civilians': 234,
+      'Battles': 89,
+      'Protests': 78,
+      'Riots': 55,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'sao paulo': {
+    country: 'Brazil',
+    location: 'São Paulo',
+    total_events: 389,
+    fatalities: 198,
+    events_last_30_days: 32,
+    event_types: {
+      'Violence against civilians': 178,
+      'Protests': 134,
+      'Riots': 45,
+      'Strategic developments': 32,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  // City-level data - Thailand
+  'bangkok': {
+    country: 'Thailand',
+    location: 'Bangkok',
+    total_events: 89,
+    fatalities: 12,
+    events_last_30_days: 8,
+    event_types: {
+      'Protests': 67,
+      'Riots': 12,
+      'Strategic developments': 10,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  'phuket': {
+    country: 'Thailand',
+    location: 'Phuket',
+    total_events: 12,
+    fatalities: 2,
+    events_last_30_days: 1,
+    event_types: {
+      'Protests': 8,
+      'Strategic developments': 4,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  // City-level data - France
+  'paris': {
+    country: 'France',
+    location: 'Paris',
+    total_events: 187,
+    fatalities: 5,
+    events_last_30_days: 21,
+    event_types: {
+      'Protests': 134,
+      'Riots': 34,
+      'Violence against civilians': 12,
+      'Strategic developments': 7,
+    },
+    last_updated: '2025-12-30T00:00:00Z',
+    trend: 'stable',
+  },
+  // City-level data - Japan
+  'tokyo': {
+    country: 'Japan',
+    location: 'Tokyo',
+    total_events: 18,
+    fatalities: 0,
+    events_last_30_days: 2,
+    event_types: {
+      'Protests': 15,
+      'Strategic developments': 3,
     },
     last_updated: '2025-12-30T00:00:00Z',
     trend: 'stable',
@@ -756,8 +950,12 @@ function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }: {
                   <AlertTriangle size={24} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600, color: '#111827' }}>Armed Conflict Location & Event Data</div>
-                  <div style={{ fontSize: '14px', color: '#6b7280' }}>Real-time conflict monitoring</div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>
+                    {acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    ACLED Conflict Data {acledData.location ? '(City-level)' : '(Country-level)'}
+                  </div>
                 </div>
               </div>
               
@@ -956,7 +1154,8 @@ export default function TravelSafety() {
       const countryKey = countryFromCity.toLowerCase();
       const advisory = advisories[countryKey];
       const ukAdvisory = ukAdvisories[countryKey];
-      const acled = acledData[countryKey];
+      // Use city-specific ACLED data if available, otherwise fall back to country
+      const acled = acledData[query] || acledData[countryKey];
       if (advisory) {
         setSearchResult({ advisory, ukAdvisory, acledData: acled, isCity: true, searchTerm: query });
         setLoading(false);

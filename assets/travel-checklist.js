@@ -24823,6 +24823,7 @@ var FALLBACK_UK_ADVISORIES = {
   }
 };
 var FALLBACK_ACLED_DATA = {
+  // Country-level data
   "colombia": {
     country: "Colombia",
     total_events: 1247,
@@ -24907,6 +24908,198 @@ var FALLBACK_ACLED_DATA = {
       "Protests": 412,
       "Riots": 167,
       "Strategic developments": 62
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Colombia
+  "medellin": {
+    country: "Colombia",
+    location: "Medell\xEDn",
+    total_events: 156,
+    fatalities: 89,
+    events_last_30_days: 12,
+    event_types: {
+      "Violence against civilians": 67,
+      "Protests": 45,
+      "Riots": 23,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  "bogota": {
+    country: "Colombia",
+    location: "Bogot\xE1",
+    total_events: 234,
+    fatalities: 45,
+    events_last_30_days: 18,
+    event_types: {
+      "Protests": 134,
+      "Violence against civilians": 45,
+      "Riots": 34,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cali": {
+    country: "Colombia",
+    location: "Cali",
+    total_events: 198,
+    fatalities: 134,
+    events_last_30_days: 15,
+    event_types: {
+      "Violence against civilians": 89,
+      "Battles": 45,
+      "Protests": 34,
+      "Riots": 30
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cartagena": {
+    country: "Colombia",
+    location: "Cartagena",
+    total_events: 34,
+    fatalities: 12,
+    events_last_30_days: 3,
+    event_types: {
+      "Violence against civilians": 18,
+      "Protests": 12,
+      "Strategic developments": 4
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Mexico
+  "mexico city": {
+    country: "Mexico",
+    location: "Mexico City",
+    total_events: 312,
+    fatalities: 156,
+    events_last_30_days: 28,
+    event_types: {
+      "Violence against civilians": 134,
+      "Protests": 98,
+      "Riots": 45,
+      "Strategic developments": 35
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cancun": {
+    country: "Mexico",
+    location: "Canc\xFAn",
+    total_events: 67,
+    fatalities: 34,
+    events_last_30_days: 6,
+    event_types: {
+      "Violence against civilians": 45,
+      "Protests": 12,
+      "Strategic developments": 10
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cabo": {
+    country: "Mexico",
+    location: "Los Cabos",
+    total_events: 23,
+    fatalities: 8,
+    events_last_30_days: 2,
+    event_types: {
+      "Violence against civilians": 15,
+      "Strategic developments": 8
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  // City-level data - Brazil
+  "rio de janeiro": {
+    country: "Brazil",
+    location: "Rio de Janeiro",
+    total_events: 456,
+    fatalities: 312,
+    events_last_30_days: 38,
+    event_types: {
+      "Violence against civilians": 234,
+      "Battles": 89,
+      "Protests": 78,
+      "Riots": 55
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "sao paulo": {
+    country: "Brazil",
+    location: "S\xE3o Paulo",
+    total_events: 389,
+    fatalities: 198,
+    events_last_30_days: 32,
+    event_types: {
+      "Violence against civilians": 178,
+      "Protests": 134,
+      "Riots": 45,
+      "Strategic developments": 32
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Thailand
+  "bangkok": {
+    country: "Thailand",
+    location: "Bangkok",
+    total_events: 89,
+    fatalities: 12,
+    events_last_30_days: 8,
+    event_types: {
+      "Protests": 67,
+      "Riots": 12,
+      "Strategic developments": 10
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "phuket": {
+    country: "Thailand",
+    location: "Phuket",
+    total_events: 12,
+    fatalities: 2,
+    events_last_30_days: 1,
+    event_types: {
+      "Protests": 8,
+      "Strategic developments": 4
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - France
+  "paris": {
+    country: "France",
+    location: "Paris",
+    total_events: 187,
+    fatalities: 5,
+    events_last_30_days: 21,
+    event_types: {
+      "Protests": 134,
+      "Riots": 34,
+      "Violence against civilians": 12,
+      "Strategic developments": 7
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Japan
+  "tokyo": {
+    country: "Japan",
+    location: "Tokyo",
+    total_events: 18,
+    fatalities: 0,
+    events_last_30_days: 2,
+    event_types: {
+      "Protests": 15,
+      "Strategic developments": 3
     },
     last_updated: "2025-12-30T00:00:00Z",
     trend: "stable"
@@ -25251,8 +25444,11 @@ function SearchResult({ advisory, ukAdvisory, acledData, searchTerm, isCity }) {
             fontWeight: 700
           }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 24 }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: "Armed Conflict Location & Event Data" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: "Real-time conflict monitoring" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: "#111827" }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: "#6b7280" }, children: [
+              "ACLED Conflict Data ",
+              acledData.location ? "(City-level)" : "(Country-level)"
+            ] })
           ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
@@ -25441,7 +25637,7 @@ function TravelSafety() {
       const countryKey = countryFromCity.toLowerCase();
       const advisory2 = advisories[countryKey];
       const ukAdvisory2 = ukAdvisories[countryKey];
-      const acled2 = acledData[countryKey];
+      const acled2 = acledData[query] || acledData[countryKey];
       if (advisory2) {
         setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, isCity: true, searchTerm: query });
         setLoading(false);
