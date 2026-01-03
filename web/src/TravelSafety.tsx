@@ -9,6 +9,63 @@ const ADVISORY_LEVELS = {
   4: { label: 'Do Not Travel', color: '#ef4444', bgColor: '#fee2e2', icon: AlertCircle },
 };
 
+// City coordinates for nearby city calculations (lat, lng)
+const CITY_COORDINATES: Record<string, { lat: number; lng: number; name: string; country: string }> = {
+  'medellin': { lat: 6.2442, lng: -75.5812, name: 'Medellín', country: 'Colombia' },
+  'bogota': { lat: 4.7110, lng: -74.0721, name: 'Bogotá', country: 'Colombia' },
+  'cartagena': { lat: 10.3910, lng: -75.4794, name: 'Cartagena', country: 'Colombia' },
+  'cali': { lat: 3.4516, lng: -76.5320, name: 'Cali', country: 'Colombia' },
+  'caracas': { lat: 10.4806, lng: -66.9036, name: 'Caracas', country: 'Venezuela' },
+  'panama city': { lat: 8.9824, lng: -79.5199, name: 'Panama City', country: 'Panama' },
+  'quito': { lat: -0.1807, lng: -78.4678, name: 'Quito', country: 'Ecuador' },
+  'mexico city': { lat: 19.4326, lng: -99.1332, name: 'Mexico City', country: 'Mexico' },
+  'cancun': { lat: 21.1619, lng: -86.8515, name: 'Cancún', country: 'Mexico' },
+  'cabo': { lat: 22.8905, lng: -109.9167, name: 'Los Cabos', country: 'Mexico' },
+  'guadalajara': { lat: 20.6597, lng: -103.3496, name: 'Guadalajara', country: 'Mexico' },
+  'paris': { lat: 48.8566, lng: 2.3522, name: 'Paris', country: 'France' },
+  'barcelona': { lat: 41.3851, lng: 2.1734, name: 'Barcelona', country: 'Spain' },
+  'madrid': { lat: 40.4168, lng: -3.7038, name: 'Madrid', country: 'Spain' },
+  'rome': { lat: 41.9028, lng: 12.4964, name: 'Rome', country: 'Italy' },
+  'tokyo': { lat: 35.6762, lng: 139.6503, name: 'Tokyo', country: 'Japan' },
+  'osaka': { lat: 34.6937, lng: 135.5023, name: 'Osaka', country: 'Japan' },
+  'bangkok': { lat: 13.7563, lng: 100.5018, name: 'Bangkok', country: 'Thailand' },
+  'phuket': { lat: 7.8804, lng: 98.3923, name: 'Phuket', country: 'Thailand' },
+  'rio de janeiro': { lat: -22.9068, lng: -43.1729, name: 'Rio de Janeiro', country: 'Brazil' },
+  'sao paulo': { lat: -23.5505, lng: -46.6333, name: 'São Paulo', country: 'Brazil' },
+};
+
+// Calculate distance between two points in km (Haversine formula)
+function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+// Get nearby cities within 500km
+function getNearbyCities(cityKey: string, maxDistance: number = 500): string[] {
+  const origin = CITY_COORDINATES[cityKey];
+  if (!origin) return [];
+  
+  return Object.entries(CITY_COORDINATES)
+    .filter(([key, coords]) => {
+      if (key === cityKey) return false;
+      const dist = getDistanceKm(origin.lat, origin.lng, coords.lat, coords.lng);
+      return dist <= maxDistance;
+    })
+    .sort((a, b) => {
+      const distA = getDistanceKm(origin.lat, origin.lng, a[1].lat, a[1].lng);
+      const distB = getDistanceKm(origin.lat, origin.lng, b[1].lat, b[1].lng);
+      return distA - distB;
+    })
+    .slice(0, 4) // Max 4 nearby cities
+    .map(([key]) => key);
+}
+
 // Country to city mapping for common searches
 const CITY_TO_COUNTRY: Record<string, string> = {
   'medellin': 'Colombia',
@@ -1128,6 +1185,76 @@ function DashboardCard({ title, children, icon: Icon }: { title: string; childre
   );
 }
 
+// Nearby Cities Comparison Component
+function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories }: { 
+  currentCity: string; 
+  acledData?: ACLEDData; 
+  gdeltData?: GDELTData;
+  advisories: TravelAdvisory;
+}) {
+  const nearbyCities = getNearbyCities(currentCity);
+  
+  if (nearbyCities.length === 0) return null;
+  
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <div style={{ fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Compare Nearby</div>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        {nearbyCities.map((cityKey) => {
+          const cityInfo = CITY_COORDINATES[cityKey];
+          if (!cityInfo) return null;
+          
+          // Get city's data for score calculation
+          const cityAcled = FALLBACK_ACLED_DATA[cityKey];
+          const cityGdelt = FALLBACK_GDELT_DATA[cityKey];
+          
+          // Calculate score for this city (simplified - uses country advisory)
+          const countryKey = cityInfo.country.toLowerCase();
+          const cityAdvisory = FALLBACK_ADVISORIES[countryKey] || advisories;
+          const score = calculateSafetyScore(cityAdvisory, cityAcled, cityGdelt);
+          const color = getScoreColor(score);
+          
+          return (
+            <div
+              key={cityKey}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 10px',
+                backgroundColor: '#f9fafb',
+                borderRadius: '8px',
+                border: '1px solid #e5e7eb',
+                cursor: 'pointer',
+              }}
+              title={`${cityInfo.name}, ${cityInfo.country}`}
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: 'white',
+              }}>
+                {score}
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 600, color: '#111827' }}>{cityInfo.name}</div>
+                <div style={{ fontSize: '9px', color: '#6b7280' }}>{cityInfo.country}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Calculate composite safety score (1-100) from all data sources
 function calculateSafetyScore(advisory: TravelAdvisory, acledData?: ACLEDData, gdeltData?: GDELTData): number {
   let score = 100;
@@ -1222,157 +1349,149 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         </div>
       </div>
       
-      {/* BIG SAFETY SCORE - The Main Visual */}
+      {/* COMPACT SAFETY SCORE - Horizontal Layout */}
       <div style={{ 
         display: 'flex', 
-        flexDirection: 'column', 
         alignItems: 'center', 
-        marginBottom: '32px',
-        padding: '24px',
+        gap: '16px',
+        marginBottom: '16px',
+        padding: '16px',
         backgroundColor: `${scoreColor}10`,
-        borderRadius: '16px',
+        borderRadius: '12px',
         border: `2px solid ${scoreColor}30`,
       }}>
         <div style={{ 
-          width: '140px', 
-          height: '140px', 
+          width: '80px', 
+          height: '80px', 
           borderRadius: '50%', 
           backgroundColor: scoreColor,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: `0 8px 24px ${scoreColor}40`,
-          marginBottom: '16px',
+          boxShadow: `0 4px 12px ${scoreColor}40`,
+          flexShrink: 0,
         }}>
-          <div style={{ fontSize: '48px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{safetyScore}</div>
-          <div style={{ fontSize: '14px', fontWeight: 500, color: 'white', opacity: 0.9 }}>/ 100</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{safetyScore}</div>
+          <div style={{ fontSize: '10px', fontWeight: 500, color: 'white', opacity: 0.9 }}>/ 100</div>
         </div>
-        <div style={{ fontSize: '20px', fontWeight: 700, color: scoreColor, marginBottom: '4px' }}>{scoreLabel}</div>
-        <div style={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', maxWidth: '400px' }}>
-          {safetyScore >= 75 ? 'Generally safe for travelers with normal precautions.' :
-           safetyScore >= 50 ? 'Exercise increased caution. Be aware of your surroundings.' :
-           safetyScore >= 25 ? 'Reconsider travel. Significant safety concerns exist.' :
-           'Avoid travel if possible. Serious risks present.'}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: scoreColor, marginBottom: '2px' }}>{scoreLabel}</div>
+          <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: 1.4 }}>
+            {safetyScore >= 75 ? 'Generally safe with normal precautions.' :
+             safetyScore >= 50 ? 'Exercise caution. Be aware of surroundings.' :
+             safetyScore >= 25 ? 'Reconsider travel. Safety concerns exist.' :
+             'Avoid if possible. Serious risks.'}
+          </div>
         </div>
       </div>
       
-      {/* KEY INSIGHTS - Quick Summary */}
-      <div style={{ marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 600, color: '#374151' }}>Key Insights</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-          {/* Local News Sentiment (GDELT) */}
+      {/* KEY INSIGHTS - Compact Grid */}
+      <div style={{ marginBottom: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+          {/* Local News (GDELT) */}
           {gdeltData && (
             <div style={{ 
-              padding: '16px', 
+              padding: '10px', 
               backgroundColor: '#f9fafb', 
-              borderRadius: '12px',
+              borderRadius: '8px',
               border: '1px solid #e5e7eb',
+              textAlign: 'center',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <Globe size={18} style={{ color: '#6b7280' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Local News Sentiment</span>
-              </div>
+              <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>News Tone</div>
               <div style={{ 
-                fontSize: '24px', 
+                fontSize: '18px', 
                 fontWeight: 700, 
                 color: gdeltData.tone_score > 0 ? '#22c55e' : gdeltData.tone_score < -3 ? '#dc2626' : '#f97316',
-                marginBottom: '4px',
               }}>
                 {gdeltData.tone_score > 0 ? '+' : ''}{gdeltData.tone_score}
               </div>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                {gdeltData.volume_level === 'spike' ? '🔴 News spike detected' : 
-                 gdeltData.volume_level === 'elevated' ? '🟡 Elevated coverage' : 
-                 '🟢 Normal coverage'} • {gdeltData.trend_7day === 'worsening' ? 'Trend ↓' : gdeltData.trend_7day === 'improving' ? 'Trend ↑' : 'Stable'}
+              <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+                {gdeltData.volume_level === 'spike' ? '🔴 Spike' : gdeltData.volume_level === 'elevated' ? '🟡 High' : '🟢 Normal'}
               </div>
             </div>
           )}
           
-          {/* Local Conflict Events (ACLED) */}
+          {/* Local Incidents (ACLED) */}
           {acledData && (
             <div style={{ 
-              padding: '16px', 
+              padding: '10px', 
               backgroundColor: '#f9fafb', 
-              borderRadius: '12px',
+              borderRadius: '8px',
               border: '1px solid #e5e7eb',
+              textAlign: 'center',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <AlertTriangle size={18} style={{ color: '#6b7280' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>
-                  {acledData.location ? 'Local Incidents' : 'Country Incidents'}
-                </span>
-              </div>
+              <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Incidents</div>
               <div style={{ 
-                fontSize: '24px', 
+                fontSize: '18px', 
                 fontWeight: 700, 
                 color: acledData.total_events > 500 ? '#dc2626' : acledData.total_events > 100 ? '#f97316' : '#22c55e',
-                marginBottom: '4px',
               }}>
                 {acledData.total_events.toLocaleString()}
               </div>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                Events in 2025 • {acledData.events_last_30_days} last 30 days • {acledData.trend === 'increasing' ? 'Trend ↑' : acledData.trend === 'decreasing' ? 'Trend ↓' : 'Stable'}
+              <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+                {acledData.trend === 'increasing' ? '↑ Rising' : acledData.trend === 'decreasing' ? '↓ Falling' : '→ Stable'}
               </div>
             </div>
           )}
           
-          {/* Government Advisory Level */}
+          {/* US Advisory Level */}
           <div style={{ 
-            padding: '16px', 
+            padding: '10px', 
             backgroundColor: '#f9fafb', 
-            borderRadius: '12px',
+            borderRadius: '8px',
             border: '1px solid #e5e7eb',
+            textAlign: 'center',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Shield size={18} style={{ color: '#6b7280' }} />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>US Advisory Level</span>
-            </div>
+            <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>US Level</div>
             <div style={{ 
-              fontSize: '24px', 
+              fontSize: '18px', 
               fontWeight: 700, 
               color: config.color,
-              marginBottom: '4px',
             }}>
-              Level {advisory.advisory_level}
+              {advisory.advisory_level}
             </div>
-            <div style={{ fontSize: '12px', color: '#6b7280' }}>
-              {config.label} • Country-wide
+            <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+              {advisory.advisory_level === 1 ? 'Safe' : advisory.advisory_level === 2 ? 'Caution' : advisory.advisory_level === 3 ? 'Reconsider' : 'Avoid'}
             </div>
           </div>
         </div>
       </div>
       
-      {/* Top Headlines (if available) */}
+      {/* COMPARE NEARBY CITIES */}
+      {isCity && (
+        <NearbyCitiesComparison 
+          currentCity={searchTerm} 
+          acledData={acledData}
+          gdeltData={gdeltData}
+          advisories={advisory}
+        />
+      )}
+      
+      {/* Top Headline (just 1 to save space) */}
       {gdeltData && gdeltData.headlines.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 600, color: '#374151' }}>Recent News</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {gdeltData.headlines.slice(0, 2).map((headline, index) => (
-              <a
-                key={index}
-                href={headline.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '14px', color: '#111827', fontWeight: 500 }}>{headline.title}</div>
-                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{headline.source}</div>
-                </div>
-                <ExternalLink size={16} style={{ color: '#9ca3af', flexShrink: 0, marginLeft: '12px' }} />
-              </a>
-            ))}
-          </div>
+        <div style={{ marginBottom: '12px' }}>
+          <a
+            href={gdeltData.headlines[0].url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '10px 12px',
+              backgroundColor: '#f9fafb',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              textDecoration: 'none',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '13px', color: '#111827', fontWeight: 500, lineHeight: 1.3 }}>{gdeltData.headlines[0].title}</div>
+              <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>{gdeltData.headlines[0].source}</div>
+            </div>
+            <ExternalLink size={14} style={{ color: '#9ca3af', flexShrink: 0, marginLeft: '8px' }} />
+          </a>
         </div>
       )}
       
