@@ -25859,12 +25859,34 @@ function getScoreLabel(score) {
   if (score >= 25) return "Elevated Risk";
   return "High Risk";
 }
-function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }) {
+function normalizeExternalUrl(rawUrl) {
+  const s = (rawUrl || "").trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      const u = new URL(s);
+      if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+      if (u.hostname.toLowerCase() === "example.com") return null;
+      return u.toString();
+    } catch {
+      return null;
+    }
+  }
+  if (s.startsWith("//")) {
+    return normalizeExternalUrl(`https:${s}`);
+  }
+  return null;
+}
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack }) {
   const [showMore, setShowMore] = (0, import_react3.useState)(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
   const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
   const scoreConfig = getScoreConfig(safetyScore);
   const scoreLabel = getScoreLabel(safetyScore);
+  const validHeadlines = (0, import_react3.useMemo)(() => {
+    const list = gdeltData?.headlines ?? [];
+    return list.map((h) => ({ ...h, url: normalizeExternalUrl(h.url) || "" })).filter((h) => Boolean(h.url));
+  }, [gdeltData]);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     backgroundColor: COLORS.white,
     borderRadius: UI.radius.xl,
@@ -25874,6 +25896,31 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
     maxWidth: "600px",
     margin: "0 auto"
   }, children: [
+    onBack && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "button",
+      {
+        onClick: onBack,
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          padding: "8px 14px",
+          marginBottom: "16px",
+          backgroundColor: COLORS.slate[50],
+          color: COLORS.slate[600],
+          border: `1px solid ${COLORS.slate[200]}`,
+          borderRadius: UI.radius.pill,
+          fontSize: "13px",
+          fontWeight: 600,
+          cursor: "pointer",
+          transition: "all 0.2s"
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16, style: { transform: "rotate(-90deg)" } }),
+          "Back to Home"
+        ]
+      }
+    ),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, style: { color: COLORS.slate[400] } }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "24px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
@@ -25977,10 +26024,10 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         advisories: advisory
       }
     ),
-    gdeltData && gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    gdeltData && validHeadlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
       "a",
       {
-        href: gdeltData.headlines[0].url,
+        href: validHeadlines[0].url,
         target: "_blank",
         rel: "noopener noreferrer",
         style: {
@@ -25996,8 +26043,8 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         },
         children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }, children: gdeltData.headlines[0].title }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginTop: "2px" }, children: gdeltData.headlines[0].source })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }, children: validHeadlines[0].title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginTop: "2px" }, children: validHeadlines[0].source })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14, style: { color: COLORS.slate[400], flexShrink: 0, marginLeft: "8px" } })
         ]
@@ -26034,144 +26081,6 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
     showMore && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { borderTop: `1px solid ${COLORS.slate[200]}`, paddingTop: "32px" }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 24px 0", fontSize: "18px", fontWeight: 600, color: COLORS.slate[900] }, children: "Detailed Analysis" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "24px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-            padding: "16px",
-            backgroundColor: config.style.bg,
-            borderRadius: "8px",
-            border: `1px solid ${config.style.border}`
-          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              backgroundColor: config.style.icon,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: COLORS.white,
-              fontSize: "18px",
-              fontWeight: 700
-            }, children: advisory.advisory_level }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
-                "Level ",
-                advisory.advisory_level
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: config.style.text }, children: config.label })
-            ] })
-          ] }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "Advisory Details", icon: Info, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: advisory.advisory_text }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-              "Updated: ",
-              advisory.date_updated
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "a",
-            {
-              href: advisory.url,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              style: {
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                marginTop: "16px",
-                padding: "8px 16px",
-                backgroundColor: COLORS.white,
-                color: COLORS.primary,
-                borderRadius: "6px",
-                textDecoration: "none",
-                fontSize: "13px",
-                fontWeight: 600,
-                border: `1px solid ${COLORS.slate[200]}`,
-                transition: "all 0.2s"
-              },
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
-                "View Full Advisory"
-              ]
-            }
-          )
-        ] }),
-        ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          padding: "16px",
-          backgroundColor: COLORS.slate[50],
-          borderRadius: "8px",
-          border: `1px solid ${COLORS.slate[200]}`
-        }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              backgroundColor: COLORS.primary,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: COLORS.white,
-              fontSize: "16px",
-              fontWeight: 700
-            }, children: "UK" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: "FCO Travel Advice" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: "Foreign, Commonwealth & Development Office" })
-            ] })
-          ] }),
-          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.danger.text, marginBottom: "8px", textTransform: "uppercase" }, children: "Travel Alerts" }),
-            ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-              padding: "8px 12px",
-              backgroundColor: COLORS.danger.bg,
-              borderRadius: "6px",
-              fontSize: "13px",
-              color: COLORS.danger.text,
-              marginBottom: "6px",
-              border: `1px solid ${COLORS.danger.border}`,
-              fontWeight: 500
-            }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: ukAdvisory.change_description }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-              "Updated: ",
-              new Date(ukAdvisory.last_updated).toLocaleDateString()
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-            "a",
-            {
-              href: ukAdvisory.url,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              style: {
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 16px",
-                backgroundColor: COLORS.white,
-                color: COLORS.primary,
-                borderRadius: "6px",
-                textDecoration: "none",
-                fontSize: "13px",
-                fontWeight: 600,
-                border: `1px solid ${COLORS.slate[200]}`,
-                transition: "all 0.2s"
-              },
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
-                "View UK Advice"
-              ]
-            }
-          )
-        ] }) }),
         acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "ACLED Conflict Data", icon: TriangleAlert, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
           padding: "16px",
           backgroundColor: COLORS.slate[50],
@@ -26352,9 +26261,9 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
               ] })
             ] }, theme)) })
           ] }),
-          gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+          validHeadlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Headlines" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: validHeadlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
               "a",
               {
                 href: headline.url,
@@ -26428,6 +26337,143 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
               ]
             }
           )
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+            padding: "16px",
+            backgroundColor: config.style.bg,
+            borderRadius: "8px",
+            border: `1px solid ${config.style.border}`,
+            marginBottom: "16px"
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: config.style.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "18px",
+              fontWeight: 700
+            }, children: advisory.advisory_level }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
+                "Level ",
+                advisory.advisory_level
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: config.style.text }, children: config.label })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: advisory.advisory_text }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              advisory.date_updated
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: advisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "16px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View Full Advisory"
+              ]
+            }
+          )
+        ] }),
+        ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.primary,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: "UK" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: "FCO Travel Advice" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: "Foreign, Commonwealth & Development Office" })
+            ] })
+          ] }),
+          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.danger.text, marginBottom: "8px", textTransform: "uppercase" }, children: "Travel Alerts" }),
+            ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              padding: "8px 12px",
+              backgroundColor: COLORS.danger.bg,
+              borderRadius: "6px",
+              fontSize: "13px",
+              color: COLORS.danger.text,
+              marginBottom: "6px",
+              border: `1px solid ${COLORS.danger.border}`,
+              fontWeight: 500
+            }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: ukAdvisory.change_description }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              new Date(ukAdvisory.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: ukAdvisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View UK Advice"
+              ]
+            }
+          )
         ] }) })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
@@ -26439,6 +26485,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 12px 0", fontSize: "14px", fontWeight: 600, color: COLORS.slate[900], textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Advisory Levels" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
           const Icon2 = info.icon;
+          const isCurrentLevel = Number(level) === advisory.advisory_level;
           return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
             "div",
             {
@@ -26450,7 +26497,10 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 backgroundColor: info.style.bg,
                 borderRadius: "6px",
                 fontSize: "13px",
-                border: `1px solid ${info.style.border}`
+                border: isCurrentLevel ? `3px solid ${info.style.icon}` : `1px solid ${info.style.border}`,
+                boxShadow: isCurrentLevel ? `0 0 12px ${info.style.icon}40` : "none",
+                transform: isCurrentLevel ? "scale(1.02)" : "scale(1)",
+                position: "relative"
               },
               children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: info.style.icon } }),
@@ -26459,7 +26509,18 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                   level,
                   ":"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[600] }, children: info.label })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[600] }, children: info.label }),
+                isCurrentLevel && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+                  marginLeft: "auto",
+                  padding: "2px 8px",
+                  backgroundColor: info.style.icon,
+                  color: COLORS.white,
+                  borderRadius: "12px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }, children: "Current" })
               ]
             },
             level
@@ -26838,7 +26899,7 @@ function TravelSafety() {
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: "32px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: "20px" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[500], fontSize: "12px", marginRight: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Trending:" }),
         popularSearches.map((term) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           "button",
@@ -26866,7 +26927,7 @@ function TravelSafety() {
         ))
       ] })
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "48px 24px", maxWidth: "1000px", margin: "0 auto" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "24px 24px 48px", maxWidth: "1000px", margin: "0 auto" }, children: [
       error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
         maxWidth: "600px",
         margin: "0 auto 32px",
@@ -26892,10 +26953,15 @@ function TravelSafety() {
           acledData: searchResult.acledData,
           gdeltData: searchResult.gdeltData,
           searchTerm: searchResult.searchTerm,
-          isCity: searchResult.isCity
+          isCity: searchResult.isCity,
+          onBack: () => {
+            setSearchResult(null);
+            setSearchQuery("");
+            setError(null);
+          }
         }
       ),
-      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "880px", margin: "32px auto 0" }, children: [
+      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "880px", margin: "8px auto 0" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", marginBottom: "18px" }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "inline-flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderRadius: UI.radius.pill, backgroundColor: COLORS.white, border: `1px solid ${COLORS.slate[100]}`, boxShadow: "0 10px 24px rgba(17, 24, 39, 0.06)" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 18, style: { color: COLORS.primary } }),

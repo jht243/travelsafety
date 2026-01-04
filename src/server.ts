@@ -1385,16 +1385,38 @@ async function handleGdeltProxy(req: IncomingMessage, res: ServerResponse, url: 
     return;
   }
 
+  // GDELT query syntax is picky; strip punctuation (e.g. commas) that can trigger "illegal character".
+  const sanitizedLocation = location
+    .replace(/[|]/g, " ")
+    .replace(/[^\p{L}\p{N}\s-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Treat as a phrase search to reduce parsing issues.
+  const gdeltQuery = sanitizedLocation ? `\"${sanitizedLocation}\"` : "";
+
   try {
     const upstream = await fetch(
-      `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(location)}&mode=artlist&maxrecords=50&format=json&timespan=7d`
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(gdeltQuery)}&mode=artlist&maxrecords=50&format=json&timespan=7d`
     );
     if (!upstream.ok) {
-      sendJson(res, 502, { error: "GDELT upstream error", status: upstream.status });
+      const errorText = await upstream.text().catch(() => "");
+      sendJson(res, 502, { error: "GDELT upstream error", status: upstream.status, details: errorText });
       return;
     }
 
-    const data: any = await upstream.json();
+    const rawText = await upstream.text().catch(() => "");
+    let data: any;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      sendJson(res, 502, {
+        error: "GDELT upstream error",
+        status: 502,
+        details: rawText ? rawText.slice(0, 500) : "Non-JSON response from GDELT",
+      });
+      return;
+    }
     const articles: any[] = Array.isArray(data?.articles) ? data.articles : [];
     const tones = articles.map((a) => Number(a?.tone ?? 0)).filter((t) => Number.isFinite(t));
     const avgTone = tones.length ? tones.reduce((a, b) => a + b, 0) / tones.length : 0;

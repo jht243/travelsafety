@@ -1442,6 +1442,29 @@ function getScoreLabel(score: number): string {
   return 'High Risk';
 }
 
+ function normalizeExternalUrl(rawUrl: string): string | null {
+   const s = (rawUrl || '').trim();
+   if (!s) return null;
+   if (/^https?:\/\//i.test(s)) {
+     try {
+       const u = new URL(s);
+       if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+       if (u.hostname.toLowerCase() === 'example.com') return null;
+       return u.toString();
+     } catch {
+       return null;
+     }
+   }
+
+   // Handle scheme-less URLs like //domain.com/path
+   if (s.startsWith('//')) {
+     return normalizeExternalUrl(`https:${s}`);
+   }
+
+   // Do not attempt to guess scheme for relative/other formats
+   return null;
+ }
+
 function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean; onBack?: () => void }) {
   const [showMore, setShowMore] = useState(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
@@ -1450,6 +1473,13 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
   const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
   const scoreConfig = getScoreConfig(safetyScore);
   const scoreLabel = getScoreLabel(safetyScore);
+
+   const validHeadlines = useMemo(() => {
+     const list = gdeltData?.headlines ?? [];
+     return list
+       .map((h) => ({ ...h, url: normalizeExternalUrl(h.url) || '' }))
+       .filter((h) => Boolean(h.url));
+   }, [gdeltData]);
   
   return (
     <div style={{
@@ -1627,10 +1657,10 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       )}
       
       {/* Top Headline (just 1 to save space) */}
-      {gdeltData && gdeltData.headlines.length > 0 && (
+      {gdeltData && validHeadlines.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           <a
-            href={gdeltData.headlines[0].url}
+            href={validHeadlines[0].url}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -1646,8 +1676,8 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             }}
           >
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '13px', color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }}>{gdeltData.headlines[0].title}</div>
-              <div style={{ fontSize: '11px', color: COLORS.slate[500], marginTop: '2px' }}>{gdeltData.headlines[0].source}</div>
+              <div style={{ fontSize: '13px', color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }}>{validHeadlines[0].title}</div>
+              <div style={{ fontSize: '11px', color: COLORS.slate[500], marginTop: '2px' }}>{validHeadlines[0].source}</div>
             </div>
             <ExternalLink size={14} style={{ color: COLORS.slate[400], flexShrink: 0, marginLeft: '8px' }} />
           </a>
@@ -1898,11 +1928,11 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
               )}
               
               {/* Recent Headlines */}
-              {gdeltData.headlines.length > 0 && (
+              {validHeadlines.length > 0 && (
                 <div style={{ marginBottom: '16px' }}>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.slate[900], marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Headlines</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {gdeltData.headlines.slice(0, 3).map((headline, index) => (
+                    {validHeadlines.slice(0, 3).map((headline, index) => (
                       <a
                         key={index}
                         href={headline.url}
