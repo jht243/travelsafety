@@ -1095,7 +1095,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect2(create, deps) {
+        function useEffect(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1878,7 +1878,7 @@ var require_react_development = __commonJS({
         exports.useContext = useContext;
         exports.useDebugValue = useDebugValue;
         exports.useDeferredValue = useDeferredValue;
-        exports.useEffect = useEffect2;
+        exports.useEffect = useEffect;
         exports.useId = useId;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useInsertionEffect = useInsertionEffect;
@@ -24523,13 +24523,22 @@ var createLucideIcon = (iconName, iconNode) => {
   return Component;
 };
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-down.js
-var __iconNode = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-var ChevronDown = createLucideIcon("chevron-down", __iconNode);
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/bell.js
+var __iconNode = [
+  ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
+  [
+    "path",
+    {
+      d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
+      key: "11g9vi"
+    }
+  ]
+];
+var Bell = createLucideIcon("bell", __iconNode);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-up.js
-var __iconNode2 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-var ChevronUp = createLucideIcon("chevron-up", __iconNode2);
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-left.js
+var __iconNode2 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+var ChevronLeft = createLucideIcon("chevron-left", __iconNode2);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-alert.js
 var __iconNode3 = [
@@ -24546,32 +24555,56 @@ var __iconNode4 = [
 ];
 var CircleCheckBig = createLucideIcon("circle-check-big", __iconNode4);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/external-link.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/clock.js
 var __iconNode5 = [
+  ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }],
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
+];
+var Clock = createLucideIcon("clock", __iconNode5);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/external-link.js
+var __iconNode6 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-var ExternalLink = createLucideIcon("external-link", __iconNode5);
+var ExternalLink = createLucideIcon("external-link", __iconNode6);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/globe.js
-var __iconNode6 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
-  ["path", { d: "M2 12h20", key: "9i4pu4" }]
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/heart.js
+var __iconNode7 = [
+  [
+    "path",
+    {
+      d: "M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5",
+      key: "mvr1a0"
+    }
+  ]
 ];
-var Globe = createLucideIcon("globe", __iconNode6);
+var Heart = createLucideIcon("heart", __iconNode7);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/house.js
+var __iconNode8 = [
+  ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
+  [
+    "path",
+    {
+      d: "M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+      key: "r6nss1"
+    }
+  ]
+];
+var House = createLucideIcon("house", __iconNode8);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/info.js
-var __iconNode7 = [
+var __iconNode9 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-var Info = createLucideIcon("info", __iconNode7);
+var Info = createLucideIcon("info", __iconNode9);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/map-pin.js
-var __iconNode8 = [
+var __iconNode10 = [
   [
     "path",
     {
@@ -24581,47 +24614,49 @@ var __iconNode8 = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-var MapPin = createLucideIcon("map-pin", __iconNode8);
+var MapPin = createLucideIcon("map-pin", __iconNode10);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/minus.js
-var __iconNode9 = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-var Minus = createLucideIcon("minus", __iconNode9);
+var __iconNode11 = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+var Minus = createLucideIcon("minus", __iconNode11);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/search.js
-var __iconNode10 = [
+var __iconNode12 = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-var Search = createLucideIcon("search", __iconNode10);
+var Search = createLucideIcon("search", __iconNode12);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/shield.js
-var __iconNode11 = [
-  [
-    "path",
-    {
-      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-      key: "oel41y"
-    }
-  ]
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/sliders-horizontal.js
+var __iconNode13 = [
+  ["path", { d: "M10 5H3", key: "1qgfaw" }],
+  ["path", { d: "M12 19H3", key: "yhmn1j" }],
+  ["path", { d: "M14 3v4", key: "1sua03" }],
+  ["path", { d: "M16 17v4", key: "1q0r14" }],
+  ["path", { d: "M21 12h-9", key: "1o4lsq" }],
+  ["path", { d: "M21 19h-5", key: "1rlt1p" }],
+  ["path", { d: "M21 5h-7", key: "1oszz2" }],
+  ["path", { d: "M8 10v4", key: "tgpxqk" }],
+  ["path", { d: "M8 12H3", key: "a7s4jb" }]
 ];
-var Shield = createLucideIcon("shield", __iconNode11);
+var SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode13);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-down.js
-var __iconNode12 = [
+var __iconNode14 = [
   ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
   ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
 ];
-var TrendingDown = createLucideIcon("trending-down", __iconNode12);
+var TrendingDown = createLucideIcon("trending-down", __iconNode14);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-up.js
-var __iconNode13 = [
+var __iconNode15 = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-var TrendingUp = createLucideIcon("trending-up", __iconNode13);
+var TrendingUp = createLucideIcon("trending-up", __iconNode15);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
-var __iconNode14 = [
+var __iconNode16 = [
   [
     "path",
     {
@@ -24632,42 +24667,51 @@ var __iconNode14 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-var TriangleAlert = createLucideIcon("triangle-alert", __iconNode14);
+var TriangleAlert = createLucideIcon("triangle-alert", __iconNode16);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/user.js
+var __iconNode17 = [
+  ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
+  ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
+];
+var User = createLucideIcon("user", __iconNode17);
 
 // src/TravelSafety.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var COLORS = {
-  peach: "#FADCD9",
-  peachLight: "#FDF5F3",
+  bg: "#FAFAFA",
   white: "#FFFFFF",
-  coral: "#D4785C",
-  coralDark: "#C46A4E",
-  textDark: "#2D2D2D",
-  textMedium: "#5A5A5A",
-  textLight: "#8B8B8B",
-  border: "#E8E0DE",
-  safe: { bg: "#E8F5E9", text: "#2E7D32", border: "#A5D6A7" },
-  caution: { bg: "#FFF8E1", text: "#F57C00", border: "#FFE082" },
-  warning: { bg: "#FFF3E0", text: "#E65100", border: "#FFCC80" },
-  danger: { bg: "#FFEBEE", text: "#C62828", border: "#EF9A9A" }
+  coral: "#E07B54",
+  coralLight: "#F5DDD5",
+  textDark: "#1A1A1A",
+  textMedium: "#6B6B6B",
+  textLight: "#9CA3AF",
+  border: "#F0F0F0",
+  searchBg: "#F5F5F5",
+  safe: { bg: "#DCFCE7", text: "#166534", border: "#86EFAC" },
+  caution: { bg: "#FEF9C3", text: "#A16207", border: "#FDE047" },
+  warning: { bg: "#FFEDD5", text: "#C2410C", border: "#FDBA74" },
+  danger: { bg: "#FEE2E2", text: "#DC2626", border: "#FCA5A5" }
 };
-var ADVISORY_LEVELS = {
-  1: { label: "Normal Precautions", color: COLORS.safe.text, bg: COLORS.safe.bg, icon: CircleCheckBig },
-  2: { label: "Increased Caution", color: COLORS.caution.text, bg: COLORS.caution.bg, icon: Info },
-  3: { label: "Reconsider Travel", color: COLORS.warning.text, bg: COLORS.warning.bg, icon: TriangleAlert },
-  4: { label: "Do Not Travel", color: COLORS.danger.text, bg: COLORS.danger.bg, icon: CircleAlert }
+var SHADOWS = {
+  card: "0 2px 12px rgba(0,0,0,0.06)",
+  button: "0 4px 14px rgba(224,123,84,0.3)"
+};
+var RADIUS = {
+  full: "9999px",
+  xl: "20px",
+  lg: "16px",
+  md: "12px"
 };
 var CITY_TO_COUNTRY = {
   "medellin": "Colombia",
   "bogota": "Colombia",
   "cartagena": "Colombia",
-  "cali": "Colombia",
   "paris": "France",
   "london": "United Kingdom",
   "tokyo": "Japan",
   "osaka": "Japan",
   "rome": "Italy",
-  "milan": "Italy",
   "barcelona": "Spain",
   "madrid": "Spain",
   "berlin": "Germany",
@@ -24677,342 +24721,554 @@ var CITY_TO_COUNTRY = {
   "mexico city": "Mexico",
   "cancun": "Mexico",
   "cabo": "Mexico",
-  "rio de janeiro": "Brazil",
-  "sao paulo": "Brazil",
-  "buenos aires": "Argentina",
-  "lima": "Peru",
-  "sydney": "Australia",
   "dubai": "United Arab Emirates",
   "singapore": "Singapore",
-  "hong kong": "Hong Kong",
-  "seoul": "Korea, South",
-  "taipei": "Taiwan",
-  "hanoi": "Vietnam",
   "bali": "Indonesia",
-  "cairo": "Egypt",
-  "marrakech": "Morocco",
-  "cape town": "South Africa",
   "istanbul": "Turkey",
   "athens": "Greece",
   "lisbon": "Portugal",
-  "dublin": "Ireland",
-  "prague": "Czech Republic",
-  "vienna": "Austria",
-  "zurich": "Switzerland",
-  "copenhagen": "Denmark",
-  "stockholm": "Sweden"
+  "prague": "Czech Republic"
 };
-var FALLBACK_ADVISORIES = {
-  "colombia": { country: "Colombia", country_code: "CO", advisory_level: 3, advisory_text: "Reconsider travel due to crime and terrorism.", date_updated: "2024-12-15", url: "https://travel.state.gov" },
-  "mexico": { country: "Mexico", country_code: "MX", advisory_level: 2, advisory_text: "Exercise increased caution due to crime.", date_updated: "2024-12-10", url: "https://travel.state.gov" },
-  "france": { country: "France", country_code: "FR", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-11-20", url: "https://travel.state.gov" },
-  "japan": { country: "Japan", country_code: "JP", advisory_level: 1, advisory_text: "Exercise normal precautions.", date_updated: "2024-10-15", url: "https://travel.state.gov" },
-  "italy": { country: "Italy", country_code: "IT", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-11-05", url: "https://travel.state.gov" },
-  "thailand": { country: "Thailand", country_code: "TH", advisory_level: 1, advisory_text: "Exercise normal precautions.", date_updated: "2024-11-01", url: "https://travel.state.gov" },
-  "spain": { country: "Spain", country_code: "ES", advisory_level: 2, advisory_text: "Exercise increased caution.", date_updated: "2024-11-10", url: "https://travel.state.gov" },
-  "united kingdom": { country: "United Kingdom", country_code: "GB", advisory_level: 2, advisory_text: "Exercise increased caution.", date_updated: "2024-10-20", url: "https://travel.state.gov" },
-  "brazil": { country: "Brazil", country_code: "BR", advisory_level: 2, advisory_text: "Exercise increased caution due to crime.", date_updated: "2024-11-15", url: "https://travel.state.gov" },
-  "germany": { country: "Germany", country_code: "DE", advisory_level: 2, advisory_text: "Exercise increased caution.", date_updated: "2024-10-25", url: "https://travel.state.gov" }
+var DESTINATION_IMAGES = {
+  "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop",
+  "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=300&fit=crop",
+  "cancun": "https://images.unsplash.com/photo-1552074284-5e88ef1aef18?w=400&h=300&fit=crop",
+  "medellin": "https://images.unsplash.com/photo-1599413987323-b2b8c0d7d9c8?w=400&h=300&fit=crop",
+  "bangkok": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400&h=300&fit=crop",
+  "bali": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=300&fit=crop",
+  "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&h=300&fit=crop",
+  "london": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=300&fit=crop",
+  "dubai": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop",
+  "barcelona": "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=400&h=300&fit=crop",
+  "default": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop"
 };
-var FALLBACK_ACLED = {
-  "colombia": { country: "Colombia", total_events: 1247, fatalities: 892, events_last_30_days: 98, trend: "stable" },
-  "medellin": { country: "Colombia", location: "Medell\xEDn", total_events: 156, fatalities: 89, events_last_30_days: 12, trend: "decreasing" },
-  "mexico": { country: "Mexico", total_events: 2156, fatalities: 1834, events_last_30_days: 187, trend: "increasing" },
-  "cancun": { country: "Mexico", location: "Canc\xFAn", total_events: 67, fatalities: 34, events_last_30_days: 6, trend: "stable" },
-  "france": { country: "France", total_events: 423, fatalities: 12, events_last_30_days: 45, trend: "stable" },
-  "paris": { country: "France", location: "Paris", total_events: 187, fatalities: 5, events_last_30_days: 21, trend: "stable" },
-  "japan": { country: "Japan", total_events: 34, fatalities: 2, events_last_30_days: 3, trend: "stable" },
-  "tokyo": { country: "Japan", location: "Tokyo", total_events: 18, fatalities: 0, events_last_30_days: 2, trend: "stable" },
-  "thailand": { country: "Thailand", total_events: 312, fatalities: 89, events_last_30_days: 28, trend: "decreasing" },
-  "bangkok": { country: "Thailand", location: "Bangkok", total_events: 89, fatalities: 12, events_last_30_days: 8, trend: "stable" },
-  "brazil": { country: "Brazil", total_events: 1876, fatalities: 1245, events_last_30_days: 156, trend: "stable" }
-};
-var FALLBACK_GDELT = {
-  "medellin": { location: "Medell\xEDn", tone_score: -2.8, volume_level: "normal", trend_7day: "stable", headlines: [{ title: "Medell\xEDn named top destination for digital nomads", url: "#", source: "Travel Weekly", tone: 4.2 }] },
-  "colombia": { location: "Colombia", tone_score: -4.1, volume_level: "elevated", trend_7day: "worsening", headlines: [{ title: "Colombia peace process faces challenges", url: "#", source: "Reuters", tone: -5.2 }] },
-  "cancun": { location: "Canc\xFAn", tone_score: 1.2, volume_level: "normal", trend_7day: "stable", headlines: [{ title: "Canc\xFAn hotels report record bookings", url: "#", source: "Travel Weekly", tone: 4.8 }] },
-  "mexico": { location: "Mexico", tone_score: -5.3, volume_level: "elevated", trend_7day: "worsening", headlines: [{ title: "Security concerns in border regions", url: "#", source: "AP News", tone: -8.5 }] },
-  "paris": { location: "Paris", tone_score: 0.8, volume_level: "normal", trend_7day: "stable", headlines: [{ title: "Louvre sets new visitor record", url: "#", source: "France 24", tone: 4.5 }] },
-  "tokyo": { location: "Tokyo", tone_score: 3.2, volume_level: "normal", trend_7day: "improving", headlines: [{ title: "Tokyo named safest major city", url: "#", source: "Travel + Leisure", tone: 6.2 }] },
-  "bangkok": { location: "Bangkok", tone_score: 1.5, volume_level: "normal", trend_7day: "stable", headlines: [{ title: "Bangkok street food draws global attention", url: "#", source: "CNN Travel", tone: 5.1 }] }
-};
-function calculateScore(advisory, acled, gdelt) {
-  let score = 100;
-  score -= (advisory.advisory_level - 1) * 15;
-  if (acled) {
-    if (acled.total_events > 1e3) score -= 15;
-    else if (acled.total_events > 500) score -= 10;
-    else if (acled.total_events > 100) score -= 5;
-    if (acled.trend === "increasing") score -= 5;
-    else if (acled.trend === "decreasing") score += 3;
+var FALLBACK_DATA = {
+  "japan": {
+    advisory: { country: "Japan", advisory_level: 1, advisory_text: "Exercise normal precautions.", date_updated: "2024-12-01", url: "https://travel.state.gov", image: DESTINATION_IMAGES["tokyo"] },
+    acled: { total_events: 34, fatalities: 2, events_last_30_days: 3, trend: "stable" },
+    gdelt: { tone_score: 3.2, trend_7day: "stable" }
+  },
+  "france": {
+    advisory: { country: "France", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism and civil unrest.", date_updated: "2024-11-20", url: "https://travel.state.gov", image: DESTINATION_IMAGES["paris"] },
+    acled: { total_events: 423, fatalities: 12, events_last_30_days: 45, trend: "stable" },
+    gdelt: { tone_score: 0.8, trend_7day: "stable" }
+  },
+  "mexico": {
+    advisory: { country: "Mexico", advisory_level: 2, advisory_text: "Exercise increased caution due to crime and kidnapping.", date_updated: "2024-12-10", url: "https://travel.state.gov", image: DESTINATION_IMAGES["cancun"] },
+    acled: { total_events: 2156, fatalities: 1834, events_last_30_days: 187, trend: "increasing" },
+    gdelt: { tone_score: -2.1, trend_7day: "worsening" }
+  },
+  "colombia": {
+    advisory: { country: "Colombia", advisory_level: 3, advisory_text: "Reconsider travel due to crime, terrorism, and kidnapping.", date_updated: "2024-12-15", url: "https://travel.state.gov", image: DESTINATION_IMAGES["medellin"] },
+    acled: { total_events: 1247, fatalities: 892, events_last_30_days: 98, trend: "stable" },
+    gdelt: { tone_score: -2.8, trend_7day: "stable" }
+  },
+  "thailand": {
+    advisory: { country: "Thailand", advisory_level: 1, advisory_text: "Exercise normal precautions.", date_updated: "2024-11-01", url: "https://travel.state.gov", image: DESTINATION_IMAGES["bangkok"] },
+    acled: { total_events: 312, fatalities: 89, events_last_30_days: 28, trend: "decreasing" },
+    gdelt: { tone_score: 1.5, trend_7day: "improving" }
+  },
+  "indonesia": {
+    advisory: { country: "Indonesia", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-10-15", url: "https://travel.state.gov", image: DESTINATION_IMAGES["bali"] },
+    acled: { total_events: 187, fatalities: 34, events_last_30_days: 15, trend: "stable" },
+    gdelt: { tone_score: 1.2, trend_7day: "stable" }
+  },
+  "italy": {
+    advisory: { country: "Italy", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-11-05", url: "https://travel.state.gov", image: DESTINATION_IMAGES["rome"] },
+    acled: { total_events: 156, fatalities: 8, events_last_30_days: 12, trend: "stable" },
+    gdelt: { tone_score: 2.1, trend_7day: "stable" }
+  },
+  "united kingdom": {
+    advisory: { country: "United Kingdom", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-10-20", url: "https://travel.state.gov", image: DESTINATION_IMAGES["london"] },
+    acled: { total_events: 234, fatalities: 15, events_last_30_days: 23, trend: "stable" },
+    gdelt: { tone_score: 0.5, trend_7day: "stable" }
+  },
+  "united arab emirates": {
+    advisory: { country: "United Arab Emirates", advisory_level: 2, advisory_text: "Exercise increased caution due to missile threats.", date_updated: "2024-09-15", url: "https://travel.state.gov", image: DESTINATION_IMAGES["dubai"] },
+    acled: { total_events: 45, fatalities: 3, events_last_30_days: 4, trend: "stable" },
+    gdelt: { tone_score: 1.8, trend_7day: "stable" }
+  },
+  "spain": {
+    advisory: { country: "Spain", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-11-10", url: "https://travel.state.gov", image: DESTINATION_IMAGES["barcelona"] },
+    acled: { total_events: 123, fatalities: 5, events_last_30_days: 10, trend: "stable" },
+    gdelt: { tone_score: 2.4, trend_7day: "improving" }
   }
-  if (gdelt) {
-    if (gdelt.tone_score < -5) score -= 10;
-    else if (gdelt.tone_score < -2) score -= 5;
-    else if (gdelt.tone_score > 2) score += 3;
-    if (gdelt.volume_level === "spike") score -= 8;
-    if (gdelt.trend_7day === "worsening") score -= 5;
-    else if (gdelt.trend_7day === "improving") score += 3;
-  }
-  return Math.max(1, Math.min(100, Math.round(score)));
+};
+var ADVISORY_CONFIG = {
+  1: { label: "Safe", color: COLORS.safe.text, bg: COLORS.safe.bg, icon: CircleCheckBig },
+  2: { label: "Caution", color: COLORS.caution.text, bg: COLORS.caution.bg, icon: Info },
+  3: { label: "Risky", color: COLORS.warning.text, bg: COLORS.warning.bg, icon: TriangleAlert },
+  4: { label: "Avoid", color: COLORS.danger.text, bg: COLORS.danger.bg, icon: CircleAlert }
+};
+function calcScore(level, acled, gdelt) {
+  let s = 100 - (level - 1) * 15;
+  if (acled.total_events > 1e3) s -= 12;
+  else if (acled.total_events > 500) s -= 8;
+  if (acled.trend === "increasing") s -= 5;
+  else if (acled.trend === "decreasing") s += 3;
+  if (gdelt.tone_score < -3) s -= 8;
+  else if (gdelt.tone_score > 2) s += 3;
+  if (gdelt.trend_7day === "worsening") s -= 5;
+  return Math.max(10, Math.min(100, Math.round(s)));
 }
-function getScoreStyle(score) {
-  if (score >= 75) return { color: COLORS.safe.text, bg: COLORS.safe.bg };
-  if (score >= 50) return { color: COLORS.caution.text, bg: COLORS.caution.bg };
-  if (score >= 25) return { color: COLORS.warning.text, bg: COLORS.warning.bg };
-  return { color: COLORS.danger.text, bg: COLORS.danger.bg };
+function getScoreLabel(score) {
+  if (score >= 80) return "Very Safe";
+  if (score >= 65) return "Generally Safe";
+  if (score >= 50) return "Use Caution";
+  if (score >= 35) return "Elevated Risk";
+  return "High Risk";
 }
-function ScoreCircle({ score }) {
-  const style = getScoreStyle(score);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-    width: "56px",
-    height: "56px",
-    borderRadius: "50%",
-    backgroundColor: style.bg,
-    border: `3px solid ${style.color}`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0
-  }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "20px", fontWeight: 700, color: style.color }, children: score }) });
-}
-function TrendIcon({ trend }) {
-  if (trend === "increasing" || trend === "worsening") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 14, style: { color: COLORS.danger.text } });
-  if (trend === "decreasing" || trend === "improving") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 14, style: { color: COLORS.safe.text } });
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minus, { size: 14, style: { color: COLORS.textLight } });
-}
-function CompactResult({ advisory, acled, gdelt, searchTerm, isCity }) {
-  const [expanded, setExpanded] = (0, import_react3.useState)(false);
-  const score = calculateScore(advisory, acled, gdelt);
-  const scoreStyle = getScoreStyle(score);
-  const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
-  const Icon2 = config.icon;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: "16px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px", borderBottom: `1px solid ${COLORS.border}` }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScoreCircle, { score }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, minWidth: 0 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 14, style: { color: COLORS.coral } }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "16px", fontWeight: 700, color: COLORS.textDark, textTransform: "capitalize" }, children: isCity ? searchTerm : advisory.country }),
-          isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "13px", color: COLORS.textMedium }, children: advisory.country })
+function DestinationCard({
+  name,
+  country,
+  score,
+  level,
+  image,
+  onClick,
+  isFavorite = false
+}) {
+  const config = ADVISORY_CONFIG[level] || ADVISORY_CONFIG[1];
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    "div",
+    {
+      onClick,
+      style: {
+        backgroundColor: COLORS.white,
+        borderRadius: RADIUS.xl,
+        overflow: "hidden",
+        boxShadow: SHADOWS.card,
+        cursor: "pointer",
+        transition: "transform 0.2s, box-shadow 0.2s"
+      },
+      onMouseEnter: (e) => {
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
+      },
+      onMouseLeave: (e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = SHADOWS.card;
+      },
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", height: "120px", overflow: "hidden" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "img",
+            {
+              src: image,
+              alt: name,
+              style: { width: "100%", height: "100%", objectFit: "cover" }
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+            position: "absolute",
+            top: "8px",
+            left: "8px",
+            backgroundColor: config.bg,
+            color: config.color,
+            padding: "4px 8px",
+            borderRadius: RADIUS.md,
+            fontSize: "10px",
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: "4px"
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(config.icon, { size: 12 }),
+            "L",
+            level
+          ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: scoreStyle.color, fontWeight: 600, marginTop: "2px" }, children: score >= 75 ? "Low Risk" : score >= 50 ? "Moderate Risk" : score >= 25 ? "Elevated Risk" : "High Risk" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: {
+                margin: 0,
+                fontSize: "15px",
+                fontWeight: 600,
+                color: COLORS.textDark,
+                textTransform: "capitalize"
+              }, children: name }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: {
+                margin: "2px 0 0",
+                fontSize: "12px",
+                color: COLORS.textLight
+              }, children: country })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              backgroundColor: isFavorite ? COLORS.coralLight : COLORS.bg,
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer"
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              Heart,
+              {
+                size: 16,
+                fill: isFavorite ? COLORS.coral : "none",
+                color: COLORS.coral
+              }
+            ) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: "10px",
+            paddingTop: "10px",
+            borderTop: `1px solid ${COLORS.border}`
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "11px", color: COLORS.textLight, fontWeight: 500 }, children: "Safety Score" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+              fontSize: "16px",
+              fontWeight: 700,
+              color: score >= 65 ? COLORS.safe.text : score >= 50 ? COLORS.caution.text : COLORS.warning.text
+            }, children: score })
+          ] })
+        ] })
+      ]
+    }
+  );
+}
+function DetailView({
+  name,
+  data,
+  onBack
+}) {
+  const score = calcScore(data.advisory.advisory_level, data.acled, data.gdelt);
+  const config = ADVISORY_CONFIG[data.advisory.advisory_level];
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.bg, minHeight: "100vh" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", height: "200px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "img",
+        {
+          src: data.advisory.image,
+          alt: name,
+          style: { width: "100%", height: "100%", objectFit: "cover" }
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 50%, rgba(0,0,0,0.5) 100%)"
+      } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "button",
+        {
+          onClick: onBack,
+          style: {
+            position: "absolute",
+            top: "16px",
+            left: "16px",
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            backgroundColor: COLORS.white,
+            border: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: SHADOWS.card
+          },
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { size: 20, color: COLORS.textDark })
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "absolute", bottom: "16px", left: "16px", right: "16px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: {
+          margin: 0,
+          fontSize: "24px",
+          fontWeight: 700,
+          color: COLORS.white,
+          textTransform: "capitalize",
+          textShadow: "0 2px 4px rgba(0,0,0,0.3)"
+        }, children: name }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "4px 0 0", fontSize: "14px", color: "rgba(255,255,255,0.9)" }, children: data.advisory.country })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: `1px solid ${COLORS.border}` }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", textAlign: "center", borderRight: `1px solid ${COLORS.border}` }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight, fontWeight: 600, textTransform: "uppercase", marginBottom: "2px" }, children: "Advisory" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 14, style: { color: config.color } }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "13px", fontWeight: 700, color: config.color }, children: [
-            "L",
-            advisory.advisory_level
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "16px", marginTop: "-24px", position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        backgroundColor: COLORS.white,
+        borderRadius: RADIUS.xl,
+        padding: "20px",
+        boxShadow: SHADOWS.card,
+        marginBottom: "16px"
+      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "16px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          width: "72px",
+          height: "72px",
+          borderRadius: "50%",
+          backgroundColor: config.bg,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "24px", fontWeight: 700, color: config.color }, children: score }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "9px", fontWeight: 600, color: config.color }, children: "SCORE" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            backgroundColor: config.bg,
+            padding: "6px 12px",
+            borderRadius: RADIUS.full,
+            marginBottom: "8px"
+          }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(config.icon, { size: 14, color: config.color }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "12px", fontWeight: 600, color: config.color }, children: [
+              "Level ",
+              data.advisory.advisory_level,
+              ": ",
+              config.label
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: 0, fontSize: "13px", color: COLORS.textMedium, lineHeight: 1.4 }, children: [
+            getScoreLabel(score),
+            " destination"
+          ] })
+        ] })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          backgroundColor: COLORS.white,
+          borderRadius: RADIUS.lg,
+          padding: "16px",
+          boxShadow: SHADOWS.card
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", fontWeight: 600, color: COLORS.textLight, textTransform: "uppercase", marginBottom: "4px" }, children: "Events (30d)" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.textDark }, children: data.acled.events_last_30_days }),
+            data.acled.trend === "increasing" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, color: COLORS.danger.text }),
+            data.acled.trend === "decreasing" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 16, color: COLORS.safe.text }),
+            data.acled.trend === "stable" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minus, { size: 16, color: COLORS.textLight })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          backgroundColor: COLORS.white,
+          borderRadius: RADIUS.lg,
+          padding: "16px",
+          boxShadow: SHADOWS.card
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", fontWeight: 600, color: COLORS.textLight, textTransform: "uppercase", marginBottom: "4px" }, children: "News Sentiment" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
+              fontSize: "20px",
+              fontWeight: 700,
+              color: data.gdelt.tone_score > 0 ? COLORS.safe.text : data.gdelt.tone_score < -2 ? COLORS.danger.text : COLORS.textDark
+            }, children: [
+              data.gdelt.tone_score > 0 ? "+" : "",
+              data.gdelt.tone_score.toFixed(1)
+            ] }),
+            data.gdelt.trend_7day === "improving" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, color: COLORS.safe.text }),
+            data.gdelt.trend_7day === "worsening" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 16, color: COLORS.danger.text }),
+            data.gdelt.trend_7day === "stable" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minus, { size: 16, color: COLORS.textLight })
           ] })
         ] })
       ] }),
-      acled && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", textAlign: "center", borderRight: `1px solid ${COLORS.border}` }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight, fontWeight: 600, textTransform: "uppercase", marginBottom: "2px" }, children: "Events" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.textDark }, children: acled.events_last_30_days }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendIcon, { trend: acled.trend })
-        ] })
-      ] }),
-      gdelt && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "10px", textAlign: "center" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight, fontWeight: 600, textTransform: "uppercase", marginBottom: "2px" }, children: "Sentiment" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "13px", fontWeight: 700, color: gdelt.tone_score > 0 ? COLORS.safe.text : gdelt.tone_score < -3 ? COLORS.danger.text : COLORS.textDark }, children: [
-            gdelt.tone_score > 0 ? "+" : "",
-            gdelt.tone_score.toFixed(1)
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendIcon, { trend: gdelt.trend_7day })
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "10px 16px", backgroundColor: config.bg }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: config.color } }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "12px", fontWeight: 600, color: config.color }, children: config.label })
-    ] }) }),
-    gdelt && gdelt.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: gdelt.headlines[0].url, target: "_blank", rel: "noopener noreferrer", style: {
-      display: "block",
-      padding: "10px 16px",
-      backgroundColor: COLORS.peachLight,
-      textDecoration: "none",
-      borderTop: `1px solid ${COLORS.border}`
-    }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.textDark, fontWeight: 500, lineHeight: 1.3 }, children: gdelt.headlines[0].title }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight, marginTop: "2px" }, children: gdelt.headlines[0].source })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => setExpanded(!expanded), style: {
-      width: "100%",
-      padding: "8px",
-      backgroundColor: COLORS.white,
-      border: "none",
-      borderTop: `1px solid ${COLORS.border}`,
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "4px",
-      fontSize: "11px",
-      fontWeight: 600,
-      color: COLORS.coral
-    }, children: [
-      expanded ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 14 }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 14 }),
-      expanded ? "Less" : "More Details"
-    ] }),
-    expanded && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px 16px", backgroundColor: COLORS.peachLight, borderTop: `1px solid ${COLORS.border}` }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.textMedium, lineHeight: 1.5, marginBottom: "10px" }, children: advisory.advisory_text }),
-      acled && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "10px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, padding: "8px", borderRadius: "8px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight, fontWeight: 600 }, children: "TOTAL EVENTS" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "16px", fontWeight: 700, color: COLORS.textDark }, children: acled.total_events.toLocaleString() })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, padding: "8px", borderRadius: "8px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight, fontWeight: 600 }, children: "FATALITIES" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "16px", fontWeight: 700, color: COLORS.danger.text }, children: acled.fatalities.toLocaleString() })
-        ] })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: advisory.url, target: "_blank", rel: "noopener noreferrer", style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "6px",
-        padding: "8px",
-        backgroundColor: COLORS.coral,
-        color: COLORS.white,
-        borderRadius: "8px",
-        textDecoration: "none",
-        fontSize: "12px",
-        fontWeight: 600
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        backgroundColor: COLORS.white,
+        borderRadius: RADIUS.lg,
+        padding: "16px",
+        boxShadow: SHADOWS.card,
+        marginBottom: "16px"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
-        "Official Advisory"
-      ] })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 8px", fontSize: "13px", fontWeight: 600, color: COLORS.textDark }, children: "US State Department Advisory" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: 0, fontSize: "13px", color: COLORS.textMedium, lineHeight: 1.5 }, children: data.advisory.advisory_text }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: "8px 0 0", fontSize: "11px", color: COLORS.textLight }, children: [
+          "Updated: ",
+          data.advisory.date_updated
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "a",
+        {
+          href: data.advisory.url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          style: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            width: "100%",
+            padding: "14px",
+            backgroundColor: COLORS.coral,
+            color: COLORS.white,
+            borderRadius: RADIUS.lg,
+            textDecoration: "none",
+            fontSize: "14px",
+            fontWeight: 600,
+            boxShadow: SHADOWS.button
+          },
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
+            "View Full Advisory"
+          ]
+        }
+      )
     ] })
   ] });
 }
 function TravelSafety() {
   const [query, setQuery] = (0, import_react3.useState)("");
-  const [result, setResult] = (0, import_react3.useState)(null);
-  const [error, setError] = (0, import_react3.useState)(null);
-  const handleSearch = () => {
-    if (!query.trim()) return;
-    setError(null);
-    const q = query.trim().toLowerCase();
-    const country = CITY_TO_COUNTRY[q];
-    if (country) {
-      const countryKey = country.toLowerCase();
-      const advisory2 = FALLBACK_ADVISORIES[countryKey];
-      if (advisory2) {
-        setResult({
-          advisory: advisory2,
-          acled: FALLBACK_ACLED[q] || FALLBACK_ACLED[countryKey],
-          gdelt: FALLBACK_GDELT[q] || FALLBACK_GDELT[countryKey],
-          isCity: true,
-          term: q
-        });
-        return;
-      }
-    }
-    const advisory = FALLBACK_ADVISORIES[q];
-    if (advisory) {
-      setResult({ advisory, acled: FALLBACK_ACLED[q], gdelt: FALLBACK_GDELT[q], isCity: false, term: q });
-      return;
-    }
-    const match = Object.entries(FALLBACK_ADVISORIES).find(([k, v]) => k.includes(q) || v.country.toLowerCase().includes(q));
-    if (match) {
-      setResult({ advisory: match[1], acled: FALLBACK_ACLED[match[0]], gdelt: FALLBACK_GDELT[match[0]], isCity: false, term: match[0] });
-      return;
-    }
-    setError(`No advisory found for "${query}"`);
-    setResult(null);
+  const [selectedDest, setSelectedDest] = (0, import_react3.useState)(null);
+  const [favorites, setFavorites] = (0, import_react3.useState)(/* @__PURE__ */ new Set());
+  const popularDestinations = ["tokyo", "paris", "cancun", "bangkok", "bali", "rome"];
+  const getDestData = (key) => {
+    const country = CITY_TO_COUNTRY[key] || key;
+    const countryKey = country.toLowerCase();
+    return FALLBACK_DATA[countryKey];
   };
-  const quickSearches = ["Tokyo", "Paris", "Cancun", "Medellin", "Bangkok"];
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { minHeight: "100vh", backgroundColor: COLORS.peach, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px 16px", backgroundColor: COLORS.white, borderBottom: `1px solid ${COLORS.border}` }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "32px", height: "32px", borderRadius: "8px", backgroundColor: COLORS.coral, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 18, color: COLORS.white }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 700, color: COLORS.textDark }, children: "Travel Safety" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight }, children: "Real-time risk assessment" })
-        ] })
+  const filteredDests = query.trim() ? popularDestinations.filter((d) => d.includes(query.toLowerCase()) || (CITY_TO_COUNTRY[d] || "").toLowerCase().includes(query.toLowerCase())) : popularDestinations;
+  if (selectedDest) {
+    const data = getDestData(selectedDest);
+    if (data) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DetailView, { name: selectedDest, data, onBack: () => setSelectedDest(null) });
+    }
+  }
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    minHeight: "100vh",
+    backgroundColor: COLORS.bg,
+    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif'
+  }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "16px 20px 0" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
+          width: "44px",
+          height: "44px",
+          borderRadius: "50%",
+          backgroundColor: COLORS.white,
+          border: `1px solid ${COLORS.border}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer"
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { size: 20, color: COLORS.textDark }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
+          width: "44px",
+          height: "44px",
+          borderRadius: "50%",
+          backgroundColor: COLORS.white,
+          border: `1px solid ${COLORS.border}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer"
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bell, { size: 20, color: COLORS.textDark }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: "8px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1, position: "relative" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 16, style: { position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: COLORS.textLight } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "28px", fontWeight: 400, color: COLORS.textDark }, children: "Explore the" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "28px", fontWeight: 700, color: COLORS.textDark }, children: "Safe destinations" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: "12px", marginBottom: "24px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          backgroundColor: COLORS.searchBg,
+          borderRadius: RADIUS.full,
+          padding: "0 20px",
+          height: "52px"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 20, color: COLORS.textLight }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "input",
             {
               value: query,
               onChange: (e) => setQuery(e.target.value),
-              onKeyDown: (e) => e.key === "Enter" && handleSearch(),
-              placeholder: "Search destination...",
+              placeholder: "Search your destination",
               style: {
-                width: "100%",
-                padding: "10px 10px 10px 32px",
-                fontSize: "14px",
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: "10px",
-                backgroundColor: COLORS.peachLight,
+                flex: 1,
+                border: "none",
+                backgroundColor: "transparent",
+                fontSize: "15px",
+                color: COLORS.textDark,
                 outline: "none"
               }
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: handleSearch, style: {
-          padding: "0 16px",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
+          width: "52px",
+          height: "52px",
+          borderRadius: RADIUS.lg,
           backgroundColor: COLORS.coral,
-          color: COLORS.white,
           border: "none",
-          borderRadius: "10px",
-          fontSize: "14px",
-          fontWeight: 600,
-          cursor: "pointer"
-        }, children: "Go" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "6px", marginTop: "10px", flexWrap: "wrap" }, children: quickSearches.map((term) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => {
-        setQuery(term);
-        setTimeout(() => {
-          const q = term.toLowerCase();
-          const country = CITY_TO_COUNTRY[q];
-          if (country) {
-            const advisory = FALLBACK_ADVISORIES[country.toLowerCase()];
-            if (advisory) setResult({ advisory, acled: FALLBACK_ACLED[q], gdelt: FALLBACK_GDELT[q], isCity: true, term: q });
-          }
-        }, 0);
-      }, style: {
-        padding: "4px 10px",
-        fontSize: "11px",
-        fontWeight: 600,
-        backgroundColor: COLORS.peachLight,
-        color: COLORS.coral,
-        border: `1px solid ${COLORS.coralLight}`,
-        borderRadius: "12px",
-        cursor: "pointer"
-      }, children: term }, term)) })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px 16px" }, children: [
-      error && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "12px", backgroundColor: COLORS.danger.bg, borderRadius: "10px", marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "13px", color: COLORS.danger.text, display: "flex", alignItems: "center", gap: "8px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, { size: 16 }),
-        error
-      ] }) }),
-      result && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        CompactResult,
-        {
-          advisory: result.advisory,
-          acled: result.acled,
-          gdelt: result.gdelt,
-          searchTerm: result.term,
-          isCity: result.isCity
-        }
-      ),
-      !result && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", padding: "32px 16px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 40, style: { color: COLORS.coralLight, marginBottom: "12px" } }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: COLORS.textDark, marginBottom: "4px" }, children: "Search a Destination" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.textMedium }, children: "Get safety scores, advisories & news sentiment" })
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          boxShadow: SHADOWS.button
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { size: 20, color: COLORS.white }) })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "10px 16px", textAlign: "center", borderTop: `1px solid ${COLORS.border}`, backgroundColor: COLORS.white }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", color: COLORS.textLight }, children: "Data: US State Dept \u2022 ACLED \u2022 GDELT" }) })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "0 20px 100px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: "16px"
+    }, children: filteredDests.map((dest) => {
+      const data = getDestData(dest);
+      if (!data) return null;
+      const score = calcScore(data.advisory.advisory_level, data.acled, data.gdelt);
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        DestinationCard,
+        {
+          name: dest,
+          country: data.advisory.country,
+          score,
+          level: data.advisory.advisory_level,
+          image: DESTINATION_IMAGES[dest] || DESTINATION_IMAGES["default"],
+          onClick: () => setSelectedDest(dest),
+          isFavorite: favorites.has(dest)
+        },
+        dest
+      );
+    }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: COLORS.white,
+      borderTop: `1px solid ${COLORS.border}`,
+      padding: "12px 0 20px",
+      display: "flex",
+      justifyContent: "space-around"
+    }, children: [
+      { icon: House, label: "Home", active: true },
+      { icon: MapPin, label: "Explore", active: false },
+      { icon: Clock, label: "History", active: false },
+      { icon: User, label: "Profile", active: false }
+    ].map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "button",
+      {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "4px",
+          backgroundColor: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: "4px 16px"
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(item.icon, { size: 22, color: item.active ? COLORS.coral : COLORS.textLight }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "10px", color: item.active ? COLORS.coral : COLORS.textLight, fontWeight: item.active ? 600 : 400 }, children: item.label })
+        ]
+      },
+      item.label
+    )) })
   ] });
 }
 
@@ -25147,7 +25403,7 @@ lucide-react/dist/esm/createLucideIcon.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/chevron-down.js:
+lucide-react/dist/esm/icons/bell.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25155,7 +25411,7 @@ lucide-react/dist/esm/icons/chevron-down.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/chevron-up.js:
+lucide-react/dist/esm/icons/chevron-left.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25179,6 +25435,14 @@ lucide-react/dist/esm/icons/circle-check-big.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
+lucide-react/dist/esm/icons/clock.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
 lucide-react/dist/esm/icons/external-link.js:
   (**
    * @license lucide-react v0.554.0 - ISC
@@ -25187,7 +25451,15 @@ lucide-react/dist/esm/icons/external-link.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/globe.js:
+lucide-react/dist/esm/icons/heart.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/house.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25227,7 +25499,7 @@ lucide-react/dist/esm/icons/search.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/shield.js:
+lucide-react/dist/esm/icons/sliders-horizontal.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25252,6 +25524,14 @@ lucide-react/dist/esm/icons/trending-up.js:
    *)
 
 lucide-react/dist/esm/icons/triangle-alert.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/user.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
