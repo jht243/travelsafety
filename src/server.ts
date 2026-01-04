@@ -41,24 +41,7 @@ type TravelSafetyWidget = {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Resolve project root: prefer ASSETS_ROOT only if it actually has an assets/ directory
-const DEFAULT_ROOT_DIR = path.resolve(__dirname, "..");
-const ROOT_DIR = (() => {
-  const envRoot = process.env.ASSETS_ROOT;
-  if (envRoot) {
-    const candidate = path.resolve(envRoot);
-    try {
-      const candidateAssets = path.join(candidate, "assets");
-      if (fs.existsSync(candidateAssets)) {
-        return candidate;
-      }
-    } catch {
-      // fall through to default
-    }
-  }
-  return DEFAULT_ROOT_DIR;
-})();
-
+const ROOT_DIR = process.env.ASSETS_ROOT || path.resolve(__dirname, "..");
 const ASSETS_DIR = path.resolve(ROOT_DIR, "assets");
 const LOGS_DIR = path.resolve(__dirname, "..", "logs");
 
