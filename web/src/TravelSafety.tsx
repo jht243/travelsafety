@@ -1159,6 +1159,14 @@ const FALLBACK_ADVISORIES: AdvisoryData = {
     date_updated: '2024-11-10',
     url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/spain-travel-advisory.html',
   },
+  'united states': {
+    country: 'United States',
+    country_code: 'US',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html',
+  },
 };
 
 function AdvisoryLevelBadge({ level }: { level: number }) {
@@ -2314,18 +2322,20 @@ export default function TravelSafety() {
           
           {/* Search Bar - Vibrant & Bold */}
           <div style={{
-            display: 'flex',
             maxWidth: '600px',
             margin: '0 auto',
-            backgroundColor: COLORS.white,
-            borderRadius: UI.radius.pill,
-            overflow: 'hidden',
-            boxShadow: UI.shadow.input,
-            border: `1px solid ${COLORS.slate[100]}`,
             position: 'relative',
             zIndex: 10,
           }}>
-            <div style={{ position: 'relative', flex: 1 }}>
+            <div style={{
+              display: 'flex',
+              backgroundColor: COLORS.white,
+              borderRadius: UI.radius.pill,
+              overflow: 'hidden',
+              boxShadow: UI.shadow.input,
+              border: `1px solid ${COLORS.slate[100]}`,
+            }}>
+              <div style={{ position: 'relative', flex: 1 }}>
               <Search size={18} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: COLORS.slate[400] }} />
               <input
                 type="text"
@@ -2385,80 +2395,81 @@ export default function TravelSafety() {
                   fontWeight: 600,
                 }}
               />
-
-              {showSuggestions && citySuggestions.length > 0 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 10px)',
-                    left: '0',
-                    right: '0',
-                    backgroundColor: COLORS.white,
-                    borderRadius: UI.radius.lg,
-                    border: `1px solid ${COLORS.slate[100]}`,
-                    boxShadow: UI.shadow.card,
-                    overflow: 'hidden',
-                    maxHeight: '280px',
-                    zIndex: 50,
-                  }}
-                >
-                  {citySuggestions.map((c, idx) => {
-                    const active = idx === activeSuggestionIndex;
-                    return (
-                      <button
-                        key={c.canonicalKey}
-                        onMouseEnter={() => setActiveSuggestionIndex(idx)}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                          setSearchQuery(c.key);
-                          setShowSuggestions(false);
-                          searchFor(c.canonicalKey);
-                        }}
-                        style={{
-                          width: '100%',
-                          border: 'none',
-                          backgroundColor: active ? COLORS.lavender : COLORS.white,
-                          color: COLORS.slate[900],
-                          padding: '10px 12px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '12px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.label}</div>
-                          <div style={{ fontSize: '11px', color: COLORS.slate[500], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.sublabel}</div>
-                        </div>
-                        <div style={{ flexShrink: 0, fontSize: '11px', color: COLORS.slate[400], fontWeight: 600 }}>
-                          City
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+              </div>
+              <button
+                onClick={handleSearch}
+                disabled={loading}
+                style={{
+                  padding: '0 32px',
+                  background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+                  color: COLORS.white,
+                  border: 'none',
+                  borderLeft: `1px solid ${COLORS.slate[100]}`,
+                  cursor: loading ? 'wait' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  transition: 'all 0.2s',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {loading ? '...' : 'Search'}
+              </button>
             </div>
-            <button
-              onClick={handleSearch}
-              disabled={loading}
-              style={{
-                padding: '0 32px',
-                background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
-                color: COLORS.white,
-                border: 'none',
-                borderLeft: `1px solid ${COLORS.slate[100]}`,
-                cursor: loading ? 'wait' : 'pointer',
-                fontSize: '14px',
-                fontWeight: 700,
-                transition: 'all 0.2s',
-                letterSpacing: '0.02em',
-              }}
-            >
-              {loading ? '...' : 'Search'}
-            </button>
+
+            {showSuggestions && citySuggestions.length > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 10px)',
+                  left: '0',
+                  right: '0',
+                  backgroundColor: COLORS.white,
+                  borderRadius: UI.radius.lg,
+                  border: `1px solid ${COLORS.slate[100]}`,
+                  boxShadow: UI.shadow.card,
+                  overflow: 'hidden',
+                  maxHeight: '280px',
+                  zIndex: 50,
+                }}
+              >
+                {citySuggestions.map((c, idx) => {
+                  const active = idx === activeSuggestionIndex;
+                  return (
+                    <button
+                      key={c.canonicalKey}
+                      onMouseEnter={() => setActiveSuggestionIndex(idx)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setSearchQuery(c.key);
+                        setShowSuggestions(false);
+                        searchFor(c.canonicalKey);
+                      }}
+                      style={{
+                        width: '100%',
+                        border: 'none',
+                        backgroundColor: active ? COLORS.lavender : COLORS.white,
+                        color: COLORS.slate[900],
+                        padding: '10px 12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.label}</div>
+                        <div style={{ fontSize: '11px', color: COLORS.slate[500], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.sublabel}</div>
+                      </div>
+                      <div style={{ flexShrink: 0, fontSize: '11px', color: COLORS.slate[400], fontWeight: 600 }}>
+                        City
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           
           {/* Popular Searches */}

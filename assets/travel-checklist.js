@@ -25592,6 +25592,14 @@ var FALLBACK_ADVISORIES = {
     advisory_text: "Exercise increased caution due to terrorism.",
     date_updated: "2024-11-10",
     url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/spain-travel-advisory.html"
+  },
+  "united states": {
+    country: "United States",
+    country_code: "US",
+    advisory_level: 1,
+    advisory_text: "Exercise normal precautions.",
+    date_updated: "2024-12-01",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
   }
 };
 function SafetyMeter({ level }) {
@@ -26534,150 +26542,153 @@ function TravelSafety() {
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 24px 0", fontSize: "16px", color: COLORS.slate[600], maxWidth: "540px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }, children: "Real-time safety assessments from official government sources and global news data." }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-        display: "flex",
         maxWidth: "600px",
         margin: "0 auto",
-        backgroundColor: COLORS.white,
-        borderRadius: UI.radius.pill,
-        overflow: "hidden",
-        boxShadow: UI.shadow.input,
-        border: `1px solid ${COLORS.slate[100]}`,
         position: "relative",
         zIndex: 10
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 18, style: { position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", color: COLORS.slate[400] } }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "input",
-            {
-              type: "text",
-              value: searchQuery,
-              onChange: (e) => {
-                setSearchQuery(e.target.value);
-                setShowSuggestions(true);
-                setActiveSuggestionIndex(0);
-              },
-              onFocus: () => setShowSuggestions(true),
-              onBlur: () => {
-                window.setTimeout(() => setShowSuggestions(false), 150);
-              },
-              onKeyDown: (e) => {
-                const q = searchQuery.trim().toLowerCase();
-                const isCityQuery = Boolean(CITY_TO_COUNTRY[q] || CITY_TO_COUNTRY[CITY_ALIASES[q] || ""] || CITY_COORDINATES[q]);
-                if (e.key === "Escape") {
-                  setShowSuggestions(false);
-                  return;
-                }
-                if (showSuggestions && citySuggestions.length > 0) {
-                  if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    setActiveSuggestionIndex((i) => Math.min(i + 1, citySuggestions.length - 1));
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          display: "flex",
+          backgroundColor: COLORS.white,
+          borderRadius: UI.radius.pill,
+          overflow: "hidden",
+          boxShadow: UI.shadow.input,
+          border: `1px solid ${COLORS.slate[100]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 18, style: { position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", color: COLORS.slate[400] } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "input",
+              {
+                type: "text",
+                value: searchQuery,
+                onChange: (e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                  setActiveSuggestionIndex(0);
+                },
+                onFocus: () => setShowSuggestions(true),
+                onBlur: () => {
+                  window.setTimeout(() => setShowSuggestions(false), 150);
+                },
+                onKeyDown: (e) => {
+                  const q = searchQuery.trim().toLowerCase();
+                  const isCityQuery = Boolean(CITY_TO_COUNTRY[q] || CITY_TO_COUNTRY[CITY_ALIASES[q] || ""] || CITY_COORDINATES[q]);
+                  if (e.key === "Escape") {
+                    setShowSuggestions(false);
                     return;
                   }
-                  if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    setActiveSuggestionIndex((i) => Math.max(i - 1, 0));
-                    return;
-                  }
-                  if (e.key === "Enter" && isCityQuery) {
-                    e.preventDefault();
-                    const selected = citySuggestions[activeSuggestionIndex];
-                    if (selected) {
-                      setSearchQuery(selected.key);
-                      setShowSuggestions(false);
-                      searchFor(selected.canonicalKey);
+                  if (showSuggestions && citySuggestions.length > 0) {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setActiveSuggestionIndex((i) => Math.min(i + 1, citySuggestions.length - 1));
+                      return;
                     }
-                    return;
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setActiveSuggestionIndex((i) => Math.max(i - 1, 0));
+                      return;
+                    }
+                    if (e.key === "Enter" && isCityQuery) {
+                      e.preventDefault();
+                      const selected = citySuggestions[activeSuggestionIndex];
+                      if (selected) {
+                        setSearchQuery(selected.key);
+                        setShowSuggestions(false);
+                        searchFor(selected.canonicalKey);
+                      }
+                      return;
+                    }
                   }
+                  if (e.key === "Enter") handleSearch();
+                },
+                placeholder: "Search city or country...",
+                style: {
+                  width: "100%",
+                  padding: "16px 16px 16px 48px",
+                  fontSize: "15px",
+                  border: "none",
+                  outline: "none",
+                  backgroundColor: "transparent",
+                  color: COLORS.slate[900],
+                  fontWeight: 600
                 }
-                if (e.key === "Enter") handleSearch();
-              },
-              placeholder: "Search city or country...",
-              style: {
-                width: "100%",
-                padding: "16px 16px 16px 48px",
-                fontSize: "15px",
-                border: "none",
-                outline: "none",
-                backgroundColor: "transparent",
-                color: COLORS.slate[900],
-                fontWeight: 600
               }
-            }
-          ),
-          showSuggestions && citySuggestions.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "div",
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "button",
             {
+              onClick: handleSearch,
+              disabled: loading,
               style: {
-                position: "absolute",
-                top: "calc(100% + 10px)",
-                left: "0",
-                right: "0",
-                backgroundColor: COLORS.white,
-                borderRadius: UI.radius.lg,
-                border: `1px solid ${COLORS.slate[100]}`,
-                boxShadow: UI.shadow.card,
-                overflow: "hidden",
-                maxHeight: "280px",
-                zIndex: 50
+                padding: "0 32px",
+                background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+                color: COLORS.white,
+                border: "none",
+                borderLeft: `1px solid ${COLORS.slate[100]}`,
+                cursor: loading ? "wait" : "pointer",
+                fontSize: "14px",
+                fontWeight: 700,
+                transition: "all 0.2s",
+                letterSpacing: "0.02em"
               },
-              children: citySuggestions.map((c, idx) => {
-                const active = idx === activeSuggestionIndex;
-                return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                  "button",
-                  {
-                    onMouseEnter: () => setActiveSuggestionIndex(idx),
-                    onMouseDown: (e) => e.preventDefault(),
-                    onClick: () => {
-                      setSearchQuery(c.key);
-                      setShowSuggestions(false);
-                      searchFor(c.canonicalKey);
-                    },
-                    style: {
-                      width: "100%",
-                      border: "none",
-                      backgroundColor: active ? COLORS.lavender : COLORS.white,
-                      color: COLORS.slate[900],
-                      padding: "10px 12px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: "12px",
-                      textAlign: "left"
-                    },
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { minWidth: 0 }, children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.label }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.sublabel })
-                      ] }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, fontSize: "11px", color: COLORS.slate[400], fontWeight: 600 }, children: "City" })
-                    ]
-                  },
-                  c.canonicalKey
-                );
-              })
+              children: loading ? "..." : "Search"
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "button",
+        showSuggestions && citySuggestions.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "div",
           {
-            onClick: handleSearch,
-            disabled: loading,
             style: {
-              padding: "0 32px",
-              background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
-              color: COLORS.white,
-              border: "none",
-              borderLeft: `1px solid ${COLORS.slate[100]}`,
-              cursor: loading ? "wait" : "pointer",
-              fontSize: "14px",
-              fontWeight: 700,
-              transition: "all 0.2s",
-              letterSpacing: "0.02em"
+              position: "absolute",
+              top: "calc(100% + 10px)",
+              left: "0",
+              right: "0",
+              backgroundColor: COLORS.white,
+              borderRadius: UI.radius.lg,
+              border: `1px solid ${COLORS.slate[100]}`,
+              boxShadow: UI.shadow.card,
+              overflow: "hidden",
+              maxHeight: "280px",
+              zIndex: 50
             },
-            children: loading ? "..." : "Search"
+            children: citySuggestions.map((c, idx) => {
+              const active = idx === activeSuggestionIndex;
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onMouseEnter: () => setActiveSuggestionIndex(idx),
+                  onMouseDown: (e) => e.preventDefault(),
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    setShowSuggestions(false);
+                    searchFor(c.canonicalKey);
+                  },
+                  style: {
+                    width: "100%",
+                    border: "none",
+                    backgroundColor: active ? COLORS.lavender : COLORS.white,
+                    color: COLORS.slate[900],
+                    padding: "10px 12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    textAlign: "left"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.label }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.sublabel })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, fontSize: "11px", color: COLORS.slate[400], fontWeight: 600 }, children: "City" })
+                  ]
+                },
+                c.canonicalKey
+              );
+            })
           }
         )
       ] }),
