@@ -26722,7 +26722,6 @@ function TravelSafety() {
   }, [searchQuery]);
   const popularSearches = ["Colombia", "Mexico", "Japan", "France", "Thailand", "Italy"];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-    minHeight: "100vh",
     backgroundColor: COLORS.cream,
     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
     color: COLORS.navy

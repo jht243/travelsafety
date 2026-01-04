@@ -2461,7 +2461,6 @@ export default function TravelSafety() {
 
     return (
     <div style={{
-      minHeight: '100vh',
       backgroundColor: COLORS.cream,
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
       color: COLORS.navy,
