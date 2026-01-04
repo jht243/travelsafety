@@ -26239,12 +26239,19 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
               }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Volume" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center", minWidth: 0 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
                 fontSize: "14px",
                 fontWeight: 700,
-                color: gdeltData.trend_7day === "worsening" ? COLORS.danger.text : gdeltData.trend_7day === "improving" ? COLORS.safe.text : COLORS.slate[500]
-              }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
+                color: gdeltData.trend_7day === "worsening" ? COLORS.danger.text : gdeltData.trend_7day === "improving" ? COLORS.safe.text : COLORS.slate[500],
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "2px"
+              }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: gdeltData.trend_7day === "worsening" ? "\u2193" : gdeltData.trend_7day === "improving" ? "\u2191" : "\u2192" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: gdeltData.trend_7day === "worsening" ? "Worsening" : gdeltData.trend_7day === "improving" ? "Improving" : "Stable" })
+              ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "7-Day Trend" })
             ] })
           ] }),

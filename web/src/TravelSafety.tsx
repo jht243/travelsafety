@@ -1899,13 +1899,18 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                   </div>
                   <div style={{ fontSize: '12px', color: COLORS.slate[500], fontWeight: 500 }}>Volume</div>
                 </div>
-                <div style={{ padding: '12px', backgroundColor: COLORS.white, borderRadius: '6px', border: `1px solid ${COLORS.slate[200]}`, textAlign: 'center' }}>
+                <div style={{ padding: '12px', backgroundColor: COLORS.white, borderRadius: '6px', border: `1px solid ${COLORS.slate[200]}`, textAlign: 'center', minWidth: 0 }}>
                   <div style={{ 
                     fontSize: '14px', 
                     fontWeight: 700, 
-                    color: gdeltData.trend_7day === 'worsening' ? COLORS.danger.text : gdeltData.trend_7day === 'improving' ? COLORS.safe.text : COLORS.slate[500] 
+                    color: gdeltData.trend_7day === 'worsening' ? COLORS.danger.text : gdeltData.trend_7day === 'improving' ? COLORS.safe.text : COLORS.slate[500],
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '2px',
                   }}>
-                    {gdeltData.trend_7day === 'worsening' ? '↓ Worsening' : gdeltData.trend_7day === 'improving' ? '↑ Improving' : '→ Stable'}
+                    <span>{gdeltData.trend_7day === 'worsening' ? '↓' : gdeltData.trend_7day === 'improving' ? '↑' : '→'}</span>
+                    <span>{gdeltData.trend_7day === 'worsening' ? 'Worsening' : gdeltData.trend_7day === 'improving' ? 'Improving' : 'Stable'}</span>
                   </div>
                   <div style={{ fontSize: '12px', color: COLORS.slate[500], fontWeight: 500 }}>7-Day Trend</div>
                 </div>
