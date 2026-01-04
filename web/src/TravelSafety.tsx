@@ -1,49 +1,64 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
-// Brand Color Palette - Clean & Modern (Reference Image Style)
+// Brand Color Palette - Soft Purple Reference Palette
 const COLORS = {
   // Backgrounds
-  cream: '#FAFAFA',  // Light grey page background
+  cream: '#F6F7FB',  // Light grey page background
   white: '#FFFFFF',  // Card background
   
-  // Brand Colors - Coral/Orange accent
-  orange: '#E07B54', // Primary coral/terracotta
-  lime: '#4CAF50',   // Green for safe
-  green: '#2E7D32',  // Dark green
-  navy: '#1A1A1A',   // Near black for text
-  plum: '#C62828',   // Red for danger
-  blue: '#1976D2',   // Blue accent
-  lavender: '#F5F5F5', // Light grey
+  // Brand Colors - Soft Purple accent
+  orange: '#6D5EF9', // Primary accent
+  lime: '#A78BFA',   // Secondary accent
+  green: '#16A34A',  // Dark green
+  navy: '#111827',   // Near black for text
+  plum: '#7C3AED',   // Purple depth
+  blue: '#4F46E5',   // Indigo accent
+  lavender: '#F4F0FF', // Light purple wash
   
   // Text Colors
-  textMain: '#1A1A1A',
-  textSecondary: '#6B6B6B',
+  textMain: '#111827',
+  textSecondary: '#6B7280',
   textLight: '#9CA3AF',
   
   // Slate scale for UI elements
   slate: {
-    50: '#FAFAFA',
-    100: '#F5F5F5',
-    200: '#E5E5E5',
-    300: '#D4D4D4',
-    400: '#A3A3A3',
-    500: '#737373',
-    600: '#525252',
-    700: '#404040',
-    800: '#262626',
-    900: '#171717',
+    50: '#F8FAFC',
+    100: '#F1F5F9',
+    200: '#E2E8F0',
+    300: '#CBD5E1',
+    400: '#94A3B8',
+    500: '#64748B',
+    600: '#475569',
+    700: '#334155',
+    800: '#1F2937',
+    900: '#111827',
   },
   
   // Functional Mappings with full style objects
-  safe: { bg: '#E8F5E9', text: '#2E7D32', border: '#A5D6A7', icon: '#2E7D32' },
-  warning: { bg: '#FFF3E0', text: '#E65100', border: '#FFCC80', icon: '#E65100' },
-  danger: { bg: '#FFEBEE', text: '#C62828', border: '#EF9A9A', icon: '#C62828' },
-  caution: { bg: '#FFF8E1', text: '#F57C00', border: '#FFE082', icon: '#F57C00' },
-  neutral: { bg: '#FAFAFA', text: '#525252', border: '#E5E5E5', icon: '#525252' },
+  safe: { bg: '#EAFBF2', text: '#16A34A', border: '#BBF7D0', icon: '#16A34A' },
+  warning: { bg: '#FFF7ED', text: '#EA580C', border: '#FED7AA', icon: '#EA580C' },
+  danger: { bg: '#FEE2E2', text: '#DC2626', border: '#FCA5A5', icon: '#DC2626' },
+  caution: { bg: '#FEFCE8', text: '#CA8A04', border: '#FDE68A', icon: '#CA8A04' },
+  neutral: { bg: '#F8FAFC', text: '#475569', border: '#E2E8F0', icon: '#475569' },
   
   // Primary action color
-  primary: '#E07B54',
+  primary: '#6D5EF9',
+};
+
+const UI = {
+  radius: {
+    sm: '10px',
+    md: '14px',
+    lg: '18px',
+    xl: '24px',
+    pill: '9999px',
+  },
+  shadow: {
+    card: '0 10px 30px rgba(17, 24, 39, 0.08)',
+    soft: '0 6px 18px rgba(17, 24, 39, 0.08)',
+    input: '0 8px 24px rgba(109, 94, 249, 0.14)',
+  },
 };
 
 // State Department Advisory Levels
@@ -1138,21 +1153,22 @@ function AdvisoryLevelBadge({ level }: { level: number }) {
     <div 
       className="advisory-badge"
       style={{ 
-        backgroundColor: config.bgColor, 
-        color: config.color,
-        border: `2px solid ${config.bgColor === COLORS.lime ? COLORS.navy : config.color}`,
-        borderRadius: '50px', // Pill shape
-        padding: '8px 16px',
+        backgroundColor: config.style.bg,
+        color: config.style.text,
+        border: `1px solid ${config.style.border}`,
+        borderRadius: UI.radius.pill,
+        padding: '8px 14px',
         display: 'inline-flex',
         alignItems: 'center',
         gap: '8px',
         fontWeight: 700,
-        fontSize: '14px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        fontSize: '12px',
+        letterSpacing: '0.02em',
+        boxShadow: '0 6px 16px rgba(17, 24, 39, 0.06)',
       }}
     >
-      <Icon size={18} strokeWidth={2.5} />
-      <span style={{ letterSpacing: '-0.01em' }}>LEVEL {level}: {config.label.toUpperCase()}</span>
+      <Icon size={16} strokeWidth={2.25} style={{ color: config.style.icon }} />
+      <span>Level {level}</span>
     </div>
   );
 }
@@ -1163,27 +1179,27 @@ function SafetyMeter({ level }: { level: number }) {
   
   return (
     <div style={{ width: '100%', marginTop: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', color: COLORS.textSecondary, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', color: COLORS.slate[500], fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
         <span>Safety Score</span>
-        <span style={{ color: config.color === COLORS.white ? COLORS.plum : config.color }}>{Math.round(percentage)}%</span>
+        <span style={{ color: config.style.text }}>{Math.round(percentage)}%</span>
       </div>
       <div style={{ 
         width: '100%', 
-        height: '12px', 
-        backgroundColor: '#E2E8F0', 
-        borderRadius: '6px',
+        height: '10px', 
+        backgroundColor: COLORS.slate[100],
+        borderRadius: UI.radius.pill,
         overflow: 'hidden',
-        border: '1px solid #CBD5E1'
+        border: `1px solid ${COLORS.slate[200]}`,
       }}>
         <div style={{ 
           width: `${percentage}%`, 
           height: '100%', 
-          backgroundColor: config.color === COLORS.white ? COLORS.plum : config.bgColor === COLORS.lime ? COLORS.lime : config.color,
-          borderRadius: '5px',
+          background: `linear-gradient(90deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+          borderRadius: UI.radius.pill,
           transition: 'width 0.5s ease-out',
         }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '11px', color: COLORS.textLight, fontWeight: 500 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '11px', color: COLORS.slate[400], fontWeight: 500 }}>
         <span>HIGH RISK</span>
         <span>LOW RISK</span>
       </div>
@@ -1196,14 +1212,14 @@ function DashboardCard({ title, children, icon: Icon }: { title: string; childre
   return (
     <div style={{
       backgroundColor: COLORS.white,
-      borderRadius: '8px',
-      padding: '20px',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-      border: `1px solid ${COLORS.slate[200]}`,
+      borderRadius: UI.radius.lg,
+      padding: '18px',
+      boxShadow: UI.shadow.soft,
+      border: `1px solid ${COLORS.slate[100]}`,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
         {Icon && <Icon size={20} style={{ color: COLORS.slate[400] }} />}
-        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: COLORS.slate[900] }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>{title}</h3>
       </div>
       {children}
     </div>
@@ -1351,10 +1367,10 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
   return (
     <div style={{
       backgroundColor: COLORS.white,
-      borderRadius: '12px',
-      padding: '24px',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1)',
-      border: `1px solid ${COLORS.slate[200]}`,
+      borderRadius: UI.radius.xl,
+      padding: '22px',
+      boxShadow: UI.shadow.card,
+      border: `1px solid ${COLORS.slate[100]}`,
       maxWidth: '600px',
       margin: '0 auto',
     }}>
@@ -1382,10 +1398,10 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         alignItems: 'center', 
         gap: '20px',
         marginBottom: '24px',
-        padding: '20px',
-        backgroundColor: COLORS.slate[50],
-        borderRadius: '8px',
-        border: `1px solid ${COLORS.slate[200]}`,
+        padding: '18px',
+        background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.slate[50]} 100%)`,
+        borderRadius: UI.radius.lg,
+        border: `1px solid ${COLORS.slate[100]}`,
       }}>
         <div style={{ 
           width: '72px', 
@@ -1393,6 +1409,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           borderRadius: '50%', 
           backgroundColor: COLORS.white,
           border: `4px solid ${scoreConfig.text}`,
+          boxShadow: '0 10px 18px rgba(17, 24, 39, 0.10)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -1402,7 +1419,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           <div style={{ fontSize: '24px', fontWeight: 800, color: scoreConfig.text, lineHeight: 1 }}>{safetyScore}</div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '18px', fontWeight: 600, color: scoreConfig.text, marginBottom: '4px' }}>{scoreLabel}</div>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.slate[900], marginBottom: '4px', letterSpacing: '-0.01em' }}>{scoreLabel}</div>
           <div style={{ fontSize: '14px', color: COLORS.slate[500], lineHeight: 1.5 }}>
             {safetyScore >= 75 ? 'Likely safe for travel. Exercise normal precautions.' :
              safetyScore >= 50 ? 'Exercise increased caution. Be aware of surroundings.' :
@@ -1420,8 +1437,9 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             <div style={{ 
               padding: '12px', 
               backgroundColor: COLORS.white, 
-              borderRadius: '8px',
-              border: `1px solid ${COLORS.slate[200]}`,
+              borderRadius: UI.radius.md,
+              border: `1px solid ${COLORS.slate[100]}`,
+              boxShadow: '0 6px 16px rgba(17, 24, 39, 0.06)',
               textAlign: 'center',
             }}>
               <div style={{ fontSize: '11px', color: COLORS.slate[500], marginBottom: '4px', fontWeight: 500, textTransform: 'uppercase' }}>News Tone</div>
@@ -1443,8 +1461,9 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             <div style={{ 
               padding: '12px', 
               backgroundColor: COLORS.white, 
-              borderRadius: '8px',
-              border: `1px solid ${COLORS.slate[200]}`,
+              borderRadius: UI.radius.md,
+              border: `1px solid ${COLORS.slate[100]}`,
+              boxShadow: '0 6px 16px rgba(17, 24, 39, 0.06)',
               textAlign: 'center',
             }}>
               <div style={{ fontSize: '11px', color: COLORS.slate[500], marginBottom: '4px', fontWeight: 500, textTransform: 'uppercase' }}>Events</div>
@@ -1465,8 +1484,9 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           <div style={{ 
             padding: '12px', 
             backgroundColor: COLORS.white, 
-            borderRadius: '8px',
-            border: `1px solid ${COLORS.slate[200]}`,
+            borderRadius: UI.radius.md,
+            border: `1px solid ${COLORS.slate[100]}`,
+            boxShadow: '0 6px 16px rgba(17, 24, 39, 0.06)',
             textAlign: 'center',
           }}>
             <div style={{ fontSize: '11px', color: COLORS.slate[500], marginBottom: '4px', fontWeight: 500, textTransform: 'uppercase' }}>US Advisory</div>
@@ -2137,36 +2157,36 @@ export default function TravelSafety() {
     <div style={{
       minHeight: '100vh',
       backgroundColor: COLORS.cream,
-      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
       color: COLORS.navy,
     }}>
       {/* Hero Section - Brand Style */}
       <div style={{
-        backgroundColor: COLORS.navy,
-        padding: '64px 24px 48px',
+        background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
+        padding: '44px 24px 32px',
         textAlign: 'center',
-        borderBottomLeftRadius: '32px',
-        borderBottomRightRadius: '32px',
-        color: COLORS.white,
+        borderBottomLeftRadius: '28px',
+        borderBottomRightRadius: '28px',
+        color: COLORS.navy,
       }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
             <div style={{ 
-              backgroundColor: COLORS.lime, 
-              borderRadius: '12px', 
+              background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+              borderRadius: '14px', 
               padding: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: `0 4px 0 ${COLORS.green}`,
+              boxShadow: UI.shadow.input,
             }}>
-              <Globe size={28} style={{ color: COLORS.navy }} />
+              <Globe size={26} style={{ color: COLORS.white }} />
             </div>
-            <h1 style={{ margin: 0, fontSize: '36px', fontWeight: 800, color: COLORS.white, letterSpacing: '-0.02em' }}>
+            <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.03em' }}>
               Travel Safety Index
             </h1>
           </div>
-          <p style={{ margin: '0 0 32px 0', fontSize: '18px', color: COLORS.lavender, maxWidth: '540px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 24px 0', fontSize: '16px', color: COLORS.slate[600], maxWidth: '540px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
             Real-time safety assessments from official government sources and global news data.
           </p>
           
@@ -2176,15 +2196,15 @@ export default function TravelSafety() {
             maxWidth: '600px',
             margin: '0 auto',
             backgroundColor: COLORS.white,
-            borderRadius: '50px',
+            borderRadius: UI.radius.pill,
             overflow: 'hidden',
-            boxShadow: `0 8px 0 ${COLORS.plum}`,
-            border: `3px solid ${COLORS.navy}`,
+            boxShadow: UI.shadow.input,
+            border: `1px solid ${COLORS.slate[100]}`,
             position: 'relative',
             zIndex: 10,
           }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={20} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: COLORS.navy }} />
+              <Search size={18} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: COLORS.slate[400] }} />
               <input
                 type="text"
                 value={searchQuery}
@@ -2193,12 +2213,12 @@ export default function TravelSafety() {
                 placeholder="Search city or country..."
                 style={{
                   width: '100%',
-                  padding: '18px 16px 18px 52px',
-                  fontSize: '16px',
+                  padding: '16px 16px 16px 48px',
+                  fontSize: '15px',
                   border: 'none',
                   outline: 'none',
                   backgroundColor: 'transparent',
-                  color: COLORS.navy,
+                  color: COLORS.slate[900],
                   fontWeight: 600,
                 }}
               />
@@ -2208,16 +2228,15 @@ export default function TravelSafety() {
               disabled={loading}
               style={{
                 padding: '0 32px',
-                backgroundColor: COLORS.orange,
+                background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
                 color: COLORS.white,
                 border: 'none',
-                borderLeft: `2px solid ${COLORS.navy}`,
+                borderLeft: `1px solid ${COLORS.slate[100]}`,
                 cursor: loading ? 'wait' : 'pointer',
-                fontSize: '16px',
+                fontSize: '14px',
                 fontWeight: 700,
                 transition: 'all 0.2s',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.02em',
               }}
             >
               {loading ? '...' : 'Search'}
@@ -2226,7 +2245,7 @@ export default function TravelSafety() {
           
           {/* Popular Searches */}
           <div style={{ marginTop: '32px' }}>
-            <span style={{ color: COLORS.lavender, fontSize: '12px', marginRight: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trending:</span>
+            <span style={{ color: COLORS.slate[500], fontSize: '12px', marginRight: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trending:</span>
             {popularSearches.map((term) => (
               <button
                 key={term}
@@ -2247,14 +2266,15 @@ export default function TravelSafety() {
                 style={{
                   padding: '6px 14px',
                   margin: '4px',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  color: COLORS.lime,
-                  border: `1px solid ${COLORS.lime}`,
-                  borderRadius: '20px',
+                  backgroundColor: COLORS.white,
+                  color: COLORS.primary,
+                  border: `1px solid ${COLORS.slate[100]}`,
+                  borderRadius: UI.radius.pill,
                   cursor: 'pointer',
                   fontSize: '13px',
                   fontWeight: 600,
                   transition: 'all 0.2s',
+                  boxShadow: '0 6px 14px rgba(17, 24, 39, 0.06)',
                 }}
               >
                 {term}
