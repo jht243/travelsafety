@@ -26380,6 +26380,16 @@ function TravelSafety() {
   const [apiLoaded, setApiLoaded] = (0, import_react3.useState)(false);
   const [showSuggestions, setShowSuggestions] = (0, import_react3.useState)(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = (0, import_react3.useState)(0);
+  const createPlaceholderAdvisory = (countryKey, countryName) => {
+    return {
+      country: countryName,
+      country_code: "",
+      advisory_level: 2,
+      advisory_text: `Official advisory data is not available for ${countryName} right now. This is a placeholder summary \u2014 verify via official sources before traveling.`,
+      date_updated: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+      url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+    };
+  };
   (0, import_react3.useEffect)(() => {
     Promise.all([
       fetchStateAdvisories(),
@@ -26403,15 +26413,13 @@ function TravelSafety() {
     const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
-      const advisory2 = advisories[countryKey];
+      const advisory2 = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
       const ukAdvisory2 = ukAdvisories[countryKey];
       const acled2 = acledData[normalizedQuery] || acledData[countryKey];
       const gdelt2 = gdeltData[normalizedQuery] || gdeltData[countryKey];
-      if (advisory2) {
-        setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: normalizedQuery });
-        setLoading(false);
-        return;
-      }
+      setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: normalizedQuery });
+      setLoading(false);
+      return;
     }
     const advisory = advisories[normalizedQuery];
     const ukAdvisory = ukAdvisories[normalizedQuery];

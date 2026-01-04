@@ -2107,6 +2107,17 @@ export default function TravelSafety() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
 
+  const createPlaceholderAdvisory = (countryKey: string, countryName: string): TravelAdvisory => {
+    return {
+      country: countryName,
+      country_code: '',
+      advisory_level: 2,
+      advisory_text: `Official advisory data is not available for ${countryName} right now. This is a placeholder summary — verify via official sources before traveling.`,
+      date_updated: new Date().toISOString().split('T')[0],
+      url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html',
+    };
+  };
+
   // Load advisories on mount
   useEffect(() => {
     Promise.all([
@@ -2136,16 +2147,15 @@ export default function TravelSafety() {
     const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
-      const advisory = advisories[countryKey];
+      const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
       const ukAdvisory = ukAdvisories[countryKey];
       // Use city-specific ACLED and GDELT data if available, otherwise fall back to country
       const acled = acledData[normalizedQuery] || acledData[countryKey];
       const gdelt = gdeltData[normalizedQuery] || gdeltData[countryKey];
-      if (advisory) {
-        setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: normalizedQuery });
-        setLoading(false);
-        return;
-      }
+
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: normalizedQuery });
+      setLoading(false);
+      return;
     }
     
     // Check if it's a country
