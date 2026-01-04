@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from 'lucide-react';
 
 // Brand Color Palette - Soft Purple Reference Palette
 const COLORS = {
@@ -2097,13 +2097,13 @@ export default function TravelSafety() {
     });
   }, []);
 
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    
+  const searchFor = (rawQuery: string) => {
+    if (!rawQuery.trim()) return;
+
     setLoading(true);
     setError(null);
-    
-    const query = searchQuery.trim().toLowerCase();
+
+    const query = rawQuery.trim().toLowerCase();
     
     // Check if it's a city
     const countryFromCity = CITY_TO_COUNTRY[query];
@@ -2150,6 +2150,56 @@ export default function TravelSafety() {
     setSearchResult(null);
     setLoading(false);
   };
+
+  const handleSearch = () => searchFor(searchQuery);
+
+  const geoInsights = useMemo(() => {
+    type CityInsight = {
+      key: string;
+      name: string;
+      country: string;
+      score: number;
+      momentum: number;
+    };
+
+    const cities: CityInsight[] = Object.entries(CITY_COORDINATES).map(([cityKey, info]) => {
+      const countryKey = info.country.toLowerCase();
+      const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey];
+      const acled = acledData[cityKey] || acledData[countryKey];
+      const gdelt = gdeltData[cityKey] || gdeltData[countryKey];
+
+      const score = advisory ? calculateSafetyScore(advisory, acled, gdelt) : 50;
+
+      let momentum = 0;
+      if (gdelt) {
+        if (gdelt.trend_7day === 'improving') momentum += 2;
+        if (gdelt.trend_7day === 'worsening') momentum -= 2;
+        if (gdelt.tone_score >= 2) momentum += 1;
+        if (gdelt.tone_score <= -3) momentum -= 1;
+        if (gdelt.volume_level === 'spike') momentum -= 1;
+      }
+      if (acled) {
+        if (acled.trend === 'decreasing') momentum += 2;
+        if (acled.trend === 'increasing') momentum -= 2;
+        if (acled.events_last_30_days <= 5) momentum += 1;
+        if (acled.events_last_30_days >= 30) momentum -= 1;
+      }
+
+      return {
+        key: cityKey,
+        name: info.name,
+        country: info.country,
+        score,
+        momentum,
+      };
+    });
+
+    const safest = [...cities].sort((a, b) => b.score - a.score).slice(0, 5);
+    const dangerous = [...cities].sort((a, b) => a.score - b.score).slice(0, 5);
+    const movers = [...cities].sort((a, b) => b.momentum - a.momentum).slice(0, 5);
+
+    return { safest, dangerous, movers };
+  }, [acledData, advisories, gdeltData]);
 
   const popularSearches = ['Colombia', 'Mexico', 'Japan', 'France', 'Thailand', 'Italy'];
 
@@ -2251,17 +2301,7 @@ export default function TravelSafety() {
                 key={term}
                 onClick={() => {
                   setSearchQuery(term);
-                  setTimeout(() => {
-                    setSearchQuery(term);
-                    const query = term.toLowerCase();
-                    const advisory = advisories[query];
-                    const ukAdvisory = ukAdvisories[query];
-                    const acled = acledData[query];
-                    const gdelt = gdeltData[query];
-                    if (advisory) {
-                      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
-                    }
-                  }, 0);
+                  searchFor(term);
                 }}
                 style={{
                   padding: '6px 14px',
@@ -2318,14 +2358,156 @@ export default function TravelSafety() {
         )}
         
         {!searchResult && !error && (
-          <div style={{ textAlign: 'center', color: COLORS.slate[400], maxWidth: '480px', margin: '64px auto' }}>
-            <Shield size={48} style={{ marginBottom: '24px', opacity: 0.2 }} />
-            <h2 style={{ margin: '0 0 12px 0', fontSize: '20px', fontWeight: 600, color: COLORS.slate[900] }}>
-              Search for a Destination
-            </h2>
-            <p style={{ margin: 0, lineHeight: 1.6, fontSize: '15px', color: COLORS.slate[500] }}>
-              Enter a city or country name above to view comprehensive safety data, news sentiment, and travel advisories.
-            </p>
+          <div style={{ maxWidth: '880px', margin: '32px auto 0' }}>
+            <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: UI.radius.pill, backgroundColor: COLORS.white, border: `1px solid ${COLORS.slate[100]}`, boxShadow: '0 10px 24px rgba(17, 24, 39, 0.06)' }}>
+                <Shield size={18} style={{ color: COLORS.primary }} />
+                <span style={{ fontSize: '12px', fontWeight: 700, color: COLORS.slate[700], textTransform: 'uppercase', letterSpacing: '0.08em' }}>Geo Insights</span>
+              </div>
+              <div style={{ marginTop: '10px', fontSize: '14px', color: COLORS.slate[500], lineHeight: 1.6 }}>
+                Learn from recent advisories and local signals — click any city to explore.
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+              {/* Safest Cities */}
+              <div style={{ backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Safest Cities</div>
+                  <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.safe.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TrendingUp size={16} style={{ color: COLORS.safe.text }} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {geoInsights.safest.map((c) => {
+                    const s = getScoreConfig(c.score);
+                    return (
+                      <button
+                        key={c.key}
+                        onClick={() => {
+                          setSearchQuery(c.key);
+                          searchFor(c.key);
+                        }}
+                        style={{
+                          width: '100%',
+                          backgroundColor: COLORS.slate[50],
+                          border: `1px solid ${COLORS.slate[100]}`,
+                          borderRadius: UI.radius.md,
+                          padding: '10px 10px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                        }}
+                      >
+                        <div style={{ textAlign: 'left', minWidth: 0 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                          <div style={{ fontSize: '11px', color: COLORS.slate[500], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.country}</div>
+                        </div>
+                        <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: '12px', fontWeight: 800 }}>
+                          {c.score}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Most Dangerous Cities */}
+              <div style={{ backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Most Dangerous</div>
+                  <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.danger.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TrendingDown size={16} style={{ color: COLORS.danger.text }} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {geoInsights.dangerous.map((c) => {
+                    const s = getScoreConfig(c.score);
+                    return (
+                      <button
+                        key={c.key}
+                        onClick={() => {
+                          setSearchQuery(c.key);
+                          searchFor(c.key);
+                        }}
+                        style={{
+                          width: '100%',
+                          backgroundColor: COLORS.slate[50],
+                          border: `1px solid ${COLORS.slate[100]}`,
+                          borderRadius: UI.radius.md,
+                          padding: '10px 10px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                        }}
+                      >
+                        <div style={{ textAlign: 'left', minWidth: 0 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                          <div style={{ fontSize: '11px', color: COLORS.slate[500], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.country}</div>
+                        </div>
+                        <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: '12px', fontWeight: 800 }}>
+                          {c.score}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Biggest Improvements */}
+              <div style={{ backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Most Improved (7d)</div>
+                  <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.lavender, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TrendingUp size={16} style={{ color: COLORS.primary }} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {geoInsights.movers.map((c) => {
+                    const s = getScoreConfig(c.score);
+                    const isUp = c.momentum >= 1;
+                    return (
+                      <button
+                        key={c.key}
+                        onClick={() => {
+                          setSearchQuery(c.key);
+                          searchFor(c.key);
+                        }}
+                        style={{
+                          width: '100%',
+                          backgroundColor: COLORS.slate[50],
+                          border: `1px solid ${COLORS.slate[100]}`,
+                          borderRadius: UI.radius.md,
+                          padding: '10px 10px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                        }}
+                      >
+                        <div style={{ textAlign: 'left', minWidth: 0 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                          <div style={{ fontSize: '11px', color: COLORS.slate[500], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.country}</div>
+                        </div>
+                        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ padding: '6px 10px', borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: '12px', fontWeight: 800 }}>
+                            {c.score}
+                          </div>
+                          <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: isUp ? COLORS.safe.bg : COLORS.warning.bg, border: `1px solid ${isUp ? COLORS.safe.border : COLORS.warning.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {isUp ? <TrendingUp size={14} style={{ color: isUp ? COLORS.safe.text : COLORS.warning.text }} /> : <TrendingDown size={14} style={{ color: COLORS.warning.text }} />}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

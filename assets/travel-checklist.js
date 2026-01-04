@@ -24611,8 +24611,22 @@ var __iconNode11 = [
 ];
 var Shield = createLucideIcon("shield", __iconNode11);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-down.js
 var __iconNode12 = [
+  ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
+  ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
+];
+var TrendingDown = createLucideIcon("trending-down", __iconNode12);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-up.js
+var __iconNode13 = [
+  ["path", { d: "M16 7h6v6", key: "box55l" }],
+  ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
+];
+var TrendingUp = createLucideIcon("trending-up", __iconNode13);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
+var __iconNode14 = [
   [
     "path",
     {
@@ -24623,7 +24637,7 @@ var __iconNode12 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-var TriangleAlert = createLucideIcon("triangle-alert", __iconNode12);
+var TriangleAlert = createLucideIcon("triangle-alert", __iconNode14);
 
 // src/TravelSafety.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
@@ -26362,11 +26376,11 @@ function TravelSafety() {
       setApiLoaded(true);
     });
   }, []);
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
+  const searchFor = (rawQuery) => {
+    if (!rawQuery.trim()) return;
     setLoading(true);
     setError(null);
-    const query = searchQuery.trim().toLowerCase();
+    const query = rawQuery.trim().toLowerCase();
     const countryFromCity = CITY_TO_COUNTRY[query];
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
@@ -26404,6 +26418,41 @@ function TravelSafety() {
     setSearchResult(null);
     setLoading(false);
   };
+  const handleSearch = () => searchFor(searchQuery);
+  const geoInsights = (0, import_react3.useMemo)(() => {
+    const cities = Object.entries(CITY_COORDINATES).map(([cityKey, info]) => {
+      const countryKey = info.country.toLowerCase();
+      const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey];
+      const acled = acledData[cityKey] || acledData[countryKey];
+      const gdelt = gdeltData[cityKey] || gdeltData[countryKey];
+      const score = advisory ? calculateSafetyScore(advisory, acled, gdelt) : 50;
+      let momentum = 0;
+      if (gdelt) {
+        if (gdelt.trend_7day === "improving") momentum += 2;
+        if (gdelt.trend_7day === "worsening") momentum -= 2;
+        if (gdelt.tone_score >= 2) momentum += 1;
+        if (gdelt.tone_score <= -3) momentum -= 1;
+        if (gdelt.volume_level === "spike") momentum -= 1;
+      }
+      if (acled) {
+        if (acled.trend === "decreasing") momentum += 2;
+        if (acled.trend === "increasing") momentum -= 2;
+        if (acled.events_last_30_days <= 5) momentum += 1;
+        if (acled.events_last_30_days >= 30) momentum -= 1;
+      }
+      return {
+        key: cityKey,
+        name: info.name,
+        country: info.country,
+        score,
+        momentum
+      };
+    });
+    const safest = [...cities].sort((a, b) => b.score - a.score).slice(0, 5);
+    const dangerous = [...cities].sort((a, b) => a.score - b.score).slice(0, 5);
+    const movers = [...cities].sort((a, b) => b.momentum - a.momentum).slice(0, 5);
+    return { safest, dangerous, movers };
+  }, [acledData, advisories, gdeltData]);
   const popularSearches = ["Colombia", "Mexico", "Japan", "France", "Thailand", "Italy"];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     minHeight: "100vh",
@@ -26495,17 +26544,7 @@ function TravelSafety() {
           {
             onClick: () => {
               setSearchQuery(term);
-              setTimeout(() => {
-                setSearchQuery(term);
-                const query = term.toLowerCase();
-                const advisory = advisories[query];
-                const ukAdvisory = ukAdvisories[query];
-                const acled = acledData[query];
-                const gdelt = gdeltData[query];
-                if (advisory) {
-                  setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
-                }
-              }, 0);
+              searchFor(term);
             },
             style: {
               padding: "6px 14px",
@@ -26555,10 +26594,134 @@ function TravelSafety() {
           isCity: searchResult.isCity
         }
       ),
-      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", color: COLORS.slate[400], maxWidth: "480px", margin: "64px auto" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 48, style: { marginBottom: "24px", opacity: 0.2 } }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { style: { margin: "0 0 12px 0", fontSize: "20px", fontWeight: 600, color: COLORS.slate[900] }, children: "Search for a Destination" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: 0, lineHeight: 1.6, fontSize: "15px", color: COLORS.slate[500] }, children: "Enter a city or country name above to view comprehensive safety data, news sentiment, and travel advisories." })
+      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "880px", margin: "32px auto 0" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", marginBottom: "18px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "inline-flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderRadius: UI.radius.pill, backgroundColor: COLORS.white, border: `1px solid ${COLORS.slate[100]}`, boxShadow: "0 10px 24px rgba(17, 24, 39, 0.06)" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 18, style: { color: COLORS.primary } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "12px", fontWeight: 700, color: COLORS.slate[700], textTransform: "uppercase", letterSpacing: "0.08em" }, children: "Geo Insights" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: "10px", fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.6 }, children: "Learn from recent advisories and local signals \u2014 click any city to explore." })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: "Safest Cities" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: COLORS.safe.bg, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, style: { color: COLORS.safe.text } }) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: geoInsights.safest.map((c) => {
+              const s = getScoreConfig(c.score);
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    searchFor(c.key);
+                  },
+                  style: {
+                    width: "100%",
+                    backgroundColor: COLORS.slate[50],
+                    border: `1px solid ${COLORS.slate[100]}`,
+                    borderRadius: UI.radius.md,
+                    padding: "10px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left", minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.name }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.country })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, padding: "6px 10px", borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: "12px", fontWeight: 800 }, children: c.score })
+                  ]
+                },
+                c.key
+              );
+            }) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: "Most Dangerous" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: COLORS.danger.bg, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 16, style: { color: COLORS.danger.text } }) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: geoInsights.dangerous.map((c) => {
+              const s = getScoreConfig(c.score);
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    searchFor(c.key);
+                  },
+                  style: {
+                    width: "100%",
+                    backgroundColor: COLORS.slate[50],
+                    border: `1px solid ${COLORS.slate[100]}`,
+                    borderRadius: UI.radius.md,
+                    padding: "10px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left", minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.name }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.country })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, padding: "6px 10px", borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: "12px", fontWeight: 800 }, children: c.score })
+                  ]
+                },
+                c.key
+              );
+            }) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: "Most Improved (7d)" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: COLORS.lavender, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, style: { color: COLORS.primary } }) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: geoInsights.movers.map((c) => {
+              const s = getScoreConfig(c.score);
+              const isUp = c.momentum >= 1;
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    searchFor(c.key);
+                  },
+                  style: {
+                    width: "100%",
+                    backgroundColor: COLORS.slate[50],
+                    border: `1px solid ${COLORS.slate[100]}`,
+                    borderRadius: UI.radius.md,
+                    padding: "10px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left", minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.name }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.country })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "6px 10px", borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: "12px", fontWeight: 800 }, children: c.score }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: isUp ? COLORS.safe.bg : COLORS.warning.bg, border: `1px solid ${isUp ? COLORS.safe.border : COLORS.warning.border}`, display: "flex", alignItems: "center", justifyContent: "center" }, children: isUp ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 14, style: { color: isUp ? COLORS.safe.text : COLORS.warning.text } }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 14, style: { color: COLORS.warning.text } }) })
+                    ] })
+                  ]
+                },
+                c.key
+              );
+            }) })
+          ] })
+        ] })
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
@@ -26835,6 +26998,22 @@ lucide-react/dist/esm/icons/search.js:
    *)
 
 lucide-react/dist/esm/icons/shield.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trending-down.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trending-up.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
