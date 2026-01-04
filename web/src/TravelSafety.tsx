@@ -1491,47 +1491,54 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       maxWidth: '600px',
       margin: '0 auto',
     }}>
-      {/* Back/Home Button */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 14px',
-            marginBottom: '16px',
-            backgroundColor: COLORS.slate[50],
-            color: COLORS.slate[600],
-            border: `1px solid ${COLORS.slate[200]}`,
-            borderRadius: UI.radius.pill,
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-          }}
-        >
-          <ChevronUp size={16} style={{ transform: 'rotate(-90deg)' }} />
-          Back to Home
-        </button>
-      )}
-      
-      {/* MAIN VIEW - Always Visible */}
-      {/* Header with Location */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+      {/* Compact Header with Home button and Location on same line */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        marginBottom: '16px',
+        gap: '12px',
+      }}>
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              backgroundColor: COLORS.slate[50],
+              color: COLORS.slate[600],
+              border: `1px solid ${COLORS.slate[200]}`,
+              borderRadius: UI.radius.pill,
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              flexShrink: 0,
+            }}
+          >
+            <ChevronUp size={16} style={{ transform: 'rotate(-90deg)' }} />
+            Home
+          </button>
+        )}
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: onBack ? 'center' : 'flex-start' }}>
           <MapPin size={20} style={{ color: COLORS.slate[400] }} />
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: COLORS.slate[900], letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 700, color: COLORS.slate[900], letterSpacing: '-0.02em' }}>
             {isCity ? (
               <>
                 <span style={{ textTransform: 'capitalize' }}>{searchTerm}</span>
-                <span style={{ color: COLORS.slate[500], fontWeight: 400, fontSize: '20px' }}>, {advisory.country}</span>
+                <span style={{ color: COLORS.slate[500], fontWeight: 400, fontSize: '18px' }}>, {advisory.country}</span>
               </>
             ) : (
               advisory.country
             )}
           </h1>
         </div>
+        
+        {/* Spacer to balance layout when home button is present */}
+        {onBack && <div style={{ width: '80px', flexShrink: 0 }} />}
       </div>
       
       {/* COMPACT SAFETY SCORE - Clean Minimal Layout */}
@@ -2475,7 +2482,8 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
       color: COLORS.navy,
     }}>
-      {/* Hero Section - Brand Style */}
+      {/* Hero Section - Only show when no search result */}
+      {!searchResult && (
       <div style={{
         background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
         padding: '44px 24px 32px',
@@ -2687,6 +2695,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
           </div>
         </div>
       </div>
+      )}
       
       {/* Results Section */}
       <div style={{ padding: '24px 24px 48px', maxWidth: '1000px', margin: '0 auto' }}>

@@ -25896,41 +25896,50 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
     maxWidth: "600px",
     margin: "0 auto"
   }, children: [
-    onBack && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-      "button",
-      {
-        onClick: onBack,
-        style: {
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "8px 14px",
-          marginBottom: "16px",
-          backgroundColor: COLORS.slate[50],
-          color: COLORS.slate[600],
-          border: `1px solid ${COLORS.slate[200]}`,
-          borderRadius: UI.radius.pill,
-          fontSize: "13px",
-          fontWeight: 600,
-          cursor: "pointer",
-          transition: "all 0.2s"
-        },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16, style: { transform: "rotate(-90deg)" } }),
-          "Back to Home"
-        ]
-      }
-    ),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, style: { color: COLORS.slate[400] } }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "24px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500], fontWeight: 400, fontSize: "20px" }, children: [
-          ", ",
-          advisory.country
-        ] })
-      ] }) : advisory.country })
-    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: "16px",
+      gap: "12px"
+    }, children: [
+      onBack && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "button",
+        {
+          onClick: onBack,
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "8px 14px",
+            backgroundColor: COLORS.slate[50],
+            color: COLORS.slate[600],
+            border: `1px solid ${COLORS.slate[200]}`,
+            borderRadius: UI.radius.pill,
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.2s",
+            flexShrink: 0
+          },
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16, style: { transform: "rotate(-90deg)" } }),
+            "Home"
+          ]
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", flex: 1, justifyContent: onBack ? "center" : "flex-start" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, style: { color: COLORS.slate[400] } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "22px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500], fontWeight: 400, fontSize: "18px" }, children: [
+            ", ",
+            advisory.country
+          ] })
+        ] }) : advisory.country })
+      ] }),
+      onBack && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "80px", flexShrink: 0 } })
+    ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
       display: "flex",
       alignItems: "center",
@@ -26733,7 +26742,7 @@ function TravelSafety({ initialData: initialData2 }) {
     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
     color: COLORS.navy
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+    !searchResult && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
       background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
       padding: "44px 24px 32px",
       textAlign: "center",
