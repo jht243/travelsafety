@@ -238,21 +238,15 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
     "openai/widgetPrefersBorder": true,
     "openai/widgetCSP": {
       connect_domains: [
-        "https://is-it-safe.onrender.com",
+        "https://travelsafety-un15.onrender.com",
         "https://nominatim.openstreetmap.org",
         "https://api.open-meteo.com",
         "https://geocoding-api.open-meteo.com",
-        "https://fonts.googleapis.com",
-        "https://fonts.gstatic.com"
+        "http://localhost:8001"
       ],
-      resource_domains: [
-        "https://is-it-safe.onrender.com",
-        "https://fonts.googleapis.com",
-        "https://fonts.gstatic.com",
-        "https://*.oaistatic.com"
-      ],
+      resource_domains: [],
     },
-    "openai/widgetDomain": "https://web-sandbox.oaiusercontent.com",
+    "openai/widgetDomain": "https://chatgpt.com",
     "openai/toolInvocation/invoking": widget.invoking,
     "openai/toolInvocation/invoked": widget.invoked,
     "openai/widgetAccessible": true,
@@ -337,14 +331,12 @@ const tools: Tool[] = widgets.map((widget) => ({
   securitySchemes: [{ type: "noauth" }],
   _meta: {
     ...widgetMeta(widget),
-    "openai/visibility": "public",
     securitySchemes: [{ type: "noauth" }],
   },
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
-    idempotentHint: true,
-    openWorldHint: true,
+    openWorldHint: false,
   },
 }));
 
@@ -608,9 +600,8 @@ function createTravelSafetyServer(): Server {
           }
         } catch {}
 
-        // Return minimal content text for accessibility, with structuredContent for widget hydration
         return {
-          content: [{ type: "text", text: "Search any city or country to view travel safety data." }],
+          content: [],
           structuredContent: structured,
           _meta: metaForReturn,
         };
