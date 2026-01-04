@@ -19,6 +19,8 @@
         background-color: #FAFAFA;
         color: #1A1A1A;
         -webkit-font-smoothing: antialiased;
+        touch-action: auto;
+        overscroll-behavior: auto;
       }
       #is-it-safe-root {
         display: flex;
@@ -28,6 +30,9 @@
         width: 100%;
         padding: 20px;
         box-sizing: border-box;
+        touch-action: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: auto;
       }
       @media print {
         .no-print { display: none !important; }
