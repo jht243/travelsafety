@@ -24716,20 +24716,98 @@ var CITY_COORDINATES = {
   "caracas": { lat: 10.4806, lng: -66.9036, name: "Caracas", country: "Venezuela" },
   "panama city": { lat: 8.9824, lng: -79.5199, name: "Panama City", country: "Panama" },
   "quito": { lat: -0.1807, lng: -78.4678, name: "Quito", country: "Ecuador" },
+  "lima": { lat: -12.0464, lng: -77.0428, name: "Lima", country: "Peru" },
+  "cusco": { lat: -13.532, lng: -71.9675, name: "Cusco", country: "Peru" },
+  "santiago": { lat: -33.4489, lng: -70.6693, name: "Santiago", country: "Chile" },
+  "buenos aires": { lat: -34.6037, lng: -58.3816, name: "Buenos Aires", country: "Argentina" },
+  "rio de janeiro": { lat: -22.9068, lng: -43.1729, name: "Rio de Janeiro", country: "Brazil" },
+  "sao paulo": { lat: -23.5505, lng: -46.6333, name: "S\xE3o Paulo", country: "Brazil" },
   "mexico city": { lat: 19.4326, lng: -99.1332, name: "Mexico City", country: "Mexico" },
   "cancun": { lat: 21.1619, lng: -86.8515, name: "Canc\xFAn", country: "Mexico" },
   "cabo": { lat: 22.8905, lng: -109.9167, name: "Los Cabos", country: "Mexico" },
   "guadalajara": { lat: 20.6597, lng: -103.3496, name: "Guadalajara", country: "Mexico" },
+  "monterrey": { lat: 25.6866, lng: -100.3161, name: "Monterrey", country: "Mexico" },
+  "tulum": { lat: 20.2114, lng: -87.4654, name: "Tulum", country: "Mexico" },
   "paris": { lat: 48.8566, lng: 2.3522, name: "Paris", country: "France" },
+  "london": { lat: 51.5074, lng: -0.1278, name: "London", country: "United Kingdom" },
+  "dublin": { lat: 53.3498, lng: -6.2603, name: "Dublin", country: "Ireland" },
+  "edinburgh": { lat: 55.9533, lng: -3.1883, name: "Edinburgh", country: "United Kingdom" },
   "barcelona": { lat: 41.3851, lng: 2.1734, name: "Barcelona", country: "Spain" },
   "madrid": { lat: 40.4168, lng: -3.7038, name: "Madrid", country: "Spain" },
+  "lisbon": { lat: 38.7223, lng: -9.1393, name: "Lisbon", country: "Portugal" },
+  "porto": { lat: 41.1579, lng: -8.6291, name: "Porto", country: "Portugal" },
+  "amsterdam": { lat: 52.3676, lng: 4.9041, name: "Amsterdam", country: "Netherlands" },
+  "brussels": { lat: 50.8503, lng: 4.3517, name: "Brussels", country: "Belgium" },
+  "berlin": { lat: 52.52, lng: 13.405, name: "Berlin", country: "Germany" },
+  "munich": { lat: 48.1351, lng: 11.582, name: "Munich", country: "Germany" },
+  "prague": { lat: 50.0755, lng: 14.4378, name: "Prague", country: "Czech Republic" },
+  "vienna": { lat: 48.2082, lng: 16.3738, name: "Vienna", country: "Austria" },
+  "budapest": { lat: 47.4979, lng: 19.0402, name: "Budapest", country: "Hungary" },
+  "warsaw": { lat: 52.2297, lng: 21.0122, name: "Warsaw", country: "Poland" },
+  "krakow": { lat: 50.0647, lng: 19.945, name: "Krak\xF3w", country: "Poland" },
+  "copenhagen": { lat: 55.6761, lng: 12.5683, name: "Copenhagen", country: "Denmark" },
+  "stockholm": { lat: 59.3293, lng: 18.0686, name: "Stockholm", country: "Sweden" },
+  "oslo": { lat: 59.9139, lng: 10.7522, name: "Oslo", country: "Norway" },
+  "helsinki": { lat: 60.1699, lng: 24.9384, name: "Helsinki", country: "Finland" },
+  "reykjavik": { lat: 64.1466, lng: -21.9426, name: "Reykjav\xEDk", country: "Iceland" },
+  "zurich": { lat: 47.3769, lng: 8.5417, name: "Z\xFCrich", country: "Switzerland" },
+  "geneva": { lat: 46.2044, lng: 6.1432, name: "Geneva", country: "Switzerland" },
   "rome": { lat: 41.9028, lng: 12.4964, name: "Rome", country: "Italy" },
+  "milan": { lat: 45.4642, lng: 9.19, name: "Milan", country: "Italy" },
+  "florence": { lat: 43.7696, lng: 11.2558, name: "Florence", country: "Italy" },
+  "venice": { lat: 45.4408, lng: 12.3155, name: "Venice", country: "Italy" },
   "tokyo": { lat: 35.6762, lng: 139.6503, name: "Tokyo", country: "Japan" },
   "osaka": { lat: 34.6937, lng: 135.5023, name: "Osaka", country: "Japan" },
+  "kyoto": { lat: 35.0116, lng: 135.7681, name: "Kyoto", country: "Japan" },
+  "seoul": { lat: 37.5665, lng: 126.978, name: "Seoul", country: "Korea, South" },
+  "busan": { lat: 35.1796, lng: 129.0756, name: "Busan", country: "Korea, South" },
+  "taipei": { lat: 25.033, lng: 121.5654, name: "Taipei", country: "Taiwan" },
+  "hong kong": { lat: 22.3193, lng: 114.1694, name: "Hong Kong", country: "Hong Kong" },
+  "singapore": { lat: 1.3521, lng: 103.8198, name: "Singapore", country: "Singapore" },
+  "kuala lumpur": { lat: 3.139, lng: 101.6869, name: "Kuala Lumpur", country: "Malaysia" },
+  "manila": { lat: 14.5995, lng: 120.9842, name: "Manila", country: "Philippines" },
+  "jakarta": { lat: -6.2088, lng: 106.8456, name: "Jakarta", country: "Indonesia" },
+  "denpasar": { lat: -8.6705, lng: 115.2126, name: "Denpasar (Bali)", country: "Indonesia" },
+  "hanoi": { lat: 21.0278, lng: 105.8342, name: "Hanoi", country: "Vietnam" },
+  "ho chi minh city": { lat: 10.8231, lng: 106.6297, name: "Ho Chi Minh City", country: "Vietnam" },
+  "beijing": { lat: 39.9042, lng: 116.4074, name: "Beijing", country: "China" },
+  "shanghai": { lat: 31.2304, lng: 121.4737, name: "Shanghai", country: "China" },
+  "delhi": { lat: 28.6139, lng: 77.209, name: "Delhi", country: "India" },
+  "mumbai": { lat: 19.076, lng: 72.8777, name: "Mumbai", country: "India" },
   "bangkok": { lat: 13.7563, lng: 100.5018, name: "Bangkok", country: "Thailand" },
   "phuket": { lat: 7.8804, lng: 98.3923, name: "Phuket", country: "Thailand" },
-  "rio de janeiro": { lat: -22.9068, lng: -43.1729, name: "Rio de Janeiro", country: "Brazil" },
-  "sao paulo": { lat: -23.5505, lng: -46.6333, name: "S\xE3o Paulo", country: "Brazil" }
+  "chiang mai": { lat: 18.7883, lng: 98.9853, name: "Chiang Mai", country: "Thailand" },
+  "dubai": { lat: 25.2048, lng: 55.2708, name: "Dubai", country: "United Arab Emirates" },
+  "abu dhabi": { lat: 24.4539, lng: 54.3773, name: "Abu Dhabi", country: "United Arab Emirates" },
+  "doha": { lat: 25.2854, lng: 51.531, name: "Doha", country: "Qatar" },
+  "istanbul": { lat: 41.0082, lng: 28.9784, name: "Istanbul", country: "Turkey" },
+  "athens": { lat: 37.9838, lng: 23.7275, name: "Athens", country: "Greece" },
+  "cairo": { lat: 30.0444, lng: 31.2357, name: "Cairo", country: "Egypt" },
+  "marrakech": { lat: 31.6295, lng: -7.9811, name: "Marrakech", country: "Morocco" },
+  "casablanca": { lat: 33.5731, lng: -7.5898, name: "Casablanca", country: "Morocco" },
+  "nairobi": { lat: -1.2921, lng: 36.8219, name: "Nairobi", country: "Kenya" },
+  "cape town": { lat: -33.9249, lng: 18.4241, name: "Cape Town", country: "South Africa" },
+  "johannesburg": { lat: -26.2041, lng: 28.0473, name: "Johannesburg", country: "South Africa" },
+  "new york": { lat: 40.7128, lng: -74.006, name: "New York", country: "United States" },
+  "los angeles": { lat: 34.0522, lng: -118.2437, name: "Los Angeles", country: "United States" },
+  "chicago": { lat: 41.8781, lng: -87.6298, name: "Chicago", country: "United States" },
+  "san francisco": { lat: 37.7749, lng: -122.4194, name: "San Francisco", country: "United States" },
+  "miami": { lat: 25.7617, lng: -80.1918, name: "Miami", country: "United States" },
+  "washington dc": { lat: 38.9072, lng: -77.0369, name: "Washington, DC", country: "United States" },
+  "toronto": { lat: 43.6532, lng: -79.3832, name: "Toronto", country: "Canada" },
+  "vancouver": { lat: 49.2827, lng: -123.1207, name: "Vancouver", country: "Canada" }
+};
+var CITY_ALIASES = {
+  "nyc": "new york",
+  "new york city": "new york",
+  "la": "los angeles",
+  "l.a.": "los angeles",
+  "sf": "san francisco",
+  "san fran": "san francisco",
+  "dc": "washington dc",
+  "washington": "washington dc",
+  "saigon": "ho chi minh city",
+  "bali": "denpasar"
 };
 function getDistanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -24753,80 +24831,10 @@ function getNearbyCities(cityKey, maxDistance = 500) {
   }).slice(0, 4).map(([key]) => key);
 }
 var CITY_TO_COUNTRY = {
-  "medellin": "Colombia",
-  "bogota": "Colombia",
-  "cartagena": "Colombia",
-  "cali": "Colombia",
-  "paris": "France",
-  "london": "United Kingdom",
-  "tokyo": "Japan",
-  "osaka": "Japan",
-  "kyoto": "Japan",
-  "rome": "Italy",
-  "milan": "Italy",
-  "florence": "Italy",
-  "venice": "Italy",
-  "barcelona": "Spain",
-  "madrid": "Spain",
-  "berlin": "Germany",
-  "munich": "Germany",
-  "amsterdam": "Netherlands",
-  "bangkok": "Thailand",
-  "phuket": "Thailand",
-  "chiang mai": "Thailand",
-  "mexico city": "Mexico",
-  "cancun": "Mexico",
-  "cabo": "Mexico",
-  "tulum": "Mexico",
-  "rio de janeiro": "Brazil",
-  "sao paulo": "Brazil",
-  "buenos aires": "Argentina",
-  "lima": "Peru",
-  "cusco": "Peru",
+  ...Object.fromEntries(Object.entries(CITY_COORDINATES).map(([key, info]) => [key, info.country])),
+  "santorini": "Greece",
   "sydney": "Australia",
   "melbourne": "Australia",
-  "dubai": "United Arab Emirates",
-  "abu dhabi": "United Arab Emirates",
-  "singapore": "Singapore",
-  "hong kong": "Hong Kong",
-  "seoul": "Korea, South",
-  "busan": "Korea, South",
-  "taipei": "Taiwan",
-  "hanoi": "Vietnam",
-  "ho chi minh": "Vietnam",
-  "saigon": "Vietnam",
-  "bali": "Indonesia",
-  "jakarta": "Indonesia",
-  "cairo": "Egypt",
-  "marrakech": "Morocco",
-  "cape town": "South Africa",
-  "johannesburg": "South Africa",
-  "nairobi": "Kenya",
-  "istanbul": "Turkey",
-  "athens": "Greece",
-  "santorini": "Greece",
-  "lisbon": "Portugal",
-  "porto": "Portugal",
-  "dublin": "Ireland",
-  "edinburgh": "United Kingdom",
-  "prague": "Czech Republic",
-  "vienna": "Austria",
-  "zurich": "Switzerland",
-  "geneva": "Switzerland",
-  "brussels": "Belgium",
-  "copenhagen": "Denmark",
-  "stockholm": "Sweden",
-  "oslo": "Norway",
-  "helsinki": "Finland",
-  "reykjavik": "Iceland",
-  "warsaw": "Poland",
-  "krakow": "Poland",
-  "budapest": "Hungary",
-  "moscow": "Russia",
-  "st petersburg": "Russia",
-  "tel aviv": "Israel",
-  "jerusalem": "Israel",
-  "new delhi": "India",
   "mumbai": "India",
   "goa": "India",
   "kathmandu": "Nepal",
@@ -26362,6 +26370,8 @@ function TravelSafety() {
   const [loading, setLoading] = (0, import_react3.useState)(false);
   const [error, setError] = (0, import_react3.useState)(null);
   const [apiLoaded, setApiLoaded] = (0, import_react3.useState)(false);
+  const [showSuggestions, setShowSuggestions] = (0, import_react3.useState)(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = (0, import_react3.useState)(0);
   (0, import_react3.useEffect)(() => {
     Promise.all([
       fetchStateAdvisories(),
@@ -26381,25 +26391,26 @@ function TravelSafety() {
     setLoading(true);
     setError(null);
     const query = rawQuery.trim().toLowerCase();
-    const countryFromCity = CITY_TO_COUNTRY[query];
+    const normalizedQuery = CITY_ALIASES[query] || query;
+    const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
       const advisory2 = advisories[countryKey];
       const ukAdvisory2 = ukAdvisories[countryKey];
-      const acled2 = acledData[query] || acledData[countryKey];
-      const gdelt2 = gdeltData[query] || gdeltData[countryKey];
+      const acled2 = acledData[normalizedQuery] || acledData[countryKey];
+      const gdelt2 = gdeltData[normalizedQuery] || gdeltData[countryKey];
       if (advisory2) {
-        setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: query });
+        setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: normalizedQuery });
         setLoading(false);
         return;
       }
     }
-    const advisory = advisories[query];
-    const ukAdvisory = ukAdvisories[query];
-    const acled = acledData[query];
-    const gdelt = gdeltData[query];
+    const advisory = advisories[normalizedQuery];
+    const ukAdvisory = ukAdvisories[normalizedQuery];
+    const acled = acledData[normalizedQuery];
+    const gdelt = gdeltData[normalizedQuery];
     if (advisory) {
-      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: normalizedQuery });
       setLoading(false);
       return;
     }
@@ -26414,7 +26425,7 @@ function TravelSafety() {
       setLoading(false);
       return;
     }
-    setError(`No travel advisory found for "${searchQuery}". Try searching for a country name like "Colombia" or a major city like "Medellin".`);
+    setError(`No travel advisory found for "${rawQuery}". Try searching for a country name like "Colombia" or a major city like "Medellin".`);
     setSearchResult(null);
     setLoading(false);
   };
@@ -26453,6 +26464,47 @@ function TravelSafety() {
     const movers = [...cities].sort((a, b) => b.momentum - a.momentum).slice(0, 5);
     return { safest, dangerous, movers };
   }, [acledData, advisories, gdeltData]);
+  const citySuggestions = (0, import_react3.useMemo)(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    const entries = Object.entries(CITY_COORDINATES).map(([key, info]) => ({
+      key,
+      label: info.name,
+      sublabel: info.country,
+      canonicalKey: key
+    }));
+    const aliasEntries = Object.entries(CITY_ALIASES).filter(([alias, canonical]) => {
+      if (!CITY_COORDINATES[canonical]) return false;
+      const info = CITY_COORDINATES[canonical];
+      return alias.includes(q) || canonical.includes(q) || info.name.toLowerCase().includes(q);
+    }).map(([alias, canonical]) => {
+      const info = CITY_COORDINATES[canonical];
+      return {
+        key: alias,
+        label: info.name,
+        sublabel: info.country,
+        canonicalKey: canonical
+      };
+    });
+    const all = [...aliasEntries, ...entries].filter((c) => {
+      const name = c.label.toLowerCase();
+      const country = c.sublabel.toLowerCase();
+      return c.key.includes(q) || c.canonicalKey.includes(q) || name.includes(q) || country.includes(q);
+    });
+    const uniq = /* @__PURE__ */ new Map();
+    for (const c of all) {
+      if (!uniq.has(c.canonicalKey)) uniq.set(c.canonicalKey, c);
+    }
+    const scored = [...uniq.values()].map((c) => {
+      const name = c.label.toLowerCase();
+      const key = c.key.toLowerCase();
+      const canonical = c.canonicalKey.toLowerCase();
+      const starts = key.startsWith(q) || canonical.startsWith(q) || name.startsWith(q) ? 0 : 1;
+      const exact = key === q || canonical === q ? -1 : 0;
+      return { c, s: exact + starts };
+    });
+    return scored.sort((a, b) => a.s - b.s || a.c.label.localeCompare(b.c.label)).slice(0, 8).map(({ c }) => c);
+  }, [searchQuery]);
   const popularSearches = ["Colombia", "Mexico", "Japan", "France", "Thailand", "Italy"];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     minHeight: "100vh",
@@ -26500,8 +26552,46 @@ function TravelSafety() {
             {
               type: "text",
               value: searchQuery,
-              onChange: (e) => setSearchQuery(e.target.value),
-              onKeyDown: (e) => e.key === "Enter" && handleSearch(),
+              onChange: (e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+                setActiveSuggestionIndex(0);
+              },
+              onFocus: () => setShowSuggestions(true),
+              onBlur: () => {
+                window.setTimeout(() => setShowSuggestions(false), 150);
+              },
+              onKeyDown: (e) => {
+                const q = searchQuery.trim().toLowerCase();
+                const isCityQuery = Boolean(CITY_TO_COUNTRY[q] || CITY_TO_COUNTRY[CITY_ALIASES[q] || ""] || CITY_COORDINATES[q]);
+                if (e.key === "Escape") {
+                  setShowSuggestions(false);
+                  return;
+                }
+                if (showSuggestions && citySuggestions.length > 0) {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setActiveSuggestionIndex((i) => Math.min(i + 1, citySuggestions.length - 1));
+                    return;
+                  }
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setActiveSuggestionIndex((i) => Math.max(i - 1, 0));
+                    return;
+                  }
+                  if (e.key === "Enter" && isCityQuery) {
+                    e.preventDefault();
+                    const selected = citySuggestions[activeSuggestionIndex];
+                    if (selected) {
+                      setSearchQuery(selected.key);
+                      setShowSuggestions(false);
+                      searchFor(selected.canonicalKey);
+                    }
+                    return;
+                  }
+                }
+                if (e.key === "Enter") handleSearch();
+              },
               placeholder: "Search city or country...",
               style: {
                 width: "100%",
@@ -26513,6 +26603,60 @@ function TravelSafety() {
                 color: COLORS.slate[900],
                 fontWeight: 600
               }
+            }
+          ),
+          showSuggestions && citySuggestions.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "div",
+            {
+              style: {
+                position: "absolute",
+                top: "calc(100% + 10px)",
+                left: "0",
+                right: "0",
+                backgroundColor: COLORS.white,
+                borderRadius: UI.radius.lg,
+                border: `1px solid ${COLORS.slate[100]}`,
+                boxShadow: UI.shadow.card,
+                overflow: "hidden",
+                maxHeight: "280px",
+                zIndex: 50
+              },
+              children: citySuggestions.map((c, idx) => {
+                const active = idx === activeSuggestionIndex;
+                return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                  "button",
+                  {
+                    onMouseEnter: () => setActiveSuggestionIndex(idx),
+                    onMouseDown: (e) => e.preventDefault(),
+                    onClick: () => {
+                      setSearchQuery(c.key);
+                      setShowSuggestions(false);
+                      searchFor(c.canonicalKey);
+                    },
+                    style: {
+                      width: "100%",
+                      border: "none",
+                      backgroundColor: active ? COLORS.lavender : COLORS.white,
+                      color: COLORS.slate[900],
+                      padding: "10px 12px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                      textAlign: "left"
+                    },
+                    children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { minWidth: 0 }, children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.label }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.sublabel })
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, fontSize: "11px", color: COLORS.slate[400], fontWeight: 600 }, children: "City" })
+                    ]
+                  },
+                  c.canonicalKey
+                );
+              })
             }
           )
         ] }),
