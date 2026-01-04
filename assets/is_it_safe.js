@@ -509,7 +509,7 @@ var require_react_development = __commonJS({
           }
           return element;
         };
-        function createElement(type, config, children) {
+        function createElement3(type, config, children) {
           var propName;
           var props = {};
           var key = null;
@@ -970,7 +970,7 @@ var require_react_development = __commonJS({
           }
           return lazyType;
         }
-        function forwardRef(render) {
+        function forwardRef3(render) {
           {
             if (render != null && render.$$typeof === REACT_MEMO_TYPE) {
               error("forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...)).");
@@ -1083,7 +1083,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context);
         }
-        function useState(initialState) {
+        function useState2(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1095,7 +1095,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect(create, deps) {
+        function useEffect2(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1111,7 +1111,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
-        function useMemo(create, deps) {
+        function useMemo2(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useMemo(create, deps);
         }
@@ -1608,7 +1608,7 @@ var require_react_development = __commonJS({
               error("React.createElement: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
             }
           }
-          var element = createElement.apply(this, arguments);
+          var element = createElement3.apply(this, arguments);
           if (element == null) {
             return element;
           }
@@ -1868,7 +1868,7 @@ var require_react_development = __commonJS({
         exports.createElement = createElement$1;
         exports.createFactory = createFactory;
         exports.createRef = createRef;
-        exports.forwardRef = forwardRef;
+        exports.forwardRef = forwardRef3;
         exports.isValidElement = isValidElement;
         exports.lazy = lazy;
         exports.memo = memo;
@@ -1878,15 +1878,15 @@ var require_react_development = __commonJS({
         exports.useContext = useContext;
         exports.useDebugValue = useDebugValue;
         exports.useDeferredValue = useDeferredValue;
-        exports.useEffect = useEffect;
+        exports.useEffect = useEffect2;
         exports.useId = useId;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useInsertionEffect = useInsertionEffect;
         exports.useLayoutEffect = useLayoutEffect;
-        exports.useMemo = useMemo;
+        exports.useMemo = useMemo2;
         exports.useReducer = useReducer;
         exports.useRef = useRef;
-        exports.useState = useState;
+        exports.useState = useState2;
         exports.useSyncExternalStore = useSyncExternalStore;
         exports.useTransition = useTransition;
         exports.version = ReactVersion;
@@ -2382,9 +2382,9 @@ var require_react_dom_development = __commonJS({
         if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
           __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
         }
-        var React2 = require_react();
+        var React3 = require_react();
         var Scheduler = require_scheduler();
-        var ReactSharedInternals = React2.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React3.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         var suppressWarning = false;
         function setSuppressWarning(newSuppressWarning) {
           {
@@ -2433,7 +2433,7 @@ var require_react_dom_development = __commonJS({
         var HostPortal = 4;
         var HostComponent = 5;
         var HostText = 6;
-        var Fragment = 7;
+        var Fragment2 = 7;
         var Mode = 8;
         var ContextConsumer = 9;
         var ContextProvider = 10;
@@ -3589,7 +3589,7 @@ var require_react_dom_development = __commonJS({
               return "DehydratedFragment";
             case ForwardRef:
               return getWrappedName$1(type, type.render, "ForwardRef");
-            case Fragment:
+            case Fragment2:
               return "Fragment";
             case HostComponent:
               return type;
@@ -3989,7 +3989,7 @@ var require_react_dom_development = __commonJS({
           {
             if (props.value == null) {
               if (typeof props.children === "object" && props.children !== null) {
-                React2.Children.forEach(props.children, function(child) {
+                React3.Children.forEach(props.children, function(child) {
                   if (child == null) {
                     return;
                   }
@@ -9383,7 +9383,7 @@ var require_react_dom_development = __commonJS({
             }
           }
         }
-        function createElement(type, props, rootContainerElement, parentNamespace) {
+        function createElement3(type, props, rootContainerElement, parentNamespace) {
           var isCustomComponentTag;
           var ownerDocument = getOwnerDocumentFromRootContainer(rootContainerElement);
           var domElement;
@@ -10238,7 +10238,7 @@ var require_react_dom_development = __commonJS({
             }
             parentNamespace = hostContextDev.namespace;
           }
-          var domElement = createElement(type, props, rootContainerInstance, parentNamespace);
+          var domElement = createElement3(type, props, rootContainerInstance, parentNamespace);
           precacheFiberNode(internalInstanceHandle, domElement);
           updateFiberProps(domElement, props);
           return domElement;
@@ -11972,7 +11972,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-            if (current2 === null || current2.tag !== Fragment) {
+            if (current2 === null || current2.tag !== Fragment2) {
               var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
               created.return = returnFiber;
               return created;
@@ -12375,7 +12375,7 @@ var require_react_dom_development = __commonJS({
               if (child.key === key) {
                 var elementType = element.type;
                 if (elementType === REACT_FRAGMENT_TYPE) {
-                  if (child.tag === Fragment) {
+                  if (child.tag === Fragment2) {
                     deleteRemainingChildren(returnFiber, child.sibling);
                     var existing = useFiber(child, element.props.children);
                     existing.return = returnFiber;
@@ -17850,7 +17850,7 @@ var require_react_dom_development = __commonJS({
               var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
               return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
             }
-            case Fragment:
+            case Fragment2:
               return updateFragment(current2, workInProgress2, renderLanes2);
             case Mode:
               return updateMode(current2, workInProgress2, renderLanes2);
@@ -18122,7 +18122,7 @@ var require_react_dom_development = __commonJS({
             case SimpleMemoComponent:
             case FunctionComponent:
             case ForwardRef:
-            case Fragment:
+            case Fragment2:
             case Mode:
             case Profiler:
             case ContextConsumer:
@@ -22373,7 +22373,7 @@ var require_react_dom_development = __commonJS({
           return fiber;
         }
         function createFiberFromFragment(elements, mode, lanes, key) {
-          var fiber = createFiber(Fragment, elements, key, mode);
+          var fiber = createFiber(Fragment2, elements, key, mode);
           fiber.lanes = lanes;
           return fiber;
         }
@@ -23529,7 +23529,7 @@ var require_react_jsx_runtime_development = __commonJS({
     if (true) {
       (function() {
         "use strict";
-        var React2 = require_react();
+        var React3 = require_react();
         var REACT_ELEMENT_TYPE = Symbol.for("react.element");
         var REACT_PORTAL_TYPE = Symbol.for("react.portal");
         var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
@@ -23555,7 +23555,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return null;
         }
-        var ReactSharedInternals = React2.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React3.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function error(format) {
           {
             {
@@ -24428,15 +24428,2728 @@ var require_jsx_runtime = __commonJS({
 });
 
 // src/main.tsx
-var import_react = __toESM(require_react(), 1);
+var import_react4 = __toESM(require_react(), 1);
 var import_client = __toESM(require_client(), 1);
 
-// src/MinimalTest.tsx
+// src/TravelSafety.tsx
+var import_react3 = __toESM(require_react(), 1);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.js
+var import_react2 = __toESM(require_react());
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/shared/src/utils.js
+var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+var toCamelCase = (string) => string.replace(
+  /^([A-Z])|[\s-_]+(\w)/g,
+  (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase()
+);
+var toPascalCase = (string) => {
+  const camelCase = toCamelCase(string);
+  return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+};
+var mergeClasses = (...classes) => classes.filter((className, index, array) => {
+  return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
+}).join(" ").trim();
+var hasA11yProp = (props) => {
+  for (const prop in props) {
+    if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
+      return true;
+    }
+  }
+};
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/Icon.js
+var import_react = __toESM(require_react());
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/defaultAttributes.js
+var defaultAttributes = {
+  xmlns: "http://www.w3.org/2000/svg",
+  width: 24,
+  height: 24,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+};
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/Icon.js
+var Icon = (0, import_react.forwardRef)(
+  ({
+    color = "currentColor",
+    size = 24,
+    strokeWidth = 2,
+    absoluteStrokeWidth,
+    className = "",
+    children,
+    iconNode,
+    ...rest
+  }, ref) => (0, import_react.createElement)(
+    "svg",
+    {
+      ref,
+      ...defaultAttributes,
+      width: size,
+      height: size,
+      stroke: color,
+      strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+      className: mergeClasses("lucide", className),
+      ...!children && !hasA11yProp(rest) && { "aria-hidden": "true" },
+      ...rest
+    },
+    [
+      ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
+      ...Array.isArray(children) ? children : [children]
+    ]
+  )
+);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.js
+var createLucideIcon = (iconName, iconNode) => {
+  const Component = (0, import_react2.forwardRef)(
+    ({ className, ...props }, ref) => (0, import_react2.createElement)(Icon, {
+      ref,
+      iconNode,
+      className: mergeClasses(
+        `lucide-${toKebabCase(toPascalCase(iconName))}`,
+        `lucide-${iconName}`,
+        className
+      ),
+      ...props
+    })
+  );
+  Component.displayName = toPascalCase(iconName);
+  return Component;
+};
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/calendar.js
+var __iconNode = [
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
+];
+var Calendar = createLucideIcon("calendar", __iconNode);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-down.js
+var __iconNode2 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+var ChevronDown = createLucideIcon("chevron-down", __iconNode2);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-up.js
+var __iconNode3 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+var ChevronUp = createLucideIcon("chevron-up", __iconNode3);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-alert.js
+var __iconNode4 = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
+  ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
+];
+var CircleAlert = createLucideIcon("circle-alert", __iconNode4);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-check-big.js
+var __iconNode5 = [
+  ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
+  ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
+];
+var CircleCheckBig = createLucideIcon("circle-check-big", __iconNode5);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/external-link.js
+var __iconNode6 = [
+  ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+  ["path", { d: "M10 14 21 3", key: "gplh6r" }],
+  ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
+];
+var ExternalLink = createLucideIcon("external-link", __iconNode6);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/globe.js
+var __iconNode7 = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
+  ["path", { d: "M2 12h20", key: "9i4pu4" }]
+];
+var Globe = createLucideIcon("globe", __iconNode7);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/info.js
+var __iconNode8 = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M12 16v-4", key: "1dtifu" }],
+  ["path", { d: "M12 8h.01", key: "e9boi3" }]
+];
+var Info = createLucideIcon("info", __iconNode8);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/map-pin.js
+var __iconNode9 = [
+  [
+    "path",
+    {
+      d: "M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0",
+      key: "1r0f0z"
+    }
+  ],
+  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
+];
+var MapPin = createLucideIcon("map-pin", __iconNode9);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/search.js
+var __iconNode10 = [
+  ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
+  ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
+];
+var Search = createLucideIcon("search", __iconNode10);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/shield.js
+var __iconNode11 = [
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ]
+];
+var Shield = createLucideIcon("shield", __iconNode11);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-down.js
+var __iconNode12 = [
+  ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
+  ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
+];
+var TrendingDown = createLucideIcon("trending-down", __iconNode12);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-up.js
+var __iconNode13 = [
+  ["path", { d: "M16 7h6v6", key: "box55l" }],
+  ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
+];
+var TrendingUp = createLucideIcon("trending-up", __iconNode13);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
+var __iconNode14 = [
+  [
+    "path",
+    {
+      d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",
+      key: "wmoenq"
+    }
+  ],
+  ["path", { d: "M12 9v4", key: "juzpu7" }],
+  ["path", { d: "M12 17h.01", key: "p32p05" }]
+];
+var TriangleAlert = createLucideIcon("triangle-alert", __iconNode14);
+
+// src/TravelSafety.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-function MinimalTest() {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: 20, fontFamily: "sans-serif", textAlign: "center" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { color: "#6D5EF9" }, children: "Is It Safe?" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Widget loaded successfully!" })
+var COLORS = {
+  // Backgrounds
+  cream: "#F6F7FB",
+  // Light grey page background
+  white: "#FFFFFF",
+  // Card background
+  // Brand Colors - Soft Purple accent
+  orange: "#6D5EF9",
+  // Primary accent
+  lime: "#A78BFA",
+  // Secondary accent
+  green: "#16A34A",
+  // Dark green
+  navy: "#111827",
+  // Near black for text
+  plum: "#7C3AED",
+  // Purple depth
+  blue: "#4F46E5",
+  // Indigo accent
+  lavender: "#F4F0FF",
+  // Light purple wash
+  // Text Colors
+  textMain: "#111827",
+  textSecondary: "#6B7280",
+  textLight: "#9CA3AF",
+  // Slate scale for UI elements
+  slate: {
+    50: "#F8FAFC",
+    100: "#F1F5F9",
+    200: "#E2E8F0",
+    300: "#CBD5E1",
+    400: "#94A3B8",
+    500: "#64748B",
+    600: "#475569",
+    700: "#334155",
+    800: "#1F2937",
+    900: "#111827"
+  },
+  // Functional Mappings with full style objects
+  safe: { bg: "#EAFBF2", text: "#16A34A", border: "#BBF7D0", icon: "#16A34A" },
+  warning: { bg: "#FFF7ED", text: "#EA580C", border: "#FED7AA", icon: "#EA580C" },
+  danger: { bg: "#FEE2E2", text: "#DC2626", border: "#FCA5A5", icon: "#DC2626" },
+  caution: { bg: "#FEFCE8", text: "#CA8A04", border: "#FDE68A", icon: "#CA8A04" },
+  neutral: { bg: "#F8FAFC", text: "#475569", border: "#E2E8F0", icon: "#475569" },
+  // Primary action color
+  primary: "#6D5EF9"
+};
+var UI = {
+  radius: {
+    sm: "10px",
+    md: "14px",
+    lg: "18px",
+    xl: "24px",
+    pill: "9999px"
+  },
+  shadow: {
+    card: "0 10px 30px rgba(17, 24, 39, 0.08)",
+    soft: "0 6px 18px rgba(17, 24, 39, 0.08)",
+    input: "0 8px 24px rgba(109, 94, 249, 0.14)"
+  }
+};
+var ADVISORY_LEVELS = {
+  1: { label: "Exercise Normal Precautions", color: COLORS.safe.text, bgColor: COLORS.safe.bg, style: COLORS.safe, icon: CircleCheckBig },
+  2: { label: "Exercise Increased Caution", color: COLORS.caution.text, bgColor: COLORS.caution.bg, style: COLORS.caution, icon: Info },
+  3: { label: "Reconsider Travel", color: COLORS.warning.text, bgColor: COLORS.warning.bg, style: COLORS.warning, icon: TriangleAlert },
+  4: { label: "Do Not Travel", color: COLORS.danger.text, bgColor: COLORS.danger.bg, style: COLORS.danger, icon: CircleAlert }
+};
+var CITY_COORDINATES = {
+  "medellin": { lat: 6.2442, lng: -75.5812, name: "Medell\xEDn", country: "Colombia" },
+  "bogota": { lat: 4.711, lng: -74.0721, name: "Bogot\xE1", country: "Colombia" },
+  "cartagena": { lat: 10.391, lng: -75.4794, name: "Cartagena", country: "Colombia" },
+  "cali": { lat: 3.4516, lng: -76.532, name: "Cali", country: "Colombia" },
+  "caracas": { lat: 10.4806, lng: -66.9036, name: "Caracas", country: "Venezuela" },
+  "panama city": { lat: 8.9824, lng: -79.5199, name: "Panama City", country: "Panama" },
+  "quito": { lat: -0.1807, lng: -78.4678, name: "Quito", country: "Ecuador" },
+  "lima": { lat: -12.0464, lng: -77.0428, name: "Lima", country: "Peru" },
+  "cusco": { lat: -13.532, lng: -71.9675, name: "Cusco", country: "Peru" },
+  "santiago": { lat: -33.4489, lng: -70.6693, name: "Santiago", country: "Chile" },
+  "buenos aires": { lat: -34.6037, lng: -58.3816, name: "Buenos Aires", country: "Argentina" },
+  "rio de janeiro": { lat: -22.9068, lng: -43.1729, name: "Rio de Janeiro", country: "Brazil" },
+  "sao paulo": { lat: -23.5505, lng: -46.6333, name: "S\xE3o Paulo", country: "Brazil" },
+  "mexico city": { lat: 19.4326, lng: -99.1332, name: "Mexico City", country: "Mexico" },
+  "cancun": { lat: 21.1619, lng: -86.8515, name: "Canc\xFAn", country: "Mexico" },
+  "cabo": { lat: 22.8905, lng: -109.9167, name: "Los Cabos", country: "Mexico" },
+  "guadalajara": { lat: 20.6597, lng: -103.3496, name: "Guadalajara", country: "Mexico" },
+  "monterrey": { lat: 25.6866, lng: -100.3161, name: "Monterrey", country: "Mexico" },
+  "tulum": { lat: 20.2114, lng: -87.4654, name: "Tulum", country: "Mexico" },
+  "paris": { lat: 48.8566, lng: 2.3522, name: "Paris", country: "France" },
+  "london": { lat: 51.5074, lng: -0.1278, name: "London", country: "United Kingdom" },
+  "dublin": { lat: 53.3498, lng: -6.2603, name: "Dublin", country: "Ireland" },
+  "edinburgh": { lat: 55.9533, lng: -3.1883, name: "Edinburgh", country: "United Kingdom" },
+  "barcelona": { lat: 41.3851, lng: 2.1734, name: "Barcelona", country: "Spain" },
+  "madrid": { lat: 40.4168, lng: -3.7038, name: "Madrid", country: "Spain" },
+  "lisbon": { lat: 38.7223, lng: -9.1393, name: "Lisbon", country: "Portugal" },
+  "porto": { lat: 41.1579, lng: -8.6291, name: "Porto", country: "Portugal" },
+  "amsterdam": { lat: 52.3676, lng: 4.9041, name: "Amsterdam", country: "Netherlands" },
+  "brussels": { lat: 50.8503, lng: 4.3517, name: "Brussels", country: "Belgium" },
+  "berlin": { lat: 52.52, lng: 13.405, name: "Berlin", country: "Germany" },
+  "munich": { lat: 48.1351, lng: 11.582, name: "Munich", country: "Germany" },
+  "prague": { lat: 50.0755, lng: 14.4378, name: "Prague", country: "Czech Republic" },
+  "vienna": { lat: 48.2082, lng: 16.3738, name: "Vienna", country: "Austria" },
+  "budapest": { lat: 47.4979, lng: 19.0402, name: "Budapest", country: "Hungary" },
+  "warsaw": { lat: 52.2297, lng: 21.0122, name: "Warsaw", country: "Poland" },
+  "krakow": { lat: 50.0647, lng: 19.945, name: "Krak\xF3w", country: "Poland" },
+  "copenhagen": { lat: 55.6761, lng: 12.5683, name: "Copenhagen", country: "Denmark" },
+  "stockholm": { lat: 59.3293, lng: 18.0686, name: "Stockholm", country: "Sweden" },
+  "oslo": { lat: 59.9139, lng: 10.7522, name: "Oslo", country: "Norway" },
+  "helsinki": { lat: 60.1699, lng: 24.9384, name: "Helsinki", country: "Finland" },
+  "reykjavik": { lat: 64.1466, lng: -21.9426, name: "Reykjav\xEDk", country: "Iceland" },
+  "zurich": { lat: 47.3769, lng: 8.5417, name: "Z\xFCrich", country: "Switzerland" },
+  "geneva": { lat: 46.2044, lng: 6.1432, name: "Geneva", country: "Switzerland" },
+  "rome": { lat: 41.9028, lng: 12.4964, name: "Rome", country: "Italy" },
+  "milan": { lat: 45.4642, lng: 9.19, name: "Milan", country: "Italy" },
+  "florence": { lat: 43.7696, lng: 11.2558, name: "Florence", country: "Italy" },
+  "venice": { lat: 45.4408, lng: 12.3155, name: "Venice", country: "Italy" },
+  "tokyo": { lat: 35.6762, lng: 139.6503, name: "Tokyo", country: "Japan" },
+  "osaka": { lat: 34.6937, lng: 135.5023, name: "Osaka", country: "Japan" },
+  "kyoto": { lat: 35.0116, lng: 135.7681, name: "Kyoto", country: "Japan" },
+  "seoul": { lat: 37.5665, lng: 126.978, name: "Seoul", country: "Korea, South" },
+  "busan": { lat: 35.1796, lng: 129.0756, name: "Busan", country: "Korea, South" },
+  "taipei": { lat: 25.033, lng: 121.5654, name: "Taipei", country: "Taiwan" },
+  "hong kong": { lat: 22.3193, lng: 114.1694, name: "Hong Kong", country: "Hong Kong" },
+  "singapore": { lat: 1.3521, lng: 103.8198, name: "Singapore", country: "Singapore" },
+  "kuala lumpur": { lat: 3.139, lng: 101.6869, name: "Kuala Lumpur", country: "Malaysia" },
+  "manila": { lat: 14.5995, lng: 120.9842, name: "Manila", country: "Philippines" },
+  "jakarta": { lat: -6.2088, lng: 106.8456, name: "Jakarta", country: "Indonesia" },
+  "denpasar": { lat: -8.6705, lng: 115.2126, name: "Denpasar (Bali)", country: "Indonesia" },
+  "hanoi": { lat: 21.0278, lng: 105.8342, name: "Hanoi", country: "Vietnam" },
+  "ho chi minh city": { lat: 10.8231, lng: 106.6297, name: "Ho Chi Minh City", country: "Vietnam" },
+  "beijing": { lat: 39.9042, lng: 116.4074, name: "Beijing", country: "China" },
+  "shanghai": { lat: 31.2304, lng: 121.4737, name: "Shanghai", country: "China" },
+  "delhi": { lat: 28.6139, lng: 77.209, name: "Delhi", country: "India" },
+  "mumbai": { lat: 19.076, lng: 72.8777, name: "Mumbai", country: "India" },
+  "bangkok": { lat: 13.7563, lng: 100.5018, name: "Bangkok", country: "Thailand" },
+  "phuket": { lat: 7.8804, lng: 98.3923, name: "Phuket", country: "Thailand" },
+  "chiang mai": { lat: 18.7883, lng: 98.9853, name: "Chiang Mai", country: "Thailand" },
+  "dubai": { lat: 25.2048, lng: 55.2708, name: "Dubai", country: "United Arab Emirates" },
+  "abu dhabi": { lat: 24.4539, lng: 54.3773, name: "Abu Dhabi", country: "United Arab Emirates" },
+  "doha": { lat: 25.2854, lng: 51.531, name: "Doha", country: "Qatar" },
+  "istanbul": { lat: 41.0082, lng: 28.9784, name: "Istanbul", country: "Turkey" },
+  "athens": { lat: 37.9838, lng: 23.7275, name: "Athens", country: "Greece" },
+  "cairo": { lat: 30.0444, lng: 31.2357, name: "Cairo", country: "Egypt" },
+  "marrakech": { lat: 31.6295, lng: -7.9811, name: "Marrakech", country: "Morocco" },
+  "casablanca": { lat: 33.5731, lng: -7.5898, name: "Casablanca", country: "Morocco" },
+  "nairobi": { lat: -1.2921, lng: 36.8219, name: "Nairobi", country: "Kenya" },
+  "cape town": { lat: -33.9249, lng: 18.4241, name: "Cape Town", country: "South Africa" },
+  "johannesburg": { lat: -26.2041, lng: 28.0473, name: "Johannesburg", country: "South Africa" },
+  "new york": { lat: 40.7128, lng: -74.006, name: "New York", country: "United States" },
+  "los angeles": { lat: 34.0522, lng: -118.2437, name: "Los Angeles", country: "United States" },
+  "chicago": { lat: 41.8781, lng: -87.6298, name: "Chicago", country: "United States" },
+  "san francisco": { lat: 37.7749, lng: -122.4194, name: "San Francisco", country: "United States" },
+  "miami": { lat: 25.7617, lng: -80.1918, name: "Miami", country: "United States" },
+  "washington dc": { lat: 38.9072, lng: -77.0369, name: "Washington, DC", country: "United States" },
+  "toronto": { lat: 43.6532, lng: -79.3832, name: "Toronto", country: "Canada" },
+  "vancouver": { lat: 49.2827, lng: -123.1207, name: "Vancouver", country: "Canada" }
+};
+var CITY_ALIASES = {
+  "nyc": "new york",
+  "new york city": "new york",
+  "la": "los angeles",
+  "l.a.": "los angeles",
+  "sf": "san francisco",
+  "san fran": "san francisco",
+  "dc": "washington dc",
+  "washington": "washington dc",
+  "saigon": "ho chi minh city",
+  "bali": "denpasar"
+};
+function getDistanceKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+function getNearbyCities(cityKey, maxDistance = 500) {
+  const origin = CITY_COORDINATES[cityKey];
+  if (!origin) return [];
+  return Object.entries(CITY_COORDINATES).filter(([key, coords]) => {
+    if (key === cityKey) return false;
+    const dist = getDistanceKm(origin.lat, origin.lng, coords.lat, coords.lng);
+    return dist <= maxDistance;
+  }).sort((a, b) => {
+    const distA = getDistanceKm(origin.lat, origin.lng, a[1].lat, a[1].lng);
+    const distB = getDistanceKm(origin.lat, origin.lng, b[1].lat, b[1].lng);
+    return distA - distB;
+  }).slice(0, 4).map(([key]) => key);
+}
+var CITY_TO_COUNTRY = {
+  ...Object.fromEntries(Object.entries(CITY_COORDINATES).map(([key, info]) => [key, info.country])),
+  "santorini": "Greece",
+  "sydney": "Australia",
+  "melbourne": "Australia",
+  "mumbai": "India",
+  "goa": "India",
+  "kathmandu": "Nepal",
+  "havana": "Cuba",
+  "san juan": "Puerto Rico",
+  "kingston": "Jamaica",
+  "nassau": "Bahamas",
+  "punta cana": "Dominican Republic",
+  "santo domingo": "Dominican Republic"
+};
+var UK_COUNTRY_SLUG_OVERRIDES = {
+  "united states": "usa",
+  "korea, south": "south-korea",
+  "korea south": "south-korea"
+};
+function toUkSlug(countryKey) {
+  const normalized = countryKey.toLowerCase().trim();
+  if (UK_COUNTRY_SLUG_OVERRIDES[normalized]) return UK_COUNTRY_SLUG_OVERRIDES[normalized];
+  return normalized.replace(/\./g, "").replace(/,/g, "").replace(/\s+/g, "-").replace(/--+/g, "-");
+}
+async function fetchUKAdvice(countryKey) {
+  try {
+    const slug = toUkSlug(countryKey);
+    const proxy = await fetch(`/api/uk?country=${encodeURIComponent(slug)}`);
+    if (proxy.ok) return await proxy.json();
+    const direct = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(slug)}`);
+    if (!direct.ok) return null;
+    const data = await direct.json();
+    if (!data?.details) return null;
+    return {
+      country: data.title || countryKey,
+      alert_status: data.details.alert_status || [],
+      change_description: data.details.change_description || "",
+      last_updated: data.public_updated_at || (/* @__PURE__ */ new Date()).toISOString(),
+      url: data.web_url || `https://www.gov.uk/foreign-travel-advice/${slug}`
+    };
+  } catch {
+    return null;
+  }
+}
+async function fetchGDELTData(location) {
+  try {
+    try {
+      const proxy = await fetch(`/api/gdelt?location=${encodeURIComponent(location)}`);
+      if (proxy.ok) return await proxy.json();
+    } catch {
+    }
+    const response = await fetch(
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(location)}&mode=artlist&maxrecords=10&format=json&timespan=7d`
+    );
+    if (!response.ok) {
+      console.log(`GDELT API not available for ${location}, using fallback`);
+      return null;
+    }
+    const data = await response.json();
+    if (data.articles && Array.isArray(data.articles)) {
+      const articles = data.articles;
+      const tones = articles.map((a) => a.tone || 0);
+      const avgTone = tones.length > 0 ? tones.reduce((a, b) => a + b, 0) / tones.length : 0;
+      const headlines = articles.slice(0, 5).map((a) => ({
+        title: a.title || "Untitled",
+        url: a.url || "",
+        source: a.domain || "Unknown",
+        date: a.seendate || (/* @__PURE__ */ new Date()).toISOString(),
+        tone: a.tone || 0
+      }));
+      const volumeLevel = articles.length > 50 ? "spike" : articles.length > 20 ? "elevated" : "normal";
+      return {
+        location,
+        country: "",
+        tone_score: Math.round(avgTone * 10) / 10,
+        volume_level: volumeLevel,
+        article_count_24h: articles.length,
+        themes: {},
+        // Would need separate API call for themes
+        headlines,
+        trend_7day: avgTone > 0 ? "improving" : avgTone < -5 ? "worsening" : "stable",
+        last_updated: (/* @__PURE__ */ new Date()).toISOString()
+      };
+    }
+    return null;
+  } catch (error) {
+    console.log(`Failed to fetch GDELT data for ${location}:`, error);
+    return null;
+  }
+}
+async function fetchACLEDData(country) {
+  try {
+    try {
+      const proxy = await fetch(`/api/acled?country=${encodeURIComponent(country)}`);
+      if (proxy.ok) return await proxy.json();
+    } catch {
+    }
+    const apiKey = typeof window !== "undefined" ? window.localStorage?.getItem("ACLED_API_KEY") : null;
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    const keyParam = apiKey ? `&key=${encodeURIComponent(apiKey)}` : "";
+    const response = await fetch(
+      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500${keyParam}`
+    );
+    if (!response.ok) {
+      console.log(`ACLED API not available for ${country}, using fallback`);
+      return null;
+    }
+    const data = await response.json();
+    if (data.data && Array.isArray(data.data)) {
+      const events = data.data;
+      const eventTypes = {};
+      let totalFatalities = 0;
+      events.forEach((event) => {
+        const type = event.event_type || "Unknown";
+        eventTypes[type] = (eventTypes[type] || 0) + 1;
+        totalFatalities += parseInt(event.fatalities || "0", 10);
+      });
+      const thirtyDaysAgo = /* @__PURE__ */ new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentEvents = events.filter((e) => new Date(e.event_date) >= thirtyDaysAgo).length;
+      return {
+        country,
+        total_events: events.length,
+        fatalities: totalFatalities,
+        events_last_30_days: recentEvents,
+        event_types: eventTypes,
+        last_updated: (/* @__PURE__ */ new Date()).toISOString(),
+        trend: recentEvents > events.length / 12 ? "increasing" : "stable"
+      };
+    }
+    return null;
+  } catch (error) {
+    console.log(`Failed to fetch ACLED data for ${country}:`, error);
+    return null;
+  }
+}
+async function fetchUKAdvisories() {
+  try {
+    const ukAdvisories = {};
+    const countries = [
+      "colombia",
+      "mexico",
+      "france",
+      "japan",
+      "italy",
+      "spain",
+      "germany",
+      "thailand",
+      "brazil",
+      "united-kingdom"
+    ];
+    for (const country of countries) {
+      try {
+        const response = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${country}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.details) {
+            ukAdvisories[country] = {
+              country: data.title || country.charAt(0).toUpperCase() + country.slice(1),
+              alert_status: data.details.alert_status || [],
+              change_description: data.details.change_description || "",
+              last_updated: data.public_updated_at || (/* @__PURE__ */ new Date()).toISOString(),
+              url: data.web_url || `https://www.gov.uk/foreign-travel-advice/${country}`
+            };
+          }
+        }
+      } catch (error) {
+        console.log(`Failed to fetch UK advice for ${country}:`, error);
+      }
+    }
+    return ukAdvisories;
+  } catch (error) {
+    console.error("Failed to fetch UK advisories:", error);
+    return {};
+  }
+}
+async function fetchStateAdvisories() {
+  try {
+    const response = await fetch("https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/_jcr_content/traveladvisories.json");
+    const data = await response.json();
+    const advisories = {};
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        const countryName = item.title || item.country;
+        if (countryName) {
+          let level = 1;
+          const levelMatch = item.travel_advisory?.level || item.level;
+          if (levelMatch) {
+            level = parseInt(levelMatch, 10);
+          } else if (item.travel_advisory?.advisory) {
+            const textMatch = item.travel_advisory.advisory.match(/Level (\d)/i);
+            if (textMatch) level = parseInt(textMatch[1], 10);
+          }
+          advisories[countryName.toLowerCase()] = {
+            country: countryName,
+            country_code: item.country_code || item.iso_code || "",
+            advisory_level: Math.min(Math.max(level, 1), 4),
+            advisory_text: item.travel_advisory?.advisory || item.advisory || `Level ${level} - ${ADVISORY_LEVELS[level]?.label || "Unknown"}`,
+            date_updated: item.date_updated || item.last_updated || (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+            url: item.url || `https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/${countryName.toLowerCase().replace(/\s+/g, "-")}.html`
+          };
+        }
+      });
+    }
+    return advisories;
+  } catch (error) {
+    console.error("Failed to fetch State Department advisories:", error);
+    return {};
+  }
+}
+var FALLBACK_UK_ADVISORIES = {
+  "colombia": {
+    country: "Colombia",
+    alert_status: ["avoid_all_but_essential_travel_to_parts"],
+    change_description: "FCO advises against all but essential travel to parts of Colombia due to crime and terrorism.",
+    last_updated: "2025-12-29T16:17:16Z",
+    url: "https://www.gov.uk/foreign-travel-advice/colombia"
+  },
+  "mexico": {
+    country: "Mexico",
+    alert_status: ["avoid_all_but_essential_travel_to_parts"],
+    change_description: "FCO advises against all but essential travel to parts of Mexico due to crime.",
+    last_updated: "2025-12-10T13:43:01Z",
+    url: "https://www.gov.uk/foreign-travel-advice/mexico"
+  },
+  "france": {
+    country: "France",
+    alert_status: [],
+    change_description: "Terrorists are very likely to try to carry out attacks in France.",
+    last_updated: "2025-11-20T10:15:00Z",
+    url: "https://www.gov.uk/foreign-travel-advice/france"
+  },
+  "japan": {
+    country: "Japan",
+    alert_status: [],
+    change_description: "Japan is generally a safe country with low crime rates.",
+    last_updated: "2025-10-15T09:30:00Z",
+    url: "https://www.gov.uk/foreign-travel-advice/japan"
+  }
+};
+var FALLBACK_ACLED_DATA = {
+  // Country-level data
+  "colombia": {
+    country: "Colombia",
+    total_events: 1247,
+    fatalities: 892,
+    events_last_30_days: 98,
+    event_types: {
+      "Violence against civilians": 312,
+      "Battles": 245,
+      "Explosions/Remote violence": 189,
+      "Protests": 287,
+      "Riots": 124,
+      "Strategic developments": 90
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "mexico": {
+    country: "Mexico",
+    total_events: 2156,
+    fatalities: 1834,
+    events_last_30_days: 187,
+    event_types: {
+      "Violence against civilians": 892,
+      "Battles": 534,
+      "Explosions/Remote violence": 245,
+      "Protests": 312,
+      "Riots": 98,
+      "Strategic developments": 75
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "increasing"
+  },
+  "france": {
+    country: "France",
+    total_events: 423,
+    fatalities: 12,
+    events_last_30_days: 45,
+    event_types: {
+      "Protests": 287,
+      "Riots": 89,
+      "Violence against civilians": 23,
+      "Strategic developments": 24
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "japan": {
+    country: "Japan",
+    total_events: 34,
+    fatalities: 2,
+    events_last_30_days: 3,
+    event_types: {
+      "Protests": 28,
+      "Strategic developments": 6
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "thailand": {
+    country: "Thailand",
+    total_events: 312,
+    fatalities: 89,
+    events_last_30_days: 28,
+    event_types: {
+      "Violence against civilians": 78,
+      "Battles": 45,
+      "Protests": 134,
+      "Riots": 34,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  "brazil": {
+    country: "Brazil",
+    total_events: 1876,
+    fatalities: 1245,
+    events_last_30_days: 156,
+    event_types: {
+      "Violence against civilians": 923,
+      "Battles": 312,
+      "Protests": 412,
+      "Riots": 167,
+      "Strategic developments": 62
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Colombia
+  "medellin": {
+    country: "Colombia",
+    location: "Medell\xEDn",
+    total_events: 156,
+    fatalities: 89,
+    events_last_30_days: 12,
+    event_types: {
+      "Violence against civilians": 67,
+      "Protests": 45,
+      "Riots": 23,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  "bogota": {
+    country: "Colombia",
+    location: "Bogot\xE1",
+    total_events: 234,
+    fatalities: 45,
+    events_last_30_days: 18,
+    event_types: {
+      "Protests": 134,
+      "Violence against civilians": 45,
+      "Riots": 34,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cali": {
+    country: "Colombia",
+    location: "Cali",
+    total_events: 198,
+    fatalities: 134,
+    events_last_30_days: 15,
+    event_types: {
+      "Violence against civilians": 89,
+      "Battles": 45,
+      "Protests": 34,
+      "Riots": 30
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cartagena": {
+    country: "Colombia",
+    location: "Cartagena",
+    total_events: 34,
+    fatalities: 12,
+    events_last_30_days: 3,
+    event_types: {
+      "Violence against civilians": 18,
+      "Protests": 12,
+      "Strategic developments": 4
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Mexico
+  "mexico city": {
+    country: "Mexico",
+    location: "Mexico City",
+    total_events: 312,
+    fatalities: 156,
+    events_last_30_days: 28,
+    event_types: {
+      "Violence against civilians": 134,
+      "Protests": 98,
+      "Riots": 45,
+      "Strategic developments": 35
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cancun": {
+    country: "Mexico",
+    location: "Canc\xFAn",
+    total_events: 67,
+    fatalities: 34,
+    events_last_30_days: 6,
+    event_types: {
+      "Violence against civilians": 45,
+      "Protests": 12,
+      "Strategic developments": 10
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cabo": {
+    country: "Mexico",
+    location: "Los Cabos",
+    total_events: 23,
+    fatalities: 8,
+    events_last_30_days: 2,
+    event_types: {
+      "Violence against civilians": 15,
+      "Strategic developments": 8
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  // City-level data - Brazil
+  "rio de janeiro": {
+    country: "Brazil",
+    location: "Rio de Janeiro",
+    total_events: 456,
+    fatalities: 312,
+    events_last_30_days: 38,
+    event_types: {
+      "Violence against civilians": 234,
+      "Battles": 89,
+      "Protests": 78,
+      "Riots": 55
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "sao paulo": {
+    country: "Brazil",
+    location: "S\xE3o Paulo",
+    total_events: 389,
+    fatalities: 198,
+    events_last_30_days: 32,
+    event_types: {
+      "Violence against civilians": 178,
+      "Protests": 134,
+      "Riots": 45,
+      "Strategic developments": 32
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Thailand
+  "bangkok": {
+    country: "Thailand",
+    location: "Bangkok",
+    total_events: 89,
+    fatalities: 12,
+    events_last_30_days: 8,
+    event_types: {
+      "Protests": 67,
+      "Riots": 12,
+      "Strategic developments": 10
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "phuket": {
+    country: "Thailand",
+    location: "Phuket",
+    total_events: 12,
+    fatalities: 2,
+    events_last_30_days: 1,
+    event_types: {
+      "Protests": 8,
+      "Strategic developments": 4
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - France
+  "paris": {
+    country: "France",
+    location: "Paris",
+    total_events: 187,
+    fatalities: 5,
+    events_last_30_days: 21,
+    event_types: {
+      "Protests": 134,
+      "Riots": 34,
+      "Violence against civilians": 12,
+      "Strategic developments": 7
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Japan
+  "tokyo": {
+    country: "Japan",
+    location: "Tokyo",
+    total_events: 18,
+    fatalities: 0,
+    events_last_30_days: 2,
+    event_types: {
+      "Protests": 15,
+      "Strategic developments": 3
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  }
+};
+var FALLBACK_GDELT_DATA = {
+  // City-level data - Colombia
+  "medellin": {
+    location: "Medell\xEDn",
+    country: "Colombia",
+    tone_score: -2.8,
+    volume_level: "normal",
+    article_count_24h: 23,
+    themes: {
+      "Tourism": 34,
+      "Crime": 22,
+      "Business": 18,
+      "Culture": 15,
+      "Politics": 11
+    },
+    headlines: [
+      { title: "Medell\xEDn named top destination for digital nomads in 2025", url: "https://example.com/1", source: "Travel Weekly", date: "2025-12-30", tone: 4.2 },
+      { title: "Security concerns persist in Comuna 13 despite tourism boom", url: "https://example.com/2", source: "Colombia Reports", date: "2025-12-29", tone: -3.5 },
+      { title: "New metro line expansion connects Medell\xEDn neighborhoods", url: "https://example.com/3", source: "Reuters", date: "2025-12-28", tone: 2.1 },
+      { title: "Local authorities crack down on tourist scams", url: "https://example.com/4", source: "El Tiempo", date: "2025-12-27", tone: -1.8 },
+      { title: "Medell\xEDn tech scene attracts international investment", url: "https://example.com/5", source: "Bloomberg", date: "2025-12-26", tone: 3.4 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "bogota": {
+    location: "Bogot\xE1",
+    country: "Colombia",
+    tone_score: -3.2,
+    volume_level: "elevated",
+    article_count_24h: 45,
+    themes: {
+      "Politics": 32,
+      "Crime": 24,
+      "Economy": 20,
+      "Protests": 14,
+      "Culture": 10
+    },
+    headlines: [
+      { title: "Colombia government announces new security measures for capital", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -2.1 },
+      { title: "Bogot\xE1 mayor addresses rising theft concerns in tourist areas", url: "https://example.com/2", source: "Colombia Reports", date: "2025-12-29", tone: -4.5 },
+      { title: "International film festival draws crowds to Bogot\xE1", url: "https://example.com/3", source: "Variety", date: "2025-12-28", tone: 3.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "colombia": {
+    location: "Colombia",
+    country: "Colombia",
+    tone_score: -4.1,
+    volume_level: "elevated",
+    article_count_24h: 156,
+    themes: {
+      "Politics": 28,
+      "Violence": 24,
+      "Economy": 18,
+      "Drug Trade": 15,
+      "Tourism": 15
+    },
+    headlines: [
+      { title: "Colombia peace process faces new challenges", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -5.2 },
+      { title: "Colombian exports reach record high in 2025", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 4.1 },
+      { title: "Rural violence continues in border regions", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -7.8 }
+    ],
+    trend_7day: "worsening",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Mexico
+  "mexico city": {
+    location: "Mexico City",
+    country: "Mexico",
+    tone_score: -1.9,
+    volume_level: "normal",
+    article_count_24h: 67,
+    themes: {
+      "Culture": 28,
+      "Politics": 24,
+      "Tourism": 20,
+      "Crime": 16,
+      "Business": 12
+    },
+    headlines: [
+      { title: "Mexico City ranked among top culinary destinations", url: "https://example.com/1", source: "Food & Wine", date: "2025-12-30", tone: 5.2 },
+      { title: "Air quality improvements in capital credited to new policies", url: "https://example.com/2", source: "Reuters", date: "2025-12-29", tone: 3.1 },
+      { title: "Pickpocketing on metro remains concern for tourists", url: "https://example.com/3", source: "Travel Safety", date: "2025-12-28", tone: -4.2 }
+    ],
+    trend_7day: "improving",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "cancun": {
+    location: "Canc\xFAn",
+    country: "Mexico",
+    tone_score: 1.2,
+    volume_level: "normal",
+    article_count_24h: 34,
+    themes: {
+      "Tourism": 45,
+      "Weather": 20,
+      "Business": 18,
+      "Crime": 12,
+      "Environment": 5
+    },
+    headlines: [
+      { title: "Canc\xFAn hotels report record bookings for holiday season", url: "https://example.com/1", source: "Travel Weekly", date: "2025-12-30", tone: 4.8 },
+      { title: "New coral reef restoration project launches near Canc\xFAn", url: "https://example.com/2", source: "National Geographic", date: "2025-12-29", tone: 5.2 },
+      { title: "Tourist zone security increased ahead of New Year", url: "https://example.com/3", source: "Mexico News Daily", date: "2025-12-28", tone: 0.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "mexico": {
+    location: "Mexico",
+    country: "Mexico",
+    tone_score: -5.3,
+    volume_level: "elevated",
+    article_count_24h: 234,
+    themes: {
+      "Crime": 32,
+      "Politics": 25,
+      "Economy": 18,
+      "Drug Trade": 15,
+      "Tourism": 10
+    },
+    headlines: [
+      { title: "Cartel violence surges in northern border states", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -8.5 },
+      { title: "Mexican peso strengthens against dollar", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 3.2 },
+      { title: "Travel advisory updated for several Mexican states", url: "https://example.com/3", source: "State Dept", date: "2025-12-28", tone: -5.1 }
+    ],
+    trend_7day: "worsening",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - France
+  "paris": {
+    location: "Paris",
+    country: "France",
+    tone_score: 0.8,
+    volume_level: "normal",
+    article_count_24h: 89,
+    themes: {
+      "Culture": 35,
+      "Tourism": 28,
+      "Politics": 18,
+      "Protests": 12,
+      "Business": 7
+    },
+    headlines: [
+      { title: "Louvre sets new visitor record in 2025", url: "https://example.com/1", source: "France 24", date: "2025-12-30", tone: 4.5 },
+      { title: "Paris public transport strike ends after negotiations", url: "https://example.com/2", source: "Reuters", date: "2025-12-29", tone: 1.2 },
+      { title: "New Year celebrations planned across Paris landmarks", url: "https://example.com/3", source: "Le Monde", date: "2025-12-28", tone: 3.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "france": {
+    location: "France",
+    country: "France",
+    tone_score: -1.2,
+    volume_level: "normal",
+    article_count_24h: 178,
+    themes: {
+      "Politics": 32,
+      "Economy": 24,
+      "Protests": 18,
+      "Culture": 16,
+      "Terrorism": 10
+    },
+    headlines: [
+      { title: "French government faces confidence vote", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -3.2 },
+      { title: "French tourism sector posts strong recovery", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 4.1 },
+      { title: "Security heightened at major attractions following threats", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -4.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Japan
+  "tokyo": {
+    location: "Tokyo",
+    country: "Japan",
+    tone_score: 3.2,
+    volume_level: "normal",
+    article_count_24h: 56,
+    themes: {
+      "Culture": 32,
+      "Business": 28,
+      "Tourism": 22,
+      "Technology": 12,
+      "Politics": 6
+    },
+    headlines: [
+      { title: "Tokyo named safest major city for travelers in 2025", url: "https://example.com/1", source: "Travel + Leisure", date: "2025-12-30", tone: 6.2 },
+      { title: "Japanese yen weakness draws record foreign tourists", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 2.8 },
+      { title: "New bullet train route connects Tokyo to regional cities", url: "https://example.com/3", source: "Japan Times", date: "2025-12-28", tone: 4.5 }
+    ],
+    trend_7day: "improving",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "japan": {
+    location: "Japan",
+    country: "Japan",
+    tone_score: 2.8,
+    volume_level: "normal",
+    article_count_24h: 134,
+    themes: {
+      "Economy": 30,
+      "Culture": 25,
+      "Politics": 20,
+      "Tourism": 18,
+      "Technology": 7
+    },
+    headlines: [
+      { title: "Japan tourism boom continues despite yen fluctuations", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: 3.5 },
+      { title: "Japanese companies report strong Q4 earnings", url: "https://example.com/2", source: "Nikkei", date: "2025-12-29", tone: 4.2 },
+      { title: "Japan maintains strict entry requirements for some countries", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -1.2 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Thailand
+  "bangkok": {
+    location: "Bangkok",
+    country: "Thailand",
+    tone_score: 1.5,
+    volume_level: "normal",
+    article_count_24h: 45,
+    themes: {
+      "Tourism": 38,
+      "Politics": 22,
+      "Culture": 20,
+      "Crime": 12,
+      "Business": 8
+    },
+    headlines: [
+      { title: "Bangkok street food scene draws global attention", url: "https://example.com/1", source: "CNN Travel", date: "2025-12-30", tone: 5.1 },
+      { title: "New airport express line reduces travel times", url: "https://example.com/2", source: "Bangkok Post", date: "2025-12-29", tone: 3.2 },
+      { title: "Police warn tourists about common scams in tourist areas", url: "https://example.com/3", source: "Thailand News", date: "2025-12-28", tone: -2.1 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "thailand": {
+    location: "Thailand",
+    country: "Thailand",
+    tone_score: 0.8,
+    volume_level: "normal",
+    article_count_24h: 98,
+    themes: {
+      "Tourism": 35,
+      "Politics": 28,
+      "Economy": 18,
+      "Crime": 12,
+      "Environment": 7
+    },
+    headlines: [
+      { title: "Thailand extends visa-free entry for more countries", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: 3.8 },
+      { title: "Southern provinces see uptick in separatist activity", url: "https://example.com/2", source: "AP News", date: "2025-12-29", tone: -5.2 },
+      { title: "Thai tourism authority launches new safety campaign", url: "https://example.com/3", source: "Travel Weekly", date: "2025-12-28", tone: 2.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Brazil
+  "rio de janeiro": {
+    location: "Rio de Janeiro",
+    country: "Brazil",
+    tone_score: -3.8,
+    volume_level: "normal",
+    article_count_24h: 56,
+    themes: {
+      "Crime": 32,
+      "Tourism": 25,
+      "Culture": 20,
+      "Politics": 15,
+      "Sports": 8
+    },
+    headlines: [
+      { title: "Rio police launch new favela pacification program", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -2.5 },
+      { title: "Copacabana beach preps for massive New Year celebration", url: "https://example.com/2", source: "BBC", date: "2025-12-29", tone: 4.2 },
+      { title: "Tourist robbed at gunpoint near Christ the Redeemer", url: "https://example.com/3", source: "O Globo", date: "2025-12-28", tone: -7.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "brazil": {
+    location: "Brazil",
+    country: "Brazil",
+    tone_score: -4.5,
+    volume_level: "elevated",
+    article_count_24h: 189,
+    themes: {
+      "Crime": 30,
+      "Politics": 28,
+      "Economy": 22,
+      "Environment": 12,
+      "Sports": 8
+    },
+    headlines: [
+      { title: "Brazil struggles with rising urban violence", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -6.5 },
+      { title: "Brazilian real stabilizes after central bank intervention", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 2.1 },
+      { title: "Amazon deforestation rates show slight decline", url: "https://example.com/3", source: "Reuters", date: "2025-12-28", tone: 1.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  }
+};
+var FALLBACK_ADVISORIES = {
+  "colombia": {
+    country: "Colombia",
+    country_code: "CO",
+    advisory_level: 3,
+    advisory_text: "Reconsider travel due to crime and terrorism. Some areas have increased risk.",
+    date_updated: "2024-12-15",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/colombia-travel-advisory.html"
+  },
+  "mexico": {
+    country: "Mexico",
+    country_code: "MX",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to crime and kidnapping. Some areas have increased risk.",
+    date_updated: "2024-12-10",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/mexico-travel-advisory.html"
+  },
+  "france": {
+    country: "France",
+    country_code: "FR",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism and civil unrest.",
+    date_updated: "2024-11-20",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/france-travel-advisory.html"
+  },
+  "japan": {
+    country: "Japan",
+    country_code: "JP",
+    advisory_level: 1,
+    advisory_text: "Exercise normal precautions.",
+    date_updated: "2024-10-15",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/japan-travel-advisory.html"
+  },
+  "italy": {
+    country: "Italy",
+    country_code: "IT",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism.",
+    date_updated: "2024-11-05",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/italy-travel-advisory.html"
+  },
+  "united kingdom": {
+    country: "United Kingdom",
+    country_code: "GB",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism.",
+    date_updated: "2024-10-20",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/united-kingdom-travel-advisory.html"
+  },
+  "spain": {
+    country: "Spain",
+    country_code: "ES",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism.",
+    date_updated: "2024-11-10",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/spain-travel-advisory.html"
+  },
+  "united states": {
+    country: "United States",
+    country_code: "US",
+    advisory_level: 1,
+    advisory_text: "Exercise normal precautions.",
+    date_updated: "2024-12-01",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+  }
+};
+function SafetyMeter({ level }) {
+  const percentage = (4 - level + 1) / 4 * 100;
+  const config = ADVISORY_LEVELS[level] || ADVISORY_LEVELS[1];
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: "100%", marginTop: "20px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "12px", color: COLORS.slate[500], fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Safety Score" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: config.style.text }, children: [
+        Math.round(percentage),
+        "%"
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      width: "100%",
+      height: "10px",
+      backgroundColor: COLORS.slate[100],
+      borderRadius: UI.radius.pill,
+      overflow: "hidden",
+      border: `1px solid ${COLORS.slate[200]}`
+    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      width: `${percentage}%`,
+      height: "100%",
+      background: `linear-gradient(90deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+      borderRadius: UI.radius.pill,
+      transition: "width 0.5s ease-out"
+    } }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "11px", color: COLORS.slate[400], fontWeight: 500 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "HIGH RISK" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "LOW RISK" })
+    ] })
+  ] });
+}
+function DashboardCard({ title, children, icon: Icon2 }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    backgroundColor: COLORS.white,
+    borderRadius: UI.radius.lg,
+    padding: "18px",
+    boxShadow: UI.shadow.soft,
+    border: `1px solid ${COLORS.slate[100]}`
+  }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }, children: [
+      Icon2 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 20, style: { color: COLORS.slate[400] } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: 0, fontSize: "15px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: title })
+    ] }),
+    children
+  ] });
+}
+function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories }) {
+  const nearbyCities = getNearbyCities(currentCity);
+  if (nearbyCities.length === 0) return null;
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", fontWeight: 500, color: COLORS.slate[500], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Nearby Cities" }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: nearbyCities.map((cityKey) => {
+      const cityInfo = CITY_COORDINATES[cityKey];
+      if (!cityInfo) return null;
+      const cityAcled = FALLBACK_ACLED_DATA[cityKey];
+      const cityGdelt = FALLBACK_GDELT_DATA[cityKey];
+      const countryKey = cityInfo.country.toLowerCase();
+      const cityAdvisory = FALLBACK_ADVISORIES[countryKey] || advisories;
+      const score = calculateSafetyScore(cityAdvisory, cityAcled, cityGdelt);
+      const config = getScoreConfig(score);
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "div",
+        {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px 12px",
+            backgroundColor: COLORS.white,
+            borderRadius: "6px",
+            border: `1px solid ${COLORS.slate[200]}`,
+            cursor: "pointer",
+            transition: "all 0.2s"
+          },
+          title: `${cityInfo.name}, ${cityInfo.country}`,
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              backgroundColor: config.bg,
+              border: `1px solid ${config.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "10px",
+              fontWeight: 700,
+              color: config.text
+            }, children: score }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[700] }, children: cityInfo.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: cityInfo.country })
+            ] })
+          ]
+        },
+        cityKey
+      );
+    }) })
+  ] });
+}
+function calculateSafetyScore(advisory, acledData, gdeltData) {
+  let score = 100;
+  score -= (advisory.advisory_level - 1) * 15;
+  if (acledData) {
+    if (acledData.total_events > 1e3) score -= 15;
+    else if (acledData.total_events > 500) score -= 10;
+    else if (acledData.total_events > 100) score -= 5;
+    if (acledData.fatalities > 500) score -= 10;
+    else if (acledData.fatalities > 100) score -= 5;
+    if (acledData.trend === "increasing") score -= 5;
+    else if (acledData.trend === "decreasing") score += 3;
+  }
+  if (gdeltData) {
+    if (gdeltData.tone_score < -5) score -= 10;
+    else if (gdeltData.tone_score < -2) score -= 5;
+    else if (gdeltData.tone_score > 2) score += 3;
+    if (gdeltData.volume_level === "spike") score -= 8;
+    else if (gdeltData.volume_level === "elevated") score -= 3;
+    if (gdeltData.trend_7day === "worsening") score -= 5;
+    else if (gdeltData.trend_7day === "improving") score += 3;
+  }
+  return Math.max(1, Math.min(100, Math.round(score)));
+}
+function getScoreConfig(score) {
+  if (score >= 75) return COLORS.safe;
+  if (score >= 50) return COLORS.caution;
+  if (score >= 25) return COLORS.warning;
+  return COLORS.danger;
+}
+function getScoreLabel(score) {
+  if (score >= 75) return "Low Risk";
+  if (score >= 50) return "Moderate Risk";
+  if (score >= 25) return "Elevated Risk";
+  return "High Risk";
+}
+function normalizeExternalUrl(rawUrl) {
+  const s = (rawUrl || "").trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      const u = new URL(s);
+      if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+      if (u.hostname.toLowerCase() === "example.com") return null;
+      return u.toString();
+    } catch {
+      return null;
+    }
+  }
+  if (s.startsWith("//")) {
+    return normalizeExternalUrl(`https:${s}`);
+  }
+  return null;
+}
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack }) {
+  const [showMore, setShowMore] = (0, import_react3.useState)(false);
+  const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
+  const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
+  const scoreConfig = getScoreConfig(safetyScore);
+  const scoreLabel = getScoreLabel(safetyScore);
+  const validHeadlines = (0, import_react3.useMemo)(() => {
+    const list = gdeltData?.headlines ?? [];
+    return list.map((h) => ({ ...h, url: normalizeExternalUrl(h.url) || "" })).filter((h) => Boolean(h.url));
+  }, [gdeltData]);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    backgroundColor: COLORS.white,
+    borderRadius: UI.radius.xl,
+    padding: "22px",
+    boxShadow: UI.shadow.card,
+    border: `1px solid ${COLORS.slate[100]}`,
+    maxWidth: "600px",
+    margin: "0 auto"
+  }, children: [
+    onBack && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "button",
+      {
+        onClick: onBack,
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          padding: "8px 14px",
+          marginBottom: "16px",
+          backgroundColor: COLORS.slate[50],
+          color: COLORS.slate[600],
+          border: `1px solid ${COLORS.slate[200]}`,
+          borderRadius: UI.radius.pill,
+          fontSize: "13px",
+          fontWeight: 600,
+          cursor: "pointer",
+          transition: "all 0.2s"
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16, style: { transform: "rotate(-90deg)" } }),
+          "Back to Home"
+        ]
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, style: { color: COLORS.slate[400] } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "24px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500], fontWeight: 400, fontSize: "20px" }, children: [
+          ", ",
+          advisory.country
+        ] })
+      ] }) : advisory.country })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "20px",
+      marginBottom: "24px",
+      padding: "18px",
+      background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.slate[50]} 100%)`,
+      borderRadius: UI.radius.lg,
+      border: `1px solid ${COLORS.slate[100]}`
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+        width: "72px",
+        height: "72px",
+        borderRadius: "50%",
+        backgroundColor: COLORS.white,
+        border: `4px solid ${scoreConfig.text}`,
+        boxShadow: "0 10px 18px rgba(17, 24, 39, 0.10)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0
+      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, color: scoreConfig.text, lineHeight: 1 }, children: safetyScore }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "18px", fontWeight: 700, color: COLORS.slate[900], marginBottom: "4px", letterSpacing: "-0.01em" }, children: scoreLabel }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.5 }, children: safetyScore >= 75 ? "Likely safe for travel. Exercise normal precautions." : safetyScore >= 50 ? "Exercise increased caution. Be aware of surroundings." : safetyScore >= 25 ? "Reconsider travel. Significant safety concerns exist." : "Do not travel. Extreme risks present." })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }, children: [
+      gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: UI.radius.md,
+        border: `1px solid ${COLORS.slate[100]}`,
+        boxShadow: "0 6px 16px rgba(17, 24, 39, 0.06)",
+        textAlign: "center"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "News Tone" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          fontSize: "18px",
+          fontWeight: 700,
+          color: gdeltData.tone_score > 0 ? COLORS.safe.text : gdeltData.tone_score < -3 ? COLORS.danger.text : COLORS.warning.text
+        }, children: [
+          gdeltData.tone_score > 0 ? "+" : "",
+          gdeltData.tone_score
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: gdeltData.volume_level === "spike" ? "High Volume" : "Normal Vol" })
+      ] }),
+      acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: UI.radius.md,
+        border: `1px solid ${COLORS.slate[100]}`,
+        boxShadow: "0 6px 16px rgba(17, 24, 39, 0.06)",
+        textAlign: "center"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "Events" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+          fontSize: "18px",
+          fontWeight: 700,
+          color: acledData.total_events > 500 ? COLORS.danger.text : acledData.total_events > 100 ? COLORS.warning.text : COLORS.safe.text
+        }, children: acledData.total_events.toLocaleString() }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "Past Year" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: UI.radius.md,
+        border: `1px solid ${COLORS.slate[100]}`,
+        boxShadow: "0 6px 16px rgba(17, 24, 39, 0.06)",
+        textAlign: "center"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "US Advisory" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          fontSize: "18px",
+          fontWeight: 700,
+          color: config.style.text
+        }, children: [
+          "Level ",
+          advisory.advisory_level
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "of 4" })
+      ] })
+    ] }) }),
+    isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      NearbyCitiesComparison,
+      {
+        currentCity: searchTerm,
+        acledData,
+        gdeltData,
+        advisories: advisory
+      }
+    ),
+    gdeltData && validHeadlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "a",
+      {
+        href: validHeadlines[0].url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          padding: "10px 12px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`,
+          textDecoration: "none",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          transition: "all 0.2s"
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }, children: validHeadlines[0].title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginTop: "2px" }, children: validHeadlines[0].source })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14, style: { color: COLORS.slate[400], flexShrink: 0, marginLeft: "8px" } })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: showMore ? "24px" : "0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "button",
+      {
+        onClick: () => setShowMore(!showMore),
+        style: {
+          padding: "10px 24px",
+          backgroundColor: showMore ? COLORS.slate[100] : COLORS.white,
+          color: showMore ? COLORS.slate[600] : COLORS.primary,
+          border: `1px solid ${showMore ? COLORS.slate[300] : COLORS.slate[200]}`,
+          borderRadius: "50px",
+          fontSize: "13px",
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          transition: "all 0.2s",
+          boxShadow: showMore ? "none" : "0 1px 2px rgba(0,0,0,0.05)"
+        },
+        children: showMore ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16 }),
+          "Show Less"
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 16 }),
+          "Full Analysis"
+        ] })
+      }
+    ) }),
+    showMore && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { borderTop: `1px solid ${COLORS.slate[200]}`, paddingTop: "32px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 24px 0", fontSize: "18px", fontWeight: 600, color: COLORS.slate[900] }, children: "Detailed Analysis" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "24px" }, children: [
+        acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "ACLED Conflict Data", icon: TriangleAlert, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.warning.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 20 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: [
+                "Conflict Data ",
+                acledData.location ? "(City-level)" : "(Country-level)"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.danger.text }, children: acledData.total_events.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Events (2025)" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.danger.text }, children: acledData.fatalities.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Fatalities" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.warning.text }, children: acledData.events_last_30_days }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Last 30 Days" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: acledData.trend === "increasing" ? COLORS.danger.text : acledData.trend === "decreasing" ? COLORS.safe.text : COLORS.slate[500]
+              }, children: acledData.trend === "increasing" ? "\u2191 Increasing" : acledData.trend === "decreasing" ? "\u2193 Decreasing" : "\u2192 Stable" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Trend" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Event Types" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(acledData.event_types).slice(0, 5).map(([type, count]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              padding: "6px 10px",
+              backgroundColor: COLORS.white,
+              borderRadius: "6px",
+              fontSize: "12px",
+              border: `1px solid ${COLORS.slate[200]}`,
+              color: COLORS.slate[700],
+              fontWeight: 500
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500] }, children: [
+                type,
+                ":"
+              ] }),
+              " ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: count })
+            ] }, type)) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              new Date(acledData.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: "https://acleddata.com/dashboard/",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View ACLED Dashboard"
+              ]
+            }
+          )
+        ] }) }),
+        gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "GDELT News Analysis", icon: Globe, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.safe.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 20 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: gdeltData.location }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: [
+                "Global News Monitoring ",
+                gdeltData.location !== gdeltData.country ? "(City-level)" : "(Country-level)"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                fontSize: "20px",
+                fontWeight: 700,
+                color: gdeltData.tone_score > 0 ? COLORS.safe.text : gdeltData.tone_score < -3 ? COLORS.danger.text : COLORS.warning.text
+              }, children: [
+                gdeltData.tone_score > 0 ? "+" : "",
+                gdeltData.tone_score
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "News Tone" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: gdeltData.volume_level === "spike" ? COLORS.danger.text : gdeltData.volume_level === "elevated" ? COLORS.warning.text : COLORS.safe.text
+              }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Volume" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: gdeltData.trend_7day === "worsening" ? COLORS.danger.text : gdeltData.trend_7day === "improving" ? COLORS.safe.text : COLORS.slate[500]
+              }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "7-Day Trend" })
+            ] })
+          ] }),
+          Object.keys(gdeltData.themes).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Themes" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              padding: "6px 10px",
+              backgroundColor: COLORS.white,
+              borderRadius: "6px",
+              fontSize: "12px",
+              border: `1px solid ${COLORS.slate[200]}`,
+              color: COLORS.slate[700],
+              fontWeight: 500
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500] }, children: [
+                theme,
+                ":"
+              ] }),
+              " ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
+                pct,
+                "%"
+              ] })
+            ] }, theme)) })
+          ] }),
+          validHeadlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Headlines" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: validHeadlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "a",
+              {
+                href: headline.url,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                style: {
+                  padding: "12px",
+                  backgroundColor: COLORS.white,
+                  borderRadius: "6px",
+                  border: `1px solid ${COLORS.slate[200]}`,
+                  textDecoration: "none",
+                  display: "block",
+                  transition: "all 0.2s"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                    fontSize: "14px",
+                    color: COLORS.slate[900],
+                    fontWeight: 500,
+                    marginBottom: "4px",
+                    lineHeight: 1.4
+                  }, children: headline.title }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: COLORS.slate[500] }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: headline.source }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[300] }, children: "\u2022" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
+                      color: headline.tone > 0 ? COLORS.safe.text : headline.tone < -3 ? COLORS.danger.text : COLORS.warning.text,
+                      fontWeight: 500
+                    }, children: [
+                      "Tone: ",
+                      headline.tone > 0 ? "+" : "",
+                      headline.tone.toFixed(1)
+                    ] })
+                  ] })
+                ]
+              },
+              index
+            )) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Data from GDELT \u2022 ",
+              gdeltData.article_count_24h,
+              " articles in 24h"
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: `https://gdeltproject.org/`,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View GDELT Project"
+              ]
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+            padding: "16px",
+            backgroundColor: config.style.bg,
+            borderRadius: "8px",
+            border: `1px solid ${config.style.border}`,
+            marginBottom: "16px"
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: config.style.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "18px",
+              fontWeight: 700
+            }, children: advisory.advisory_level }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
+                "Level ",
+                advisory.advisory_level
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: config.style.text }, children: config.label })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: advisory.advisory_text }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              advisory.date_updated
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: advisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "16px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View Full Advisory"
+              ]
+            }
+          )
+        ] }),
+        ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.primary,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: "UK" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: "FCO Travel Advice" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: "Foreign, Commonwealth & Development Office" })
+            ] })
+          ] }),
+          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.danger.text, marginBottom: "8px", textTransform: "uppercase" }, children: "Travel Alerts" }),
+            ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              padding: "8px 12px",
+              backgroundColor: COLORS.danger.bg,
+              borderRadius: "6px",
+              fontSize: "13px",
+              color: COLORS.danger.text,
+              marginBottom: "6px",
+              border: `1px solid ${COLORS.danger.border}`,
+              fontWeight: 500
+            }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: ukAdvisory.change_description }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              new Date(ukAdvisory.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: ukAdvisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View UK Advice"
+              ]
+            }
+          )
+        ] }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "16px",
+        backgroundColor: COLORS.slate[50],
+        borderRadius: "12px",
+        border: `1px solid ${COLORS.slate[200]}`
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 12px 0", fontSize: "14px", fontWeight: 600, color: COLORS.slate[900], textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Advisory Levels" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
+          const Icon2 = info.icon;
+          const isCurrentLevel = Number(level) === advisory.advisory_level;
+          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "div",
+            {
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "8px 12px",
+                backgroundColor: info.style.bg,
+                borderRadius: "6px",
+                fontSize: "13px",
+                border: isCurrentLevel ? `3px solid ${info.style.icon}` : `1px solid ${info.style.border}`,
+                boxShadow: isCurrentLevel ? `0 0 12px ${info.style.icon}40` : "none",
+                transform: isCurrentLevel ? "scale(1.02)" : "scale(1)",
+                position: "relative"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: info.style.icon } }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: info.style.text }, children: [
+                  "Level ",
+                  level,
+                  ":"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[600] }, children: info.label }),
+                isCurrentLevel && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+                  marginLeft: "auto",
+                  padding: "2px 8px",
+                  backgroundColor: info.style.icon,
+                  color: COLORS.white,
+                  borderRadius: "12px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }, children: "Current" })
+              ]
+            },
+            level
+          );
+        }) })
+      ] }),
+      isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        marginTop: "16px",
+        padding: "14px",
+        backgroundColor: COLORS.primary + "10",
+        // 10% opacity
+        borderRadius: "10px",
+        border: `1px solid ${COLORS.primary}30`,
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 18, style: { color: COLORS.primary, flexShrink: 0, marginTop: "2px" } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { color: COLORS.slate[700], fontSize: "13px", lineHeight: 1.5 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { style: { color: COLORS.primary }, children: "Note:" }),
+          " Government advisories apply to ",
+          advisory.country,
+          " as a whole. Local data (ACLED, GDELT) is specific to ",
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize", fontWeight: 600 }, children: searchTerm }),
+          "."
+        ] })
+      ] })
+    ] })
+  ] });
+}
+function TravelSafety() {
+  const [searchQuery, setSearchQuery] = (0, import_react3.useState)("");
+  const [searchResult, setSearchResult] = (0, import_react3.useState)(null);
+  const [advisories, setAdvisories] = (0, import_react3.useState)(FALLBACK_ADVISORIES);
+  const [ukAdvisories, setUkAdvisories] = (0, import_react3.useState)(FALLBACK_UK_ADVISORIES);
+  const [acledData, setAcledData] = (0, import_react3.useState)(FALLBACK_ACLED_DATA);
+  const [gdeltData, setGdeltData] = (0, import_react3.useState)(FALLBACK_GDELT_DATA);
+  const [loading, setLoading] = (0, import_react3.useState)(false);
+  const [error, setError] = (0, import_react3.useState)(null);
+  const [apiLoaded, setApiLoaded] = (0, import_react3.useState)(false);
+  const [showSuggestions, setShowSuggestions] = (0, import_react3.useState)(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = (0, import_react3.useState)(0);
+  const createPlaceholderAdvisory = (countryKey, countryName) => {
+    return {
+      country: countryName,
+      country_code: "",
+      advisory_level: 2,
+      advisory_text: `Official advisory data is not available for ${countryName} right now. This is a placeholder summary \u2014 verify via official sources before traveling.`,
+      date_updated: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+      url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+    };
+  };
+  (0, import_react3.useEffect)(() => {
+    Promise.all([
+      fetchStateAdvisories(),
+      fetchUKAdvisories()
+    ]).then(([usData, ukData]) => {
+      if (Object.keys(usData).length > 0) {
+        setAdvisories({ ...FALLBACK_ADVISORIES, ...usData });
+      }
+      if (Object.keys(ukData).length > 0) {
+        setUkAdvisories({ ...FALLBACK_UK_ADVISORIES, ...ukData });
+      }
+      setApiLoaded(true);
+    });
+  }, []);
+  const searchFor = async (rawQuery) => {
+    if (!rawQuery.trim()) return;
+    setLoading(true);
+    setError(null);
+    const query = rawQuery.trim().toLowerCase();
+    const normalizedQuery = CITY_ALIASES[query] || query;
+    const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];
+    if (countryFromCity) {
+      const countryKey = countryFromCity.toLowerCase();
+      const advisory2 = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
+      let ukAdvisory2 = ukAdvisories[countryKey];
+      if (!ukAdvisory2) {
+        const fetchedUk = await fetchUKAdvice(countryKey);
+        if (fetchedUk) {
+          ukAdvisory2 = fetchedUk;
+          setUkAdvisories((prev) => ({ ...prev, [countryKey]: fetchedUk }));
+        }
+      }
+      const cityInfo = CITY_COORDINATES[normalizedQuery];
+      const locationQuery = cityInfo ? `${cityInfo.name}, ${countryFromCity}` : `${normalizedQuery}, ${countryFromCity}`;
+      const acled2 = acledData[normalizedQuery] || acledData[countryKey] || FALLBACK_ACLED_DATA[normalizedQuery] || FALLBACK_ACLED_DATA[countryKey] || await fetchACLEDData(countryFromCity) || void 0;
+      const gdelt2 = gdeltData[normalizedQuery] || gdeltData[countryKey] || FALLBACK_GDELT_DATA[normalizedQuery] || FALLBACK_GDELT_DATA[countryKey] || await fetchGDELTData(locationQuery) || void 0;
+      const missing = [];
+      if (!ukAdvisory2) missing.push("UK Foreign Office");
+      if (!acled2) missing.push("ACLED");
+      if (!gdelt2) missing.push("GDELT");
+      if (missing.length > 0) {
+        setError(`Incomplete assessment for "${rawQuery}" \u2014 missing: ${missing.join(", ")}.`);
+      }
+      setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: normalizedQuery });
+      setLoading(false);
+      return;
+    }
+    const advisory = advisories[normalizedQuery];
+    const ukAdvisory = ukAdvisories[normalizedQuery];
+    const acled = acledData[normalizedQuery];
+    const gdelt = gdeltData[normalizedQuery];
+    if (advisory) {
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: normalizedQuery });
+      setLoading(false);
+      return;
+    }
+    const partialMatch = Object.entries(advisories).find(
+      ([key, value]) => key.includes(query) || value.country.toLowerCase().includes(query)
+    );
+    if (partialMatch) {
+      const ukAdvisory2 = ukAdvisories[partialMatch[0]];
+      const acled2 = acledData[partialMatch[0]];
+      const gdelt2 = gdeltData[partialMatch[0]];
+      setSearchResult({ advisory: partialMatch[1], ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
+      setLoading(false);
+      return;
+    }
+    setError(`No travel advisory found for "${rawQuery}". Try searching for a country name like "Colombia" or a major city like "Medellin".`);
+    setSearchResult(null);
+    setLoading(false);
+  };
+  const handleSearch = () => searchFor(searchQuery);
+  const geoInsights = (0, import_react3.useMemo)(() => {
+    const cities = Object.entries(CITY_COORDINATES).map(([cityKey, info]) => {
+      const countryKey = info.country.toLowerCase();
+      const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey];
+      const acled = acledData[cityKey] || acledData[countryKey];
+      const gdelt = gdeltData[cityKey] || gdeltData[countryKey];
+      const score = advisory ? calculateSafetyScore(advisory, acled, gdelt) : 50;
+      let momentum = 0;
+      if (gdelt) {
+        if (gdelt.trend_7day === "improving") momentum += 2;
+        if (gdelt.trend_7day === "worsening") momentum -= 2;
+        if (gdelt.tone_score >= 2) momentum += 1;
+        if (gdelt.tone_score <= -3) momentum -= 1;
+        if (gdelt.volume_level === "spike") momentum -= 1;
+      }
+      if (acled) {
+        if (acled.trend === "decreasing") momentum += 2;
+        if (acled.trend === "increasing") momentum -= 2;
+        if (acled.events_last_30_days <= 5) momentum += 1;
+        if (acled.events_last_30_days >= 30) momentum -= 1;
+      }
+      return {
+        key: cityKey,
+        name: info.name,
+        country: info.country,
+        score,
+        momentum
+      };
+    });
+    const safest = [...cities].sort((a, b) => b.score - a.score).slice(0, 5);
+    const dangerous = [...cities].sort((a, b) => a.score - b.score).slice(0, 5);
+    const movers = [...cities].sort((a, b) => b.momentum - a.momentum).slice(0, 5);
+    return { safest, dangerous, movers };
+  }, [acledData, advisories, gdeltData]);
+  const citySuggestions = (0, import_react3.useMemo)(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    const entries = Object.entries(CITY_COORDINATES).map(([key, info]) => ({
+      key,
+      label: info.name,
+      sublabel: info.country,
+      canonicalKey: key
+    }));
+    const aliasEntries = Object.entries(CITY_ALIASES).filter(([alias, canonical]) => {
+      if (!CITY_COORDINATES[canonical]) return false;
+      const info = CITY_COORDINATES[canonical];
+      return alias.includes(q) || canonical.includes(q) || info.name.toLowerCase().includes(q);
+    }).map(([alias, canonical]) => {
+      const info = CITY_COORDINATES[canonical];
+      return {
+        key: alias,
+        label: info.name,
+        sublabel: info.country,
+        canonicalKey: canonical
+      };
+    });
+    const all = [...aliasEntries, ...entries].filter((c) => {
+      const name = c.label.toLowerCase();
+      const country = c.sublabel.toLowerCase();
+      return c.key.includes(q) || c.canonicalKey.includes(q) || name.includes(q) || country.includes(q);
+    });
+    const uniq = /* @__PURE__ */ new Map();
+    for (const c of all) {
+      if (!uniq.has(c.canonicalKey)) uniq.set(c.canonicalKey, c);
+    }
+    const scored = [...uniq.values()].map((c) => {
+      const name = c.label.toLowerCase();
+      const key = c.key.toLowerCase();
+      const canonical = c.canonicalKey.toLowerCase();
+      const starts = key.startsWith(q) || canonical.startsWith(q) || name.startsWith(q) ? 0 : 1;
+      const exact = key === q || canonical === q ? -1 : 0;
+      return { c, s: exact + starts };
+    });
+    return scored.sort((a, b) => a.s - b.s || a.c.label.localeCompare(b.c.label)).slice(0, 8).map(({ c }) => c);
+  }, [searchQuery]);
+  const popularSearches = ["Colombia", "Mexico", "Japan", "France", "Thailand", "Italy"];
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    minHeight: "100vh",
+    backgroundColor: COLORS.cream,
+    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
+    color: COLORS.navy
+  }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
+      padding: "44px 24px 32px",
+      textAlign: "center",
+      borderBottomLeftRadius: "28px",
+      borderBottomRightRadius: "28px",
+      color: COLORS.navy
+    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "800px", margin: "0 auto" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "16px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+          background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+          borderRadius: "14px",
+          padding: "10px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: UI.shadow.input
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 26, style: { color: COLORS.white } }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "34px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.03em" }, children: "Travel Safety Index" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 24px 0", fontSize: "16px", color: COLORS.slate[600], maxWidth: "540px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }, children: "Real-time safety assessments from official government sources and global news data." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        maxWidth: "600px",
+        margin: "0 auto",
+        position: "relative",
+        zIndex: 10
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          display: "flex",
+          backgroundColor: COLORS.white,
+          borderRadius: UI.radius.pill,
+          overflow: "hidden",
+          boxShadow: UI.shadow.input,
+          border: `1px solid ${COLORS.slate[100]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 18, style: { position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", color: COLORS.slate[400] } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "input",
+              {
+                type: "text",
+                value: searchQuery,
+                onChange: (e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                  setActiveSuggestionIndex(0);
+                },
+                onFocus: () => setShowSuggestions(true),
+                onBlur: () => {
+                  window.setTimeout(() => setShowSuggestions(false), 150);
+                },
+                onKeyDown: (e) => {
+                  const q = searchQuery.trim().toLowerCase();
+                  const isCityQuery = Boolean(CITY_TO_COUNTRY[q] || CITY_TO_COUNTRY[CITY_ALIASES[q] || ""] || CITY_COORDINATES[q]);
+                  if (e.key === "Escape") {
+                    setShowSuggestions(false);
+                    return;
+                  }
+                  if (showSuggestions && citySuggestions.length > 0) {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setActiveSuggestionIndex((i) => Math.min(i + 1, citySuggestions.length - 1));
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setActiveSuggestionIndex((i) => Math.max(i - 1, 0));
+                      return;
+                    }
+                    if (e.key === "Enter" && isCityQuery) {
+                      e.preventDefault();
+                      const selected = citySuggestions[activeSuggestionIndex];
+                      if (selected) {
+                        setSearchQuery(selected.key);
+                        setShowSuggestions(false);
+                        searchFor(selected.canonicalKey);
+                      }
+                      return;
+                    }
+                  }
+                  if (e.key === "Enter") handleSearch();
+                },
+                placeholder: "Search city or country...",
+                style: {
+                  width: "100%",
+                  padding: "16px 16px 16px 48px",
+                  fontSize: "15px",
+                  border: "none",
+                  outline: "none",
+                  backgroundColor: "transparent",
+                  color: COLORS.slate[900],
+                  fontWeight: 600
+                }
+              }
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "button",
+            {
+              onClick: handleSearch,
+              disabled: loading,
+              style: {
+                padding: "0 32px",
+                background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.blue} 100%)`,
+                color: COLORS.white,
+                border: "none",
+                borderLeft: `1px solid ${COLORS.slate[100]}`,
+                cursor: loading ? "wait" : "pointer",
+                fontSize: "14px",
+                fontWeight: 700,
+                transition: "all 0.2s",
+                letterSpacing: "0.02em"
+              },
+              children: loading ? "..." : "Search"
+            }
+          )
+        ] }),
+        showSuggestions && citySuggestions.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              top: "calc(100% + 10px)",
+              left: "0",
+              right: "0",
+              backgroundColor: COLORS.white,
+              borderRadius: UI.radius.lg,
+              border: `1px solid ${COLORS.slate[100]}`,
+              boxShadow: UI.shadow.card,
+              overflow: "hidden",
+              maxHeight: "280px",
+              zIndex: 50
+            },
+            children: citySuggestions.map((c, idx) => {
+              const active = idx === activeSuggestionIndex;
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onMouseEnter: () => setActiveSuggestionIndex(idx),
+                  onMouseDown: (e) => e.preventDefault(),
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    setShowSuggestions(false);
+                    searchFor(c.canonicalKey);
+                  },
+                  style: {
+                    width: "100%",
+                    border: "none",
+                    backgroundColor: active ? COLORS.lavender : COLORS.white,
+                    color: COLORS.slate[900],
+                    padding: "10px 12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    textAlign: "left"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.label }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.sublabel })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, fontSize: "11px", color: COLORS.slate[400], fontWeight: 600 }, children: "City" })
+                  ]
+                },
+                c.canonicalKey
+              );
+            })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: "20px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[500], fontSize: "12px", marginRight: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Trending:" }),
+        popularSearches.map((term) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: () => {
+              setSearchQuery(term);
+              searchFor(term);
+            },
+            style: {
+              padding: "6px 14px",
+              margin: "4px",
+              backgroundColor: COLORS.white,
+              color: COLORS.primary,
+              border: `1px solid ${COLORS.slate[100]}`,
+              borderRadius: UI.radius.pill,
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: 600,
+              transition: "all 0.2s",
+              boxShadow: "0 6px 14px rgba(17, 24, 39, 0.06)"
+            },
+            children: term
+          },
+          term
+        ))
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "24px 24px 48px", maxWidth: "1000px", margin: "0 auto" }, children: [
+      error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        maxWidth: "600px",
+        margin: "0 auto 32px",
+        padding: "16px 24px",
+        backgroundColor: COLORS.danger.bg,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.danger.border}`,
+        color: COLORS.danger.text,
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        fontSize: "14px",
+        fontWeight: 500
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, { size: 20 }),
+        error
+      ] }),
+      searchResult && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        SearchResult,
+        {
+          advisory: searchResult.advisory,
+          ukAdvisory: searchResult.ukAdvisory,
+          acledData: searchResult.acledData,
+          gdeltData: searchResult.gdeltData,
+          searchTerm: searchResult.searchTerm,
+          isCity: searchResult.isCity,
+          onBack: () => {
+            setSearchResult(null);
+            setSearchQuery("");
+            setError(null);
+          }
+        }
+      ),
+      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "880px", margin: "8px auto 0" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", marginBottom: "18px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "inline-flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderRadius: UI.radius.pill, backgroundColor: COLORS.white, border: `1px solid ${COLORS.slate[100]}`, boxShadow: "0 10px 24px rgba(17, 24, 39, 0.06)" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 18, style: { color: COLORS.primary } }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "12px", fontWeight: 700, color: COLORS.slate[700], textTransform: "uppercase", letterSpacing: "0.08em" }, children: "Geo Insights" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: "10px", fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.6 }, children: "Learn from recent advisories and local signals \u2014 click any city to explore." })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: "Safest Cities" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: COLORS.safe.bg, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, style: { color: COLORS.safe.text } }) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: geoInsights.safest.map((c) => {
+              const s = getScoreConfig(c.score);
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    searchFor(c.key);
+                  },
+                  style: {
+                    width: "100%",
+                    backgroundColor: COLORS.slate[50],
+                    border: `1px solid ${COLORS.slate[100]}`,
+                    borderRadius: UI.radius.md,
+                    padding: "10px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left", minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.name }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.country })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, padding: "6px 10px", borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: "12px", fontWeight: 800 }, children: c.score })
+                  ]
+                },
+                c.key
+              );
+            }) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: "Most Dangerous" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: COLORS.danger.bg, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 16, style: { color: COLORS.danger.text } }) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: geoInsights.dangerous.map((c) => {
+              const s = getScoreConfig(c.score);
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    searchFor(c.key);
+                  },
+                  style: {
+                    width: "100%",
+                    backgroundColor: COLORS.slate[50],
+                    border: `1px solid ${COLORS.slate[100]}`,
+                    borderRadius: UI.radius.md,
+                    padding: "10px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left", minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.name }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.country })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { flexShrink: 0, padding: "6px 10px", borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: "12px", fontWeight: 800 }, children: c.score })
+                  ]
+                },
+                c.key
+              );
+            }) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 800, color: COLORS.slate[900], letterSpacing: "-0.01em" }, children: "Most Improved (7d)" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: COLORS.lavender, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, style: { color: COLORS.primary } }) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: geoInsights.movers.map((c) => {
+              const s = getScoreConfig(c.score);
+              const isUp = c.momentum >= 1;
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  onClick: () => {
+                    setSearchQuery(c.key);
+                    searchFor(c.key);
+                  },
+                  style: {
+                    width: "100%",
+                    backgroundColor: COLORS.slate[50],
+                    border: `1px solid ${COLORS.slate[100]}`,
+                    borderRadius: UI.radius.md,
+                    padding: "10px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left", minWidth: 0 }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 700, color: COLORS.slate[900], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.name }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }, children: c.country })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "6px 10px", borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: "12px", fontWeight: 800 }, children: c.score }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "28px", height: "28px", borderRadius: UI.radius.md, backgroundColor: isUp ? COLORS.safe.bg : COLORS.warning.bg, border: `1px solid ${isUp ? COLORS.safe.border : COLORS.warning.border}`, display: "flex", alignItems: "center", justifyContent: "center" }, children: isUp ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 14, style: { color: isUp ? COLORS.safe.text : COLORS.warning.text } }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 14, style: { color: COLORS.warning.text } }) })
+                    ] })
+                  ]
+                },
+                c.key
+              );
+            }) })
+          ] })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      padding: "32px 24px",
+      textAlign: "center",
+      borderTop: `1px solid ${COLORS.slate[200]}`,
+      backgroundColor: COLORS.white
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: 0, color: COLORS.slate[400], fontSize: "13px" }, children: [
+        "Data sourced from the",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "US Department of State"
+          }
+        ),
+        ",",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://www.gov.uk/foreign-travel-advice",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "UK Foreign Office"
+          }
+        ),
+        ",",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://acleddata.com",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "ACLED"
+          }
+        ),
+        ", and",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://www.gdeltproject.org/",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "GDELT Project"
+          }
+        ),
+        "."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "8px 0 0 0", color: COLORS.slate[300], fontSize: "12px" }, children: "For informational purposes only. Always verify with official sources before traveling." })
+    ] })
   ] });
 }
 
@@ -24448,7 +27161,7 @@ if (!container) {
 }
 var root = (0, import_client.createRoot)(container);
 root.render(
-  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react.default.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MinimalTest, {}) })
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react4.default.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(TravelSafety, {}) })
 );
 /*! Bundled license information:
 
@@ -24507,5 +27220,157 @@ react/cjs/react-jsx-runtime.development.js:
    *
    * This source code is licensed under the MIT license found in the
    * LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/shared/src/utils.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/defaultAttributes.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/Icon.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/createLucideIcon.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/calendar.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/chevron-down.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/chevron-up.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/circle-alert.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/circle-check-big.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/external-link.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/globe.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/info.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/map-pin.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/search.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/shield.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trending-down.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trending-up.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/triangle-alert.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/lucide-react.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
    *)
 */

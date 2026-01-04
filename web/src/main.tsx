@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 
-import MinimalTest from "./MinimalTest";
+import TravelSafety from "./TravelSafety";
 
 const container = document.getElementById("is-it-safe-root");
 
@@ -12,6 +12,6 @@ if (!container) {
 const root = createRoot(container);
 root.render(
   <React.StrictMode>
-    <MinimalTest />
+    <TravelSafety />
   </React.StrictMode>
 );
