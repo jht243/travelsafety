@@ -24845,6 +24845,128 @@ var CITY_TO_COUNTRY = {
   "punta cana": "Dominican Republic",
   "santo domingo": "Dominican Republic"
 };
+var UK_COUNTRY_SLUG_OVERRIDES = {
+  "united states": "usa",
+  "korea, south": "south-korea",
+  "korea south": "south-korea"
+};
+function toUkSlug(countryKey) {
+  const normalized = countryKey.toLowerCase().trim();
+  if (UK_COUNTRY_SLUG_OVERRIDES[normalized]) return UK_COUNTRY_SLUG_OVERRIDES[normalized];
+  return normalized.replace(/\./g, "").replace(/,/g, "").replace(/\s+/g, "-").replace(/--+/g, "-");
+}
+async function fetchUKAdvice(countryKey) {
+  try {
+    const slug = toUkSlug(countryKey);
+    const proxy = await fetch(`/api/uk?country=${encodeURIComponent(slug)}`);
+    if (proxy.ok) return await proxy.json();
+    const direct = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(slug)}`);
+    if (!direct.ok) return null;
+    const data = await direct.json();
+    if (!data?.details) return null;
+    return {
+      country: data.title || countryKey,
+      alert_status: data.details.alert_status || [],
+      change_description: data.details.change_description || "",
+      last_updated: data.public_updated_at || (/* @__PURE__ */ new Date()).toISOString(),
+      url: data.web_url || `https://www.gov.uk/foreign-travel-advice/${slug}`
+    };
+  } catch {
+    return null;
+  }
+}
+async function fetchGDELTData(location) {
+  try {
+    try {
+      const proxy = await fetch(`/api/gdelt?location=${encodeURIComponent(location)}`);
+      if (proxy.ok) return await proxy.json();
+    } catch {
+    }
+    const response = await fetch(
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(location)}&mode=artlist&maxrecords=10&format=json&timespan=7d`
+    );
+    if (!response.ok) {
+      console.log(`GDELT API not available for ${location}, using fallback`);
+      return null;
+    }
+    const data = await response.json();
+    if (data.articles && Array.isArray(data.articles)) {
+      const articles = data.articles;
+      const tones = articles.map((a) => a.tone || 0);
+      const avgTone = tones.length > 0 ? tones.reduce((a, b) => a + b, 0) / tones.length : 0;
+      const headlines = articles.slice(0, 5).map((a) => ({
+        title: a.title || "Untitled",
+        url: a.url || "",
+        source: a.domain || "Unknown",
+        date: a.seendate || (/* @__PURE__ */ new Date()).toISOString(),
+        tone: a.tone || 0
+      }));
+      const volumeLevel = articles.length > 50 ? "spike" : articles.length > 20 ? "elevated" : "normal";
+      return {
+        location,
+        country: "",
+        tone_score: Math.round(avgTone * 10) / 10,
+        volume_level: volumeLevel,
+        article_count_24h: articles.length,
+        themes: {},
+        // Would need separate API call for themes
+        headlines,
+        trend_7day: avgTone > 0 ? "improving" : avgTone < -5 ? "worsening" : "stable",
+        last_updated: (/* @__PURE__ */ new Date()).toISOString()
+      };
+    }
+    return null;
+  } catch (error) {
+    console.log(`Failed to fetch GDELT data for ${location}:`, error);
+    return null;
+  }
+}
+async function fetchACLEDData(country) {
+  try {
+    try {
+      const proxy = await fetch(`/api/acled?country=${encodeURIComponent(country)}`);
+      if (proxy.ok) return await proxy.json();
+    } catch {
+    }
+    const apiKey = typeof window !== "undefined" ? window.localStorage?.getItem("ACLED_API_KEY") : null;
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    const keyParam = apiKey ? `&key=${encodeURIComponent(apiKey)}` : "";
+    const response = await fetch(
+      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500${keyParam}`
+    );
+    if (!response.ok) {
+      console.log(`ACLED API not available for ${country}, using fallback`);
+      return null;
+    }
+    const data = await response.json();
+    if (data.data && Array.isArray(data.data)) {
+      const events = data.data;
+      const eventTypes = {};
+      let totalFatalities = 0;
+      events.forEach((event) => {
+        const type = event.event_type || "Unknown";
+        eventTypes[type] = (eventTypes[type] || 0) + 1;
+        totalFatalities += parseInt(event.fatalities || "0", 10);
+      });
+      const thirtyDaysAgo = /* @__PURE__ */ new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentEvents = events.filter((e) => new Date(e.event_date) >= thirtyDaysAgo).length;
+      return {
+        country,
+        total_events: events.length,
+        fatalities: totalFatalities,
+        events_last_30_days: recentEvents,
+        event_types: eventTypes,
+        last_updated: (/* @__PURE__ */ new Date()).toISOString(),
+        trend: recentEvents > events.length / 12 ? "increasing" : "stable"
+      };
+    }
+    return null;
+  } catch (error) {
+    console.log(`Failed to fetch ACLED data for ${country}:`, error);
+    return null;
+  }
+}
 async function fetchUKAdvisories() {
   try {
     const ukAdvisories = {};
@@ -26404,7 +26526,7 @@ function TravelSafety() {
       setApiLoaded(true);
     });
   }, []);
-  const searchFor = (rawQuery) => {
+  const searchFor = async (rawQuery) => {
     if (!rawQuery.trim()) return;
     setLoading(true);
     setError(null);
@@ -26414,9 +26536,25 @@ function TravelSafety() {
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
       const advisory2 = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
-      const ukAdvisory2 = ukAdvisories[countryKey];
-      const acled2 = acledData[normalizedQuery] || acledData[countryKey];
-      const gdelt2 = gdeltData[normalizedQuery] || gdeltData[countryKey];
+      let ukAdvisory2 = ukAdvisories[countryKey];
+      if (!ukAdvisory2) {
+        const fetchedUk = await fetchUKAdvice(countryKey);
+        if (fetchedUk) {
+          ukAdvisory2 = fetchedUk;
+          setUkAdvisories((prev) => ({ ...prev, [countryKey]: fetchedUk }));
+        }
+      }
+      const cityInfo = CITY_COORDINATES[normalizedQuery];
+      const locationQuery = cityInfo ? `${cityInfo.name}, ${countryFromCity}` : `${normalizedQuery}, ${countryFromCity}`;
+      const acled2 = acledData[normalizedQuery] || acledData[countryKey] || FALLBACK_ACLED_DATA[normalizedQuery] || FALLBACK_ACLED_DATA[countryKey] || await fetchACLEDData(countryFromCity) || void 0;
+      const gdelt2 = gdeltData[normalizedQuery] || gdeltData[countryKey] || FALLBACK_GDELT_DATA[normalizedQuery] || FALLBACK_GDELT_DATA[countryKey] || await fetchGDELTData(locationQuery) || void 0;
+      const missing = [];
+      if (!ukAdvisory2) missing.push("UK Foreign Office");
+      if (!acled2) missing.push("ACLED");
+      if (!gdelt2) missing.push("GDELT");
+      if (missing.length > 0) {
+        setError(`Incomplete assessment for "${rawQuery}" \u2014 missing: ${missing.join(", ")}.`);
+      }
       setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: normalizedQuery });
       setLoading(false);
       return;

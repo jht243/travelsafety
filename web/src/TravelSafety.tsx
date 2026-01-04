@@ -293,9 +293,58 @@ interface GDELTAdvisoryData {
   [key: string]: GDELTData;
 }
 
+const UK_COUNTRY_SLUG_OVERRIDES: Record<string, string> = {
+  'united states': 'usa',
+  'korea, south': 'south-korea',
+  'korea south': 'south-korea',
+};
+
+function toUkSlug(countryKey: string): string {
+  const normalized = countryKey.toLowerCase().trim();
+  if (UK_COUNTRY_SLUG_OVERRIDES[normalized]) return UK_COUNTRY_SLUG_OVERRIDES[normalized];
+  return normalized
+    .replace(/\./g, '')
+    .replace(/,/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-');
+}
+
+async function fetchUKAdvice(countryKey: string): Promise<UKTravelAdvice | null> {
+  try {
+    const slug = toUkSlug(countryKey);
+
+    // Prefer server proxy (avoids CORS)
+    const proxy = await fetch(`/api/uk?country=${encodeURIComponent(slug)}`);
+    if (proxy.ok) return await proxy.json();
+
+    // Fallback to direct
+    const direct = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(slug)}`);
+    if (!direct.ok) return null;
+    const data: any = await direct.json();
+    if (!data?.details) return null;
+    return {
+      country: data.title || countryKey,
+      alert_status: data.details.alert_status || [],
+      change_description: data.details.change_description || '',
+      last_updated: data.public_updated_at || new Date().toISOString(),
+      url: data.web_url || `https://www.gov.uk/foreign-travel-advice/${slug}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // Fetch GDELT news data for a location
 async function fetchGDELTData(location: string): Promise<GDELTData | null> {
   try {
+    // Prefer server proxy (avoids CORS)
+    try {
+      const proxy = await fetch(`/api/gdelt?location=${encodeURIComponent(location)}`);
+      if (proxy.ok) return await proxy.json();
+    } catch {
+      // ignore and fall back
+    }
+
     // GDELT DOC 2.0 API - get articles and tone
     const response = await fetch(
       `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(location)}&mode=artlist&maxrecords=10&format=json&timespan=7d`
@@ -351,10 +400,24 @@ async function fetchGDELTData(location: string): Promise<GDELTData | null> {
 // Note: ACLED requires API key for full access. Set ACLED_API_KEY env var or use fallback data.
 async function fetchACLEDData(country: string): Promise<ACLEDData | null> {
   try {
-    // ACLED API requires authentication - this will use public endpoint if available
+    // Prefer server proxy (avoids CORS and uses env var ACLED_API_KEY)
+    try {
+      const proxy = await fetch(`/api/acled?country=${encodeURIComponent(country)}`);
+      if (proxy.ok) return await proxy.json();
+    } catch {
+      // ignore and fall back
+    }
+
+    // ACLED API requires authentication for full access.
+    // To avoid hardcoding secrets into a static bundle, you can set it at runtime:
+    // localStorage.setItem('ACLED_API_KEY', '<your_key>')
+    const apiKey = typeof window !== 'undefined' ? window.localStorage?.getItem('ACLED_API_KEY') : null;
+
+    // This will try the public endpoint (may fail) and include a key when provided.
     const currentYear = new Date().getFullYear();
+    const keyParam = apiKey ? `&key=${encodeURIComponent(apiKey)}` : '';
     const response = await fetch(
-      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500`
+      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500${keyParam}`
     );
     
     if (!response.ok) {
@@ -2134,7 +2197,7 @@ export default function TravelSafety() {
     });
   }, []);
 
-  const searchFor = (rawQuery: string) => {
+  const searchFor = async (rawQuery: string) => {
     if (!rawQuery.trim()) return;
 
     setLoading(true);
@@ -2148,10 +2211,42 @@ export default function TravelSafety() {
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
       const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
-      const ukAdvisory = ukAdvisories[countryKey];
+      let ukAdvisory = ukAdvisories[countryKey];
+      if (!ukAdvisory) {
+        const fetchedUk = await fetchUKAdvice(countryKey);
+        if (fetchedUk) {
+          ukAdvisory = fetchedUk;
+          setUkAdvisories((prev) => ({ ...prev, [countryKey]: fetchedUk }));
+        }
+      }
       // Use city-specific ACLED and GDELT data if available, otherwise fall back to country
-      const acled = acledData[normalizedQuery] || acledData[countryKey];
-      const gdelt = gdeltData[normalizedQuery] || gdeltData[countryKey];
+      const cityInfo = CITY_COORDINATES[normalizedQuery];
+      const locationQuery = cityInfo ? `${cityInfo.name}, ${countryFromCity}` : `${normalizedQuery}, ${countryFromCity}`;
+
+      const acled =
+        acledData[normalizedQuery] ||
+        acledData[countryKey] ||
+        FALLBACK_ACLED_DATA[normalizedQuery] ||
+        FALLBACK_ACLED_DATA[countryKey] ||
+        (await fetchACLEDData(countryFromCity)) ||
+        undefined;
+
+      const gdelt =
+        gdeltData[normalizedQuery] ||
+        gdeltData[countryKey] ||
+        FALLBACK_GDELT_DATA[normalizedQuery] ||
+        FALLBACK_GDELT_DATA[countryKey] ||
+        (await fetchGDELTData(locationQuery)) ||
+        undefined;
+
+      const missing: string[] = [];
+      if (!ukAdvisory) missing.push('UK Foreign Office');
+      if (!acled) missing.push('ACLED');
+      if (!gdelt) missing.push('GDELT');
+
+      if (missing.length > 0) {
+        setError(`Incomplete assessment for "${rawQuery}" — missing: ${missing.join(', ')}.`);
+      }
 
       setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: normalizedQuery });
       setLoading(false);

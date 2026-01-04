@@ -745,6 +745,9 @@ const subscribePath = "/api/subscribe";
 const analyticsPath = "/analytics";
 const trackEventPath = "/api/track";
 const healthPath = "/health";
+const gdeltProxyPath = "/api/gdelt";
+const acledProxyPath = "/api/acled";
+const ukProxyPath = "/api/uk";
 
 const domainVerificationPath = "/.well-known/openai-apps-challenge";
 const domainVerificationToken =
@@ -1303,6 +1306,195 @@ async function handleAnalytics(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+function sendJson(res: ServerResponse, status: number, body: unknown) {
+  res.writeHead(status, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Cache-Control": "no-store",
+  });
+  res.end(JSON.stringify(body));
+}
+
+async function handleGdeltProxy(req: IncomingMessage, res: ServerResponse, url: URL) {
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "content-type",
+    });
+    res.end();
+    return;
+  }
+
+  if (req.method !== "GET") {
+    sendJson(res, 405, { error: "Method not allowed" });
+    return;
+  }
+
+  const location = url.searchParams.get("location")?.trim();
+  if (!location) {
+    sendJson(res, 400, { error: "Missing location" });
+    return;
+  }
+
+  try {
+    const upstream = await fetch(
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(location)}&mode=artlist&maxrecords=50&format=json&timespan=7d`
+    );
+    if (!upstream.ok) {
+      sendJson(res, 502, { error: "GDELT upstream error", status: upstream.status });
+      return;
+    }
+
+    const data: any = await upstream.json();
+    const articles: any[] = Array.isArray(data?.articles) ? data.articles : [];
+    const tones = articles.map((a) => Number(a?.tone ?? 0)).filter((t) => Number.isFinite(t));
+    const avgTone = tones.length ? tones.reduce((a, b) => a + b, 0) / tones.length : 0;
+    const headlines = articles.slice(0, 5).map((a) => ({
+      title: a?.title || "Untitled",
+      url: a?.url || "",
+      source: a?.domain || "Unknown",
+      date: a?.seendate || new Date().toISOString(),
+      tone: Number(a?.tone ?? 0),
+    }));
+    const volumeLevel = articles.length > 50 ? "spike" : articles.length > 20 ? "elevated" : "normal";
+    const trend7d = avgTone > 0 ? "improving" : avgTone < -5 ? "worsening" : "stable";
+
+    sendJson(res, 200, {
+      location,
+      country: "",
+      tone_score: Math.round(avgTone * 10) / 10,
+      volume_level: volumeLevel,
+      article_count_24h: articles.length,
+      themes: {},
+      headlines,
+      trend_7day: trend7d,
+      last_updated: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    sendJson(res, 500, { error: "Failed to fetch GDELT", message: error?.message || String(error) });
+  }
+}
+
+async function handleAcledProxy(req: IncomingMessage, res: ServerResponse, url: URL) {
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "content-type",
+    });
+    res.end();
+    return;
+  }
+
+  if (req.method !== "GET") {
+    sendJson(res, 405, { error: "Method not allowed" });
+    return;
+  }
+
+  const country = url.searchParams.get("country")?.trim();
+  if (!country) {
+    sendJson(res, 400, { error: "Missing country" });
+    return;
+  }
+
+  const apiKey = process.env.ACLED_API_KEY;
+  if (!apiKey) {
+    sendJson(res, 501, { error: "ACLED_API_KEY is not configured" });
+    return;
+  }
+
+  try {
+    const currentYear = new Date().getFullYear();
+    const upstream = await fetch(
+      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500&key=${encodeURIComponent(apiKey)}`
+    );
+    if (!upstream.ok) {
+      sendJson(res, 502, { error: "ACLED upstream error", status: upstream.status });
+      return;
+    }
+    const data: any = await upstream.json();
+    const events: any[] = Array.isArray(data?.data) ? data.data : [];
+
+    const eventTypes: Record<string, number> = {};
+    let totalFatalities = 0;
+    for (const ev of events) {
+      const type = ev?.event_type || "Unknown";
+      eventTypes[type] = (eventTypes[type] || 0) + 1;
+      const f = parseInt(ev?.fatalities ?? "0", 10);
+      totalFatalities += Number.isFinite(f) ? f : 0;
+    }
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentEvents = events.filter((e) => {
+      const d = new Date(e?.event_date);
+      return !Number.isNaN(d.getTime()) && d >= thirtyDaysAgo;
+    }).length;
+
+    sendJson(res, 200, {
+      country,
+      total_events: events.length,
+      fatalities: totalFatalities,
+      events_last_30_days: recentEvents,
+      event_types: eventTypes,
+      last_updated: new Date().toISOString(),
+      trend: recentEvents > events.length / 12 ? "increasing" : "stable",
+    });
+  } catch (error: any) {
+    sendJson(res, 500, { error: "Failed to fetch ACLED", message: error?.message || String(error) });
+  }
+}
+
+async function handleUkProxy(req: IncomingMessage, res: ServerResponse, url: URL) {
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "content-type",
+    });
+    res.end();
+    return;
+  }
+
+  if (req.method !== "GET") {
+    sendJson(res, 405, { error: "Method not allowed" });
+    return;
+  }
+
+  const country = url.searchParams.get("country")?.trim();
+  if (!country) {
+    sendJson(res, 400, { error: "Missing country" });
+    return;
+  }
+
+  try {
+    const upstream = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(country)}`);
+    if (!upstream.ok) {
+      sendJson(res, 502, { error: "UK upstream error", status: upstream.status });
+      return;
+    }
+
+    const data: any = await upstream.json();
+    if (!data?.details) {
+      sendJson(res, 404, { error: "UK advice missing details" });
+      return;
+    }
+
+    sendJson(res, 200, {
+      country: data?.title || country,
+      alert_status: data?.details?.alert_status || [],
+      change_description: data?.details?.change_description || "",
+      last_updated: data?.public_updated_at || new Date().toISOString(),
+      url: data?.web_url || `https://www.gov.uk/foreign-travel-advice/${country}`,
+    });
+  } catch (error: any) {
+    sendJson(res, 500, { error: "Failed to fetch UK advice", message: error?.message || String(error) });
+  }
+}
+
 async function handleTrackEvent(req: IncomingMessage, res: ServerResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "content-type");
@@ -1644,7 +1836,11 @@ const httpServer = createServer(
 
     if (
       req.method === "OPTIONS" &&
-      (url.pathname === ssePath || url.pathname === postPath)
+      (url.pathname === ssePath ||
+        url.pathname === postPath ||
+        url.pathname === gdeltProxyPath ||
+        url.pathname === acledProxyPath ||
+        url.pathname === ukProxyPath)
     ) {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
@@ -1689,6 +1885,21 @@ const httpServer = createServer(
 
     if (url.pathname === trackEventPath) {
       await handleTrackEvent(req, res);
+      return;
+    }
+
+    if (url.pathname === gdeltProxyPath) {
+      await handleGdeltProxy(req, res, url);
+      return;
+    }
+
+    if (url.pathname === acledProxyPath) {
+      await handleAcledProxy(req, res, url);
+      return;
+    }
+
+    if (url.pathname === ukProxyPath) {
+      await handleUkProxy(req, res, url);
       return;
     }
 
