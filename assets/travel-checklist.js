@@ -1095,7 +1095,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect(create, deps) {
+        function useEffect2(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1111,7 +1111,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
-        function useMemo(create, deps) {
+        function useMemo2(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useMemo(create, deps);
         }
@@ -1878,12 +1878,12 @@ var require_react_development = __commonJS({
         exports.useContext = useContext;
         exports.useDebugValue = useDebugValue;
         exports.useDeferredValue = useDeferredValue;
-        exports.useEffect = useEffect;
+        exports.useEffect = useEffect2;
         exports.useId = useId;
         exports.useImperativeHandle = useImperativeHandle;
         exports.useInsertionEffect = useInsertionEffect;
         exports.useLayoutEffect = useLayoutEffect;
-        exports.useMemo = useMemo;
+        exports.useMemo = useMemo2;
         exports.useReducer = useReducer;
         exports.useRef = useRef;
         exports.useState = useState2;
@@ -2433,7 +2433,7 @@ var require_react_dom_development = __commonJS({
         var HostPortal = 4;
         var HostComponent = 5;
         var HostText = 6;
-        var Fragment = 7;
+        var Fragment2 = 7;
         var Mode = 8;
         var ContextConsumer = 9;
         var ContextProvider = 10;
@@ -3589,7 +3589,7 @@ var require_react_dom_development = __commonJS({
               return "DehydratedFragment";
             case ForwardRef:
               return getWrappedName$1(type, type.render, "ForwardRef");
-            case Fragment:
+            case Fragment2:
               return "Fragment";
             case HostComponent:
               return type;
@@ -11972,7 +11972,7 @@ var require_react_dom_development = __commonJS({
             }
           }
           function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-            if (current2 === null || current2.tag !== Fragment) {
+            if (current2 === null || current2.tag !== Fragment2) {
               var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
               created.return = returnFiber;
               return created;
@@ -12375,7 +12375,7 @@ var require_react_dom_development = __commonJS({
               if (child.key === key) {
                 var elementType = element.type;
                 if (elementType === REACT_FRAGMENT_TYPE) {
-                  if (child.tag === Fragment) {
+                  if (child.tag === Fragment2) {
                     deleteRemainingChildren(returnFiber, child.sibling);
                     var existing = useFiber(child, element.props.children);
                     existing.return = returnFiber;
@@ -17850,7 +17850,7 @@ var require_react_dom_development = __commonJS({
               var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
               return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
             }
-            case Fragment:
+            case Fragment2:
               return updateFragment(current2, workInProgress2, renderLanes2);
             case Mode:
               return updateMode(current2, workInProgress2, renderLanes2);
@@ -18122,7 +18122,7 @@ var require_react_dom_development = __commonJS({
             case SimpleMemoComponent:
             case FunctionComponent:
             case ForwardRef:
-            case Fragment:
+            case Fragment2:
             case Mode:
             case Profiler:
             case ContextConsumer:
@@ -22373,7 +22373,7 @@ var require_react_dom_development = __commonJS({
           return fiber;
         }
         function createFiberFromFragment(elements, mode, lanes, key) {
-          var fiber = createFiber(Fragment, elements, key, mode);
+          var fiber = createFiber(Fragment2, elements, key, mode);
           fiber.lanes = lanes;
           return fiber;
         }
@@ -24523,44 +24523,37 @@ var createLucideIcon = (iconName, iconNode) => {
   return Component;
 };
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/bell.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/calendar.js
 var __iconNode = [
-  ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
-  [
-    "path",
-    {
-      d: "M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",
-      key: "11g9vi"
-    }
-  ]
+  ["path", { d: "M8 2v4", key: "1cmpym" }],
+  ["path", { d: "M16 2v4", key: "4m81vk" }],
+  ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
+  ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-var Bell = createLucideIcon("bell", __iconNode);
+var Calendar = createLucideIcon("calendar", __iconNode);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-left.js
-var __iconNode2 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-var ChevronLeft = createLucideIcon("chevron-left", __iconNode2);
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-down.js
+var __iconNode2 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+var ChevronDown = createLucideIcon("chevron-down", __iconNode2);
+
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-up.js
+var __iconNode3 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+var ChevronUp = createLucideIcon("chevron-up", __iconNode3);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-alert.js
-var __iconNode3 = [
+var __iconNode4 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-var CircleAlert = createLucideIcon("circle-alert", __iconNode3);
+var CircleAlert = createLucideIcon("circle-alert", __iconNode4);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-check-big.js
-var __iconNode4 = [
+var __iconNode5 = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-var CircleCheckBig = createLucideIcon("circle-check-big", __iconNode4);
-
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/clock.js
-var __iconNode5 = [
-  ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }],
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
-];
-var Clock = createLucideIcon("clock", __iconNode5);
+var CircleCheckBig = createLucideIcon("circle-check-big", __iconNode5);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/external-link.js
 var __iconNode6 = [
@@ -24570,41 +24563,24 @@ var __iconNode6 = [
 ];
 var ExternalLink = createLucideIcon("external-link", __iconNode6);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/heart.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/globe.js
 var __iconNode7 = [
-  [
-    "path",
-    {
-      d: "M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5",
-      key: "mvr1a0"
-    }
-  ]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
+  ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-var Heart = createLucideIcon("heart", __iconNode7);
-
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/house.js
-var __iconNode8 = [
-  ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
-  [
-    "path",
-    {
-      d: "M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
-      key: "r6nss1"
-    }
-  ]
-];
-var House = createLucideIcon("house", __iconNode8);
+var Globe = createLucideIcon("globe", __iconNode7);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/info.js
-var __iconNode9 = [
+var __iconNode8 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-var Info = createLucideIcon("info", __iconNode9);
+var Info = createLucideIcon("info", __iconNode8);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/map-pin.js
-var __iconNode10 = [
+var __iconNode9 = [
   [
     "path",
     {
@@ -24614,49 +24590,29 @@ var __iconNode10 = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-var MapPin = createLucideIcon("map-pin", __iconNode10);
-
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/minus.js
-var __iconNode11 = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-var Minus = createLucideIcon("minus", __iconNode11);
+var MapPin = createLucideIcon("map-pin", __iconNode9);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/search.js
-var __iconNode12 = [
+var __iconNode10 = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-var Search = createLucideIcon("search", __iconNode12);
+var Search = createLucideIcon("search", __iconNode10);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/sliders-horizontal.js
-var __iconNode13 = [
-  ["path", { d: "M10 5H3", key: "1qgfaw" }],
-  ["path", { d: "M12 19H3", key: "yhmn1j" }],
-  ["path", { d: "M14 3v4", key: "1sua03" }],
-  ["path", { d: "M16 17v4", key: "1q0r14" }],
-  ["path", { d: "M21 12h-9", key: "1o4lsq" }],
-  ["path", { d: "M21 19h-5", key: "1rlt1p" }],
-  ["path", { d: "M21 5h-7", key: "1oszz2" }],
-  ["path", { d: "M8 10v4", key: "tgpxqk" }],
-  ["path", { d: "M8 12H3", key: "a7s4jb" }]
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/shield.js
+var __iconNode11 = [
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ]
 ];
-var SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode13);
-
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-down.js
-var __iconNode14 = [
-  ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
-  ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
-];
-var TrendingDown = createLucideIcon("trending-down", __iconNode14);
-
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-up.js
-var __iconNode15 = [
-  ["path", { d: "M16 7h6v6", key: "box55l" }],
-  ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
-];
-var TrendingUp = createLucideIcon("trending-up", __iconNode15);
+var Shield = createLucideIcon("shield", __iconNode11);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
-var __iconNode16 = [
+var __iconNode12 = [
   [
     "path",
     {
@@ -24667,608 +24623,1985 @@ var __iconNode16 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-var TriangleAlert = createLucideIcon("triangle-alert", __iconNode16);
-
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/user.js
-var __iconNode17 = [
-  ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
-  ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
-];
-var User = createLucideIcon("user", __iconNode17);
+var TriangleAlert = createLucideIcon("triangle-alert", __iconNode12);
 
 // src/TravelSafety.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var COLORS = {
-  bg: "#FAFAFA",
+  // Backgrounds
+  cream: "#FAFAFA",
+  // Light grey page background
   white: "#FFFFFF",
-  coral: "#E07B54",
-  coralLight: "#F5DDD5",
-  textDark: "#1A1A1A",
-  textMedium: "#6B6B6B",
+  // Card background
+  // Brand Colors - Coral/Orange accent
+  orange: "#E07B54",
+  // Primary coral/terracotta
+  lime: "#4CAF50",
+  // Green for safe
+  green: "#2E7D32",
+  // Dark green
+  navy: "#1A1A1A",
+  // Near black for text
+  plum: "#C62828",
+  // Red for danger
+  blue: "#1976D2",
+  // Blue accent
+  lavender: "#F5F5F5",
+  // Light grey
+  // Text Colors
+  textMain: "#1A1A1A",
+  textSecondary: "#6B6B6B",
   textLight: "#9CA3AF",
-  border: "#F0F0F0",
-  searchBg: "#F5F5F5",
-  safe: { bg: "#DCFCE7", text: "#166534", border: "#86EFAC" },
-  caution: { bg: "#FEF9C3", text: "#A16207", border: "#FDE047" },
-  warning: { bg: "#FFEDD5", text: "#C2410C", border: "#FDBA74" },
-  danger: { bg: "#FEE2E2", text: "#DC2626", border: "#FCA5A5" }
+  // Slate scale for UI elements
+  slate: {
+    50: "#FAFAFA",
+    100: "#F5F5F5",
+    200: "#E5E5E5",
+    300: "#D4D4D4",
+    400: "#A3A3A3",
+    500: "#737373",
+    600: "#525252",
+    700: "#404040",
+    800: "#262626",
+    900: "#171717"
+  },
+  // Functional Mappings with full style objects
+  safe: { bg: "#E8F5E9", text: "#2E7D32", border: "#A5D6A7", icon: "#2E7D32" },
+  warning: { bg: "#FFF3E0", text: "#E65100", border: "#FFCC80", icon: "#E65100" },
+  danger: { bg: "#FFEBEE", text: "#C62828", border: "#EF9A9A", icon: "#C62828" },
+  caution: { bg: "#FFF8E1", text: "#F57C00", border: "#FFE082", icon: "#F57C00" },
+  neutral: { bg: "#FAFAFA", text: "#525252", border: "#E5E5E5", icon: "#525252" },
+  // Primary action color
+  primary: "#E07B54"
 };
-var SHADOWS = {
-  card: "0 2px 12px rgba(0,0,0,0.06)",
-  button: "0 4px 14px rgba(224,123,84,0.3)"
+var ADVISORY_LEVELS = {
+  1: { label: "Exercise Normal Precautions", color: COLORS.safe.text, bgColor: COLORS.safe.bg, style: COLORS.safe, icon: CircleCheckBig },
+  2: { label: "Exercise Increased Caution", color: COLORS.caution.text, bgColor: COLORS.caution.bg, style: COLORS.caution, icon: Info },
+  3: { label: "Reconsider Travel", color: COLORS.warning.text, bgColor: COLORS.warning.bg, style: COLORS.warning, icon: TriangleAlert },
+  4: { label: "Do Not Travel", color: COLORS.danger.text, bgColor: COLORS.danger.bg, style: COLORS.danger, icon: CircleAlert }
 };
-var RADIUS = {
-  full: "9999px",
-  xl: "20px",
-  lg: "16px",
-  md: "12px"
+var CITY_COORDINATES = {
+  "medellin": { lat: 6.2442, lng: -75.5812, name: "Medell\xEDn", country: "Colombia" },
+  "bogota": { lat: 4.711, lng: -74.0721, name: "Bogot\xE1", country: "Colombia" },
+  "cartagena": { lat: 10.391, lng: -75.4794, name: "Cartagena", country: "Colombia" },
+  "cali": { lat: 3.4516, lng: -76.532, name: "Cali", country: "Colombia" },
+  "caracas": { lat: 10.4806, lng: -66.9036, name: "Caracas", country: "Venezuela" },
+  "panama city": { lat: 8.9824, lng: -79.5199, name: "Panama City", country: "Panama" },
+  "quito": { lat: -0.1807, lng: -78.4678, name: "Quito", country: "Ecuador" },
+  "mexico city": { lat: 19.4326, lng: -99.1332, name: "Mexico City", country: "Mexico" },
+  "cancun": { lat: 21.1619, lng: -86.8515, name: "Canc\xFAn", country: "Mexico" },
+  "cabo": { lat: 22.8905, lng: -109.9167, name: "Los Cabos", country: "Mexico" },
+  "guadalajara": { lat: 20.6597, lng: -103.3496, name: "Guadalajara", country: "Mexico" },
+  "paris": { lat: 48.8566, lng: 2.3522, name: "Paris", country: "France" },
+  "barcelona": { lat: 41.3851, lng: 2.1734, name: "Barcelona", country: "Spain" },
+  "madrid": { lat: 40.4168, lng: -3.7038, name: "Madrid", country: "Spain" },
+  "rome": { lat: 41.9028, lng: 12.4964, name: "Rome", country: "Italy" },
+  "tokyo": { lat: 35.6762, lng: 139.6503, name: "Tokyo", country: "Japan" },
+  "osaka": { lat: 34.6937, lng: 135.5023, name: "Osaka", country: "Japan" },
+  "bangkok": { lat: 13.7563, lng: 100.5018, name: "Bangkok", country: "Thailand" },
+  "phuket": { lat: 7.8804, lng: 98.3923, name: "Phuket", country: "Thailand" },
+  "rio de janeiro": { lat: -22.9068, lng: -43.1729, name: "Rio de Janeiro", country: "Brazil" },
+  "sao paulo": { lat: -23.5505, lng: -46.6333, name: "S\xE3o Paulo", country: "Brazil" }
 };
+function getDistanceKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+function getNearbyCities(cityKey, maxDistance = 500) {
+  const origin = CITY_COORDINATES[cityKey];
+  if (!origin) return [];
+  return Object.entries(CITY_COORDINATES).filter(([key, coords]) => {
+    if (key === cityKey) return false;
+    const dist = getDistanceKm(origin.lat, origin.lng, coords.lat, coords.lng);
+    return dist <= maxDistance;
+  }).sort((a, b) => {
+    const distA = getDistanceKm(origin.lat, origin.lng, a[1].lat, a[1].lng);
+    const distB = getDistanceKm(origin.lat, origin.lng, b[1].lat, b[1].lng);
+    return distA - distB;
+  }).slice(0, 4).map(([key]) => key);
+}
 var CITY_TO_COUNTRY = {
   "medellin": "Colombia",
   "bogota": "Colombia",
   "cartagena": "Colombia",
+  "cali": "Colombia",
   "paris": "France",
   "london": "United Kingdom",
   "tokyo": "Japan",
   "osaka": "Japan",
+  "kyoto": "Japan",
   "rome": "Italy",
+  "milan": "Italy",
+  "florence": "Italy",
+  "venice": "Italy",
   "barcelona": "Spain",
   "madrid": "Spain",
   "berlin": "Germany",
+  "munich": "Germany",
   "amsterdam": "Netherlands",
   "bangkok": "Thailand",
   "phuket": "Thailand",
+  "chiang mai": "Thailand",
   "mexico city": "Mexico",
   "cancun": "Mexico",
   "cabo": "Mexico",
+  "tulum": "Mexico",
+  "rio de janeiro": "Brazil",
+  "sao paulo": "Brazil",
+  "buenos aires": "Argentina",
+  "lima": "Peru",
+  "cusco": "Peru",
+  "sydney": "Australia",
+  "melbourne": "Australia",
   "dubai": "United Arab Emirates",
+  "abu dhabi": "United Arab Emirates",
   "singapore": "Singapore",
+  "hong kong": "Hong Kong",
+  "seoul": "Korea, South",
+  "busan": "Korea, South",
+  "taipei": "Taiwan",
+  "hanoi": "Vietnam",
+  "ho chi minh": "Vietnam",
+  "saigon": "Vietnam",
   "bali": "Indonesia",
+  "jakarta": "Indonesia",
+  "cairo": "Egypt",
+  "marrakech": "Morocco",
+  "cape town": "South Africa",
+  "johannesburg": "South Africa",
+  "nairobi": "Kenya",
   "istanbul": "Turkey",
   "athens": "Greece",
+  "santorini": "Greece",
   "lisbon": "Portugal",
-  "prague": "Czech Republic"
+  "porto": "Portugal",
+  "dublin": "Ireland",
+  "edinburgh": "United Kingdom",
+  "prague": "Czech Republic",
+  "vienna": "Austria",
+  "zurich": "Switzerland",
+  "geneva": "Switzerland",
+  "brussels": "Belgium",
+  "copenhagen": "Denmark",
+  "stockholm": "Sweden",
+  "oslo": "Norway",
+  "helsinki": "Finland",
+  "reykjavik": "Iceland",
+  "warsaw": "Poland",
+  "krakow": "Poland",
+  "budapest": "Hungary",
+  "moscow": "Russia",
+  "st petersburg": "Russia",
+  "tel aviv": "Israel",
+  "jerusalem": "Israel",
+  "new delhi": "India",
+  "mumbai": "India",
+  "goa": "India",
+  "kathmandu": "Nepal",
+  "havana": "Cuba",
+  "san juan": "Puerto Rico",
+  "kingston": "Jamaica",
+  "nassau": "Bahamas",
+  "punta cana": "Dominican Republic",
+  "santo domingo": "Dominican Republic"
 };
-var DESTINATION_IMAGES = {
-  "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop",
-  "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=300&fit=crop",
-  "cancun": "https://images.unsplash.com/photo-1552074284-5e88ef1aef18?w=400&h=300&fit=crop",
-  "medellin": "https://images.unsplash.com/photo-1599413987323-b2b8c0d7d9c8?w=400&h=300&fit=crop",
-  "bangkok": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=400&h=300&fit=crop",
-  "bali": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=300&fit=crop",
-  "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&h=300&fit=crop",
-  "london": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=300&fit=crop",
-  "dubai": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=300&fit=crop",
-  "barcelona": "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=400&h=300&fit=crop",
-  "default": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop"
-};
-var FALLBACK_DATA = {
-  "japan": {
-    advisory: { country: "Japan", advisory_level: 1, advisory_text: "Exercise normal precautions.", date_updated: "2024-12-01", url: "https://travel.state.gov", image: DESTINATION_IMAGES["tokyo"] },
-    acled: { total_events: 34, fatalities: 2, events_last_30_days: 3, trend: "stable" },
-    gdelt: { tone_score: 3.2, trend_7day: "stable" }
-  },
-  "france": {
-    advisory: { country: "France", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism and civil unrest.", date_updated: "2024-11-20", url: "https://travel.state.gov", image: DESTINATION_IMAGES["paris"] },
-    acled: { total_events: 423, fatalities: 12, events_last_30_days: 45, trend: "stable" },
-    gdelt: { tone_score: 0.8, trend_7day: "stable" }
+async function fetchUKAdvisories() {
+  try {
+    const ukAdvisories = {};
+    const countries = [
+      "colombia",
+      "mexico",
+      "france",
+      "japan",
+      "italy",
+      "spain",
+      "germany",
+      "thailand",
+      "brazil",
+      "united-kingdom"
+    ];
+    for (const country of countries) {
+      try {
+        const response = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${country}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.details) {
+            ukAdvisories[country] = {
+              country: data.title || country.charAt(0).toUpperCase() + country.slice(1),
+              alert_status: data.details.alert_status || [],
+              change_description: data.details.change_description || "",
+              last_updated: data.public_updated_at || (/* @__PURE__ */ new Date()).toISOString(),
+              url: data.web_url || `https://www.gov.uk/foreign-travel-advice/${country}`
+            };
+          }
+        }
+      } catch (error) {
+        console.log(`Failed to fetch UK advice for ${country}:`, error);
+      }
+    }
+    return ukAdvisories;
+  } catch (error) {
+    console.error("Failed to fetch UK advisories:", error);
+    return {};
+  }
+}
+async function fetchStateAdvisories() {
+  try {
+    const response = await fetch("https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/_jcr_content/traveladvisories.json");
+    const data = await response.json();
+    const advisories = {};
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        const countryName = item.title || item.country;
+        if (countryName) {
+          let level = 1;
+          const levelMatch = item.travel_advisory?.level || item.level;
+          if (levelMatch) {
+            level = parseInt(levelMatch, 10);
+          } else if (item.travel_advisory?.advisory) {
+            const textMatch = item.travel_advisory.advisory.match(/Level (\d)/i);
+            if (textMatch) level = parseInt(textMatch[1], 10);
+          }
+          advisories[countryName.toLowerCase()] = {
+            country: countryName,
+            country_code: item.country_code || item.iso_code || "",
+            advisory_level: Math.min(Math.max(level, 1), 4),
+            advisory_text: item.travel_advisory?.advisory || item.advisory || `Level ${level} - ${ADVISORY_LEVELS[level]?.label || "Unknown"}`,
+            date_updated: item.date_updated || item.last_updated || (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+            url: item.url || `https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/${countryName.toLowerCase().replace(/\s+/g, "-")}.html`
+          };
+        }
+      });
+    }
+    return advisories;
+  } catch (error) {
+    console.error("Failed to fetch State Department advisories:", error);
+    return {};
+  }
+}
+var FALLBACK_UK_ADVISORIES = {
+  "colombia": {
+    country: "Colombia",
+    alert_status: ["avoid_all_but_essential_travel_to_parts"],
+    change_description: "FCO advises against all but essential travel to parts of Colombia due to crime and terrorism.",
+    last_updated: "2025-12-29T16:17:16Z",
+    url: "https://www.gov.uk/foreign-travel-advice/colombia"
   },
   "mexico": {
-    advisory: { country: "Mexico", advisory_level: 2, advisory_text: "Exercise increased caution due to crime and kidnapping.", date_updated: "2024-12-10", url: "https://travel.state.gov", image: DESTINATION_IMAGES["cancun"] },
-    acled: { total_events: 2156, fatalities: 1834, events_last_30_days: 187, trend: "increasing" },
-    gdelt: { tone_score: -2.1, trend_7day: "worsening" }
+    country: "Mexico",
+    alert_status: ["avoid_all_but_essential_travel_to_parts"],
+    change_description: "FCO advises against all but essential travel to parts of Mexico due to crime.",
+    last_updated: "2025-12-10T13:43:01Z",
+    url: "https://www.gov.uk/foreign-travel-advice/mexico"
   },
-  "colombia": {
-    advisory: { country: "Colombia", advisory_level: 3, advisory_text: "Reconsider travel due to crime, terrorism, and kidnapping.", date_updated: "2024-12-15", url: "https://travel.state.gov", image: DESTINATION_IMAGES["medellin"] },
-    acled: { total_events: 1247, fatalities: 892, events_last_30_days: 98, trend: "stable" },
-    gdelt: { tone_score: -2.8, trend_7day: "stable" }
+  "france": {
+    country: "France",
+    alert_status: [],
+    change_description: "Terrorists are very likely to try to carry out attacks in France.",
+    last_updated: "2025-11-20T10:15:00Z",
+    url: "https://www.gov.uk/foreign-travel-advice/france"
   },
-  "thailand": {
-    advisory: { country: "Thailand", advisory_level: 1, advisory_text: "Exercise normal precautions.", date_updated: "2024-11-01", url: "https://travel.state.gov", image: DESTINATION_IMAGES["bangkok"] },
-    acled: { total_events: 312, fatalities: 89, events_last_30_days: 28, trend: "decreasing" },
-    gdelt: { tone_score: 1.5, trend_7day: "improving" }
-  },
-  "indonesia": {
-    advisory: { country: "Indonesia", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-10-15", url: "https://travel.state.gov", image: DESTINATION_IMAGES["bali"] },
-    acled: { total_events: 187, fatalities: 34, events_last_30_days: 15, trend: "stable" },
-    gdelt: { tone_score: 1.2, trend_7day: "stable" }
-  },
-  "italy": {
-    advisory: { country: "Italy", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-11-05", url: "https://travel.state.gov", image: DESTINATION_IMAGES["rome"] },
-    acled: { total_events: 156, fatalities: 8, events_last_30_days: 12, trend: "stable" },
-    gdelt: { tone_score: 2.1, trend_7day: "stable" }
-  },
-  "united kingdom": {
-    advisory: { country: "United Kingdom", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-10-20", url: "https://travel.state.gov", image: DESTINATION_IMAGES["london"] },
-    acled: { total_events: 234, fatalities: 15, events_last_30_days: 23, trend: "stable" },
-    gdelt: { tone_score: 0.5, trend_7day: "stable" }
-  },
-  "united arab emirates": {
-    advisory: { country: "United Arab Emirates", advisory_level: 2, advisory_text: "Exercise increased caution due to missile threats.", date_updated: "2024-09-15", url: "https://travel.state.gov", image: DESTINATION_IMAGES["dubai"] },
-    acled: { total_events: 45, fatalities: 3, events_last_30_days: 4, trend: "stable" },
-    gdelt: { tone_score: 1.8, trend_7day: "stable" }
-  },
-  "spain": {
-    advisory: { country: "Spain", advisory_level: 2, advisory_text: "Exercise increased caution due to terrorism.", date_updated: "2024-11-10", url: "https://travel.state.gov", image: DESTINATION_IMAGES["barcelona"] },
-    acled: { total_events: 123, fatalities: 5, events_last_30_days: 10, trend: "stable" },
-    gdelt: { tone_score: 2.4, trend_7day: "improving" }
+  "japan": {
+    country: "Japan",
+    alert_status: [],
+    change_description: "Japan is generally a safe country with low crime rates.",
+    last_updated: "2025-10-15T09:30:00Z",
+    url: "https://www.gov.uk/foreign-travel-advice/japan"
   }
 };
-var ADVISORY_CONFIG = {
-  1: { label: "Safe", color: COLORS.safe.text, bg: COLORS.safe.bg, icon: CircleCheckBig },
-  2: { label: "Caution", color: COLORS.caution.text, bg: COLORS.caution.bg, icon: Info },
-  3: { label: "Risky", color: COLORS.warning.text, bg: COLORS.warning.bg, icon: TriangleAlert },
-  4: { label: "Avoid", color: COLORS.danger.text, bg: COLORS.danger.bg, icon: CircleAlert }
+var FALLBACK_ACLED_DATA = {
+  // Country-level data
+  "colombia": {
+    country: "Colombia",
+    total_events: 1247,
+    fatalities: 892,
+    events_last_30_days: 98,
+    event_types: {
+      "Violence against civilians": 312,
+      "Battles": 245,
+      "Explosions/Remote violence": 189,
+      "Protests": 287,
+      "Riots": 124,
+      "Strategic developments": 90
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "mexico": {
+    country: "Mexico",
+    total_events: 2156,
+    fatalities: 1834,
+    events_last_30_days: 187,
+    event_types: {
+      "Violence against civilians": 892,
+      "Battles": 534,
+      "Explosions/Remote violence": 245,
+      "Protests": 312,
+      "Riots": 98,
+      "Strategic developments": 75
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "increasing"
+  },
+  "france": {
+    country: "France",
+    total_events: 423,
+    fatalities: 12,
+    events_last_30_days: 45,
+    event_types: {
+      "Protests": 287,
+      "Riots": 89,
+      "Violence against civilians": 23,
+      "Strategic developments": 24
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "japan": {
+    country: "Japan",
+    total_events: 34,
+    fatalities: 2,
+    events_last_30_days: 3,
+    event_types: {
+      "Protests": 28,
+      "Strategic developments": 6
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "thailand": {
+    country: "Thailand",
+    total_events: 312,
+    fatalities: 89,
+    events_last_30_days: 28,
+    event_types: {
+      "Violence against civilians": 78,
+      "Battles": 45,
+      "Protests": 134,
+      "Riots": 34,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  "brazil": {
+    country: "Brazil",
+    total_events: 1876,
+    fatalities: 1245,
+    events_last_30_days: 156,
+    event_types: {
+      "Violence against civilians": 923,
+      "Battles": 312,
+      "Protests": 412,
+      "Riots": 167,
+      "Strategic developments": 62
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Colombia
+  "medellin": {
+    country: "Colombia",
+    location: "Medell\xEDn",
+    total_events: 156,
+    fatalities: 89,
+    events_last_30_days: 12,
+    event_types: {
+      "Violence against civilians": 67,
+      "Protests": 45,
+      "Riots": 23,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  "bogota": {
+    country: "Colombia",
+    location: "Bogot\xE1",
+    total_events: 234,
+    fatalities: 45,
+    events_last_30_days: 18,
+    event_types: {
+      "Protests": 134,
+      "Violence against civilians": 45,
+      "Riots": 34,
+      "Strategic developments": 21
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cali": {
+    country: "Colombia",
+    location: "Cali",
+    total_events: 198,
+    fatalities: 134,
+    events_last_30_days: 15,
+    event_types: {
+      "Violence against civilians": 89,
+      "Battles": 45,
+      "Protests": 34,
+      "Riots": 30
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cartagena": {
+    country: "Colombia",
+    location: "Cartagena",
+    total_events: 34,
+    fatalities: 12,
+    events_last_30_days: 3,
+    event_types: {
+      "Violence against civilians": 18,
+      "Protests": 12,
+      "Strategic developments": 4
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Mexico
+  "mexico city": {
+    country: "Mexico",
+    location: "Mexico City",
+    total_events: 312,
+    fatalities: 156,
+    events_last_30_days: 28,
+    event_types: {
+      "Violence against civilians": 134,
+      "Protests": 98,
+      "Riots": 45,
+      "Strategic developments": 35
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cancun": {
+    country: "Mexico",
+    location: "Canc\xFAn",
+    total_events: 67,
+    fatalities: 34,
+    events_last_30_days: 6,
+    event_types: {
+      "Violence against civilians": 45,
+      "Protests": 12,
+      "Strategic developments": 10
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "cabo": {
+    country: "Mexico",
+    location: "Los Cabos",
+    total_events: 23,
+    fatalities: 8,
+    events_last_30_days: 2,
+    event_types: {
+      "Violence against civilians": 15,
+      "Strategic developments": 8
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "decreasing"
+  },
+  // City-level data - Brazil
+  "rio de janeiro": {
+    country: "Brazil",
+    location: "Rio de Janeiro",
+    total_events: 456,
+    fatalities: 312,
+    events_last_30_days: 38,
+    event_types: {
+      "Violence against civilians": 234,
+      "Battles": 89,
+      "Protests": 78,
+      "Riots": 55
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "sao paulo": {
+    country: "Brazil",
+    location: "S\xE3o Paulo",
+    total_events: 389,
+    fatalities: 198,
+    events_last_30_days: 32,
+    event_types: {
+      "Violence against civilians": 178,
+      "Protests": 134,
+      "Riots": 45,
+      "Strategic developments": 32
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Thailand
+  "bangkok": {
+    country: "Thailand",
+    location: "Bangkok",
+    total_events: 89,
+    fatalities: 12,
+    events_last_30_days: 8,
+    event_types: {
+      "Protests": 67,
+      "Riots": 12,
+      "Strategic developments": 10
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  "phuket": {
+    country: "Thailand",
+    location: "Phuket",
+    total_events: 12,
+    fatalities: 2,
+    events_last_30_days: 1,
+    event_types: {
+      "Protests": 8,
+      "Strategic developments": 4
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - France
+  "paris": {
+    country: "France",
+    location: "Paris",
+    total_events: 187,
+    fatalities: 5,
+    events_last_30_days: 21,
+    event_types: {
+      "Protests": 134,
+      "Riots": 34,
+      "Violence against civilians": 12,
+      "Strategic developments": 7
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  },
+  // City-level data - Japan
+  "tokyo": {
+    country: "Japan",
+    location: "Tokyo",
+    total_events: 18,
+    fatalities: 0,
+    events_last_30_days: 2,
+    event_types: {
+      "Protests": 15,
+      "Strategic developments": 3
+    },
+    last_updated: "2025-12-30T00:00:00Z",
+    trend: "stable"
+  }
 };
-function calcScore(level, acled, gdelt) {
-  let s = 100 - (level - 1) * 15;
-  if (acled.total_events > 1e3) s -= 12;
-  else if (acled.total_events > 500) s -= 8;
-  if (acled.trend === "increasing") s -= 5;
-  else if (acled.trend === "decreasing") s += 3;
-  if (gdelt.tone_score < -3) s -= 8;
-  else if (gdelt.tone_score > 2) s += 3;
-  if (gdelt.trend_7day === "worsening") s -= 5;
-  return Math.max(10, Math.min(100, Math.round(s)));
+var FALLBACK_GDELT_DATA = {
+  // City-level data - Colombia
+  "medellin": {
+    location: "Medell\xEDn",
+    country: "Colombia",
+    tone_score: -2.8,
+    volume_level: "normal",
+    article_count_24h: 23,
+    themes: {
+      "Tourism": 34,
+      "Crime": 22,
+      "Business": 18,
+      "Culture": 15,
+      "Politics": 11
+    },
+    headlines: [
+      { title: "Medell\xEDn named top destination for digital nomads in 2025", url: "https://example.com/1", source: "Travel Weekly", date: "2025-12-30", tone: 4.2 },
+      { title: "Security concerns persist in Comuna 13 despite tourism boom", url: "https://example.com/2", source: "Colombia Reports", date: "2025-12-29", tone: -3.5 },
+      { title: "New metro line expansion connects Medell\xEDn neighborhoods", url: "https://example.com/3", source: "Reuters", date: "2025-12-28", tone: 2.1 },
+      { title: "Local authorities crack down on tourist scams", url: "https://example.com/4", source: "El Tiempo", date: "2025-12-27", tone: -1.8 },
+      { title: "Medell\xEDn tech scene attracts international investment", url: "https://example.com/5", source: "Bloomberg", date: "2025-12-26", tone: 3.4 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "bogota": {
+    location: "Bogot\xE1",
+    country: "Colombia",
+    tone_score: -3.2,
+    volume_level: "elevated",
+    article_count_24h: 45,
+    themes: {
+      "Politics": 32,
+      "Crime": 24,
+      "Economy": 20,
+      "Protests": 14,
+      "Culture": 10
+    },
+    headlines: [
+      { title: "Colombia government announces new security measures for capital", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -2.1 },
+      { title: "Bogot\xE1 mayor addresses rising theft concerns in tourist areas", url: "https://example.com/2", source: "Colombia Reports", date: "2025-12-29", tone: -4.5 },
+      { title: "International film festival draws crowds to Bogot\xE1", url: "https://example.com/3", source: "Variety", date: "2025-12-28", tone: 3.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "colombia": {
+    location: "Colombia",
+    country: "Colombia",
+    tone_score: -4.1,
+    volume_level: "elevated",
+    article_count_24h: 156,
+    themes: {
+      "Politics": 28,
+      "Violence": 24,
+      "Economy": 18,
+      "Drug Trade": 15,
+      "Tourism": 15
+    },
+    headlines: [
+      { title: "Colombia peace process faces new challenges", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -5.2 },
+      { title: "Colombian exports reach record high in 2025", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 4.1 },
+      { title: "Rural violence continues in border regions", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -7.8 }
+    ],
+    trend_7day: "worsening",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Mexico
+  "mexico city": {
+    location: "Mexico City",
+    country: "Mexico",
+    tone_score: -1.9,
+    volume_level: "normal",
+    article_count_24h: 67,
+    themes: {
+      "Culture": 28,
+      "Politics": 24,
+      "Tourism": 20,
+      "Crime": 16,
+      "Business": 12
+    },
+    headlines: [
+      { title: "Mexico City ranked among top culinary destinations", url: "https://example.com/1", source: "Food & Wine", date: "2025-12-30", tone: 5.2 },
+      { title: "Air quality improvements in capital credited to new policies", url: "https://example.com/2", source: "Reuters", date: "2025-12-29", tone: 3.1 },
+      { title: "Pickpocketing on metro remains concern for tourists", url: "https://example.com/3", source: "Travel Safety", date: "2025-12-28", tone: -4.2 }
+    ],
+    trend_7day: "improving",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "cancun": {
+    location: "Canc\xFAn",
+    country: "Mexico",
+    tone_score: 1.2,
+    volume_level: "normal",
+    article_count_24h: 34,
+    themes: {
+      "Tourism": 45,
+      "Weather": 20,
+      "Business": 18,
+      "Crime": 12,
+      "Environment": 5
+    },
+    headlines: [
+      { title: "Canc\xFAn hotels report record bookings for holiday season", url: "https://example.com/1", source: "Travel Weekly", date: "2025-12-30", tone: 4.8 },
+      { title: "New coral reef restoration project launches near Canc\xFAn", url: "https://example.com/2", source: "National Geographic", date: "2025-12-29", tone: 5.2 },
+      { title: "Tourist zone security increased ahead of New Year", url: "https://example.com/3", source: "Mexico News Daily", date: "2025-12-28", tone: 0.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "mexico": {
+    location: "Mexico",
+    country: "Mexico",
+    tone_score: -5.3,
+    volume_level: "elevated",
+    article_count_24h: 234,
+    themes: {
+      "Crime": 32,
+      "Politics": 25,
+      "Economy": 18,
+      "Drug Trade": 15,
+      "Tourism": 10
+    },
+    headlines: [
+      { title: "Cartel violence surges in northern border states", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -8.5 },
+      { title: "Mexican peso strengthens against dollar", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 3.2 },
+      { title: "Travel advisory updated for several Mexican states", url: "https://example.com/3", source: "State Dept", date: "2025-12-28", tone: -5.1 }
+    ],
+    trend_7day: "worsening",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - France
+  "paris": {
+    location: "Paris",
+    country: "France",
+    tone_score: 0.8,
+    volume_level: "normal",
+    article_count_24h: 89,
+    themes: {
+      "Culture": 35,
+      "Tourism": 28,
+      "Politics": 18,
+      "Protests": 12,
+      "Business": 7
+    },
+    headlines: [
+      { title: "Louvre sets new visitor record in 2025", url: "https://example.com/1", source: "France 24", date: "2025-12-30", tone: 4.5 },
+      { title: "Paris public transport strike ends after negotiations", url: "https://example.com/2", source: "Reuters", date: "2025-12-29", tone: 1.2 },
+      { title: "New Year celebrations planned across Paris landmarks", url: "https://example.com/3", source: "Le Monde", date: "2025-12-28", tone: 3.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "france": {
+    location: "France",
+    country: "France",
+    tone_score: -1.2,
+    volume_level: "normal",
+    article_count_24h: 178,
+    themes: {
+      "Politics": 32,
+      "Economy": 24,
+      "Protests": 18,
+      "Culture": 16,
+      "Terrorism": 10
+    },
+    headlines: [
+      { title: "French government faces confidence vote", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -3.2 },
+      { title: "French tourism sector posts strong recovery", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 4.1 },
+      { title: "Security heightened at major attractions following threats", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -4.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Japan
+  "tokyo": {
+    location: "Tokyo",
+    country: "Japan",
+    tone_score: 3.2,
+    volume_level: "normal",
+    article_count_24h: 56,
+    themes: {
+      "Culture": 32,
+      "Business": 28,
+      "Tourism": 22,
+      "Technology": 12,
+      "Politics": 6
+    },
+    headlines: [
+      { title: "Tokyo named safest major city for travelers in 2025", url: "https://example.com/1", source: "Travel + Leisure", date: "2025-12-30", tone: 6.2 },
+      { title: "Japanese yen weakness draws record foreign tourists", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 2.8 },
+      { title: "New bullet train route connects Tokyo to regional cities", url: "https://example.com/3", source: "Japan Times", date: "2025-12-28", tone: 4.5 }
+    ],
+    trend_7day: "improving",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "japan": {
+    location: "Japan",
+    country: "Japan",
+    tone_score: 2.8,
+    volume_level: "normal",
+    article_count_24h: 134,
+    themes: {
+      "Economy": 30,
+      "Culture": 25,
+      "Politics": 20,
+      "Tourism": 18,
+      "Technology": 7
+    },
+    headlines: [
+      { title: "Japan tourism boom continues despite yen fluctuations", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: 3.5 },
+      { title: "Japanese companies report strong Q4 earnings", url: "https://example.com/2", source: "Nikkei", date: "2025-12-29", tone: 4.2 },
+      { title: "Japan maintains strict entry requirements for some countries", url: "https://example.com/3", source: "AP News", date: "2025-12-28", tone: -1.2 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Thailand
+  "bangkok": {
+    location: "Bangkok",
+    country: "Thailand",
+    tone_score: 1.5,
+    volume_level: "normal",
+    article_count_24h: 45,
+    themes: {
+      "Tourism": 38,
+      "Politics": 22,
+      "Culture": 20,
+      "Crime": 12,
+      "Business": 8
+    },
+    headlines: [
+      { title: "Bangkok street food scene draws global attention", url: "https://example.com/1", source: "CNN Travel", date: "2025-12-30", tone: 5.1 },
+      { title: "New airport express line reduces travel times", url: "https://example.com/2", source: "Bangkok Post", date: "2025-12-29", tone: 3.2 },
+      { title: "Police warn tourists about common scams in tourist areas", url: "https://example.com/3", source: "Thailand News", date: "2025-12-28", tone: -2.1 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "thailand": {
+    location: "Thailand",
+    country: "Thailand",
+    tone_score: 0.8,
+    volume_level: "normal",
+    article_count_24h: 98,
+    themes: {
+      "Tourism": 35,
+      "Politics": 28,
+      "Economy": 18,
+      "Crime": 12,
+      "Environment": 7
+    },
+    headlines: [
+      { title: "Thailand extends visa-free entry for more countries", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: 3.8 },
+      { title: "Southern provinces see uptick in separatist activity", url: "https://example.com/2", source: "AP News", date: "2025-12-29", tone: -5.2 },
+      { title: "Thai tourism authority launches new safety campaign", url: "https://example.com/3", source: "Travel Weekly", date: "2025-12-28", tone: 2.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  // City-level data - Brazil
+  "rio de janeiro": {
+    location: "Rio de Janeiro",
+    country: "Brazil",
+    tone_score: -3.8,
+    volume_level: "normal",
+    article_count_24h: 56,
+    themes: {
+      "Crime": 32,
+      "Tourism": 25,
+      "Culture": 20,
+      "Politics": 15,
+      "Sports": 8
+    },
+    headlines: [
+      { title: "Rio police launch new favela pacification program", url: "https://example.com/1", source: "Reuters", date: "2025-12-30", tone: -2.5 },
+      { title: "Copacabana beach preps for massive New Year celebration", url: "https://example.com/2", source: "BBC", date: "2025-12-29", tone: 4.2 },
+      { title: "Tourist robbed at gunpoint near Christ the Redeemer", url: "https://example.com/3", source: "O Globo", date: "2025-12-28", tone: -7.8 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  },
+  "brazil": {
+    location: "Brazil",
+    country: "Brazil",
+    tone_score: -4.5,
+    volume_level: "elevated",
+    article_count_24h: 189,
+    themes: {
+      "Crime": 30,
+      "Politics": 28,
+      "Economy": 22,
+      "Environment": 12,
+      "Sports": 8
+    },
+    headlines: [
+      { title: "Brazil struggles with rising urban violence", url: "https://example.com/1", source: "AP News", date: "2025-12-30", tone: -6.5 },
+      { title: "Brazilian real stabilizes after central bank intervention", url: "https://example.com/2", source: "Bloomberg", date: "2025-12-29", tone: 2.1 },
+      { title: "Amazon deforestation rates show slight decline", url: "https://example.com/3", source: "Reuters", date: "2025-12-28", tone: 1.5 }
+    ],
+    trend_7day: "stable",
+    last_updated: "2025-12-30T12:00:00Z"
+  }
+};
+var FALLBACK_ADVISORIES = {
+  "colombia": {
+    country: "Colombia",
+    country_code: "CO",
+    advisory_level: 3,
+    advisory_text: "Reconsider travel due to crime and terrorism. Some areas have increased risk.",
+    date_updated: "2024-12-15",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/colombia-travel-advisory.html"
+  },
+  "mexico": {
+    country: "Mexico",
+    country_code: "MX",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to crime and kidnapping. Some areas have increased risk.",
+    date_updated: "2024-12-10",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/mexico-travel-advisory.html"
+  },
+  "france": {
+    country: "France",
+    country_code: "FR",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism and civil unrest.",
+    date_updated: "2024-11-20",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/france-travel-advisory.html"
+  },
+  "japan": {
+    country: "Japan",
+    country_code: "JP",
+    advisory_level: 1,
+    advisory_text: "Exercise normal precautions.",
+    date_updated: "2024-10-15",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/japan-travel-advisory.html"
+  },
+  "italy": {
+    country: "Italy",
+    country_code: "IT",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism.",
+    date_updated: "2024-11-05",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/italy-travel-advisory.html"
+  },
+  "united kingdom": {
+    country: "United Kingdom",
+    country_code: "GB",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism.",
+    date_updated: "2024-10-20",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/united-kingdom-travel-advisory.html"
+  },
+  "spain": {
+    country: "Spain",
+    country_code: "ES",
+    advisory_level: 2,
+    advisory_text: "Exercise increased caution due to terrorism.",
+    date_updated: "2024-11-10",
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/spain-travel-advisory.html"
+  }
+};
+function SafetyMeter({ level }) {
+  const percentage = (4 - level + 1) / 4 * 100;
+  const config = ADVISORY_LEVELS[level] || ADVISORY_LEVELS[1];
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: "100%", marginTop: "20px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "13px", color: COLORS.textSecondary, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Safety Score" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: config.color === COLORS.white ? COLORS.plum : config.color }, children: [
+        Math.round(percentage),
+        "%"
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      width: "100%",
+      height: "12px",
+      backgroundColor: "#E2E8F0",
+      borderRadius: "6px",
+      overflow: "hidden",
+      border: "1px solid #CBD5E1"
+    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      width: `${percentage}%`,
+      height: "100%",
+      backgroundColor: config.color === COLORS.white ? COLORS.plum : config.bgColor === COLORS.lime ? COLORS.lime : config.color,
+      borderRadius: "5px",
+      transition: "width 0.5s ease-out"
+    } }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "11px", color: COLORS.textLight, fontWeight: 500 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "HIGH RISK" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "LOW RISK" })
+    ] })
+  ] });
 }
-function getScoreLabel(score) {
-  if (score >= 80) return "Very Safe";
-  if (score >= 65) return "Generally Safe";
-  if (score >= 50) return "Use Caution";
-  if (score >= 35) return "Elevated Risk";
-  return "High Risk";
+function DashboardCard({ title, children, icon: Icon2 }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    backgroundColor: COLORS.white,
+    borderRadius: "8px",
+    padding: "20px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+    border: `1px solid ${COLORS.slate[200]}`
+  }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }, children: [
+      Icon2 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 20, style: { color: COLORS.slate[400] } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: 0, fontSize: "16px", fontWeight: 600, color: COLORS.slate[900] }, children: title })
+    ] }),
+    children
+  ] });
 }
-function DestinationCard({
-  name,
-  country,
-  score,
-  level,
-  image,
-  onClick,
-  isFavorite = false
-}) {
-  const config = ADVISORY_CONFIG[level] || ADVISORY_CONFIG[1];
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-    "div",
-    {
-      onClick,
-      style: {
-        backgroundColor: COLORS.white,
-        borderRadius: RADIUS.xl,
-        overflow: "hidden",
-        boxShadow: SHADOWS.card,
-        cursor: "pointer",
-        transition: "transform 0.2s, box-shadow 0.2s"
-      },
-      onMouseEnter: (e) => {
-        e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
-      },
-      onMouseLeave: (e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = SHADOWS.card;
-      },
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", height: "120px", overflow: "hidden" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "img",
-            {
-              src: image,
-              alt: name,
-              style: { width: "100%", height: "100%", objectFit: "cover" }
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-            position: "absolute",
-            top: "8px",
-            left: "8px",
-            backgroundColor: config.bg,
-            color: config.color,
-            padding: "4px 8px",
-            borderRadius: RADIUS.md,
-            fontSize: "10px",
-            fontWeight: 700,
+function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories }) {
+  const nearbyCities = getNearbyCities(currentCity);
+  if (nearbyCities.length === 0) return null;
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", fontWeight: 500, color: COLORS.slate[500], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Nearby Cities" }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: nearbyCities.map((cityKey) => {
+      const cityInfo = CITY_COORDINATES[cityKey];
+      if (!cityInfo) return null;
+      const cityAcled = FALLBACK_ACLED_DATA[cityKey];
+      const cityGdelt = FALLBACK_GDELT_DATA[cityKey];
+      const countryKey = cityInfo.country.toLowerCase();
+      const cityAdvisory = FALLBACK_ADVISORIES[countryKey] || advisories;
+      const score = calculateSafetyScore(cityAdvisory, cityAcled, cityGdelt);
+      const config = getScoreConfig(score);
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "div",
+        {
+          style: {
             display: "flex",
             alignItems: "center",
-            gap: "4px"
-          }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(config.icon, { size: 12 }),
-            "L",
-            level
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: {
-                margin: 0,
-                fontSize: "15px",
-                fontWeight: 600,
-                color: COLORS.textDark,
-                textTransform: "capitalize"
-              }, children: name }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: {
-                margin: "2px 0 0",
-                fontSize: "12px",
-                color: COLORS.textLight
-              }, children: country })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
-              width: "32px",
-              height: "32px",
+            gap: "8px",
+            padding: "8px 12px",
+            backgroundColor: COLORS.white,
+            borderRadius: "6px",
+            border: `1px solid ${COLORS.slate[200]}`,
+            cursor: "pointer",
+            transition: "all 0.2s"
+          },
+          title: `${cityInfo.name}, ${cityInfo.country}`,
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "24px",
+              height: "24px",
               borderRadius: "50%",
-              backgroundColor: isFavorite ? COLORS.coralLight : COLORS.bg,
-              border: "none",
+              backgroundColor: config.bg,
+              border: `1px solid ${config.border}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              cursor: "pointer"
-            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-              Heart,
-              {
-                size: 16,
-                fill: isFavorite ? COLORS.coral : "none",
-                color: COLORS.coral
-              }
-            ) })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: "10px",
-            paddingTop: "10px",
-            borderTop: `1px solid ${COLORS.border}`
-          }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "11px", color: COLORS.textLight, fontWeight: 500 }, children: "Safety Score" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
-              fontSize: "16px",
+              fontSize: "10px",
               fontWeight: 700,
-              color: score >= 65 ? COLORS.safe.text : score >= 50 ? COLORS.caution.text : COLORS.warning.text
-            }, children: score })
-          ] })
-        ] })
-      ]
-    }
-  );
+              color: config.text
+            }, children: score }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[700] }, children: cityInfo.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: cityInfo.country })
+            ] })
+          ]
+        },
+        cityKey
+      );
+    }) })
+  ] });
 }
-function DetailView({
-  name,
-  data,
-  onBack
-}) {
-  const score = calcScore(data.advisory.advisory_level, data.acled, data.gdelt);
-  const config = ADVISORY_CONFIG[data.advisory.advisory_level];
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { backgroundColor: COLORS.bg, minHeight: "100vh" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", height: "200px" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "img",
-        {
-          src: data.advisory.image,
-          alt: name,
-          style: { width: "100%", height: "100%", objectFit: "cover" }
-        }
-      ),
+function calculateSafetyScore(advisory, acledData, gdeltData) {
+  let score = 100;
+  score -= (advisory.advisory_level - 1) * 15;
+  if (acledData) {
+    if (acledData.total_events > 1e3) score -= 15;
+    else if (acledData.total_events > 500) score -= 10;
+    else if (acledData.total_events > 100) score -= 5;
+    if (acledData.fatalities > 500) score -= 10;
+    else if (acledData.fatalities > 100) score -= 5;
+    if (acledData.trend === "increasing") score -= 5;
+    else if (acledData.trend === "decreasing") score += 3;
+  }
+  if (gdeltData) {
+    if (gdeltData.tone_score < -5) score -= 10;
+    else if (gdeltData.tone_score < -2) score -= 5;
+    else if (gdeltData.tone_score > 2) score += 3;
+    if (gdeltData.volume_level === "spike") score -= 8;
+    else if (gdeltData.volume_level === "elevated") score -= 3;
+    if (gdeltData.trend_7day === "worsening") score -= 5;
+    else if (gdeltData.trend_7day === "improving") score += 3;
+  }
+  return Math.max(1, Math.min(100, Math.round(score)));
+}
+function getScoreConfig(score) {
+  if (score >= 75) return COLORS.safe;
+  if (score >= 50) return COLORS.caution;
+  if (score >= 25) return COLORS.warning;
+  return COLORS.danger;
+}
+function getScoreLabel(score) {
+  if (score >= 75) return "Low Risk";
+  if (score >= 50) return "Moderate Risk";
+  if (score >= 25) return "Elevated Risk";
+  return "High Risk";
+}
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }) {
+  const [showMore, setShowMore] = (0, import_react3.useState)(false);
+  const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
+  const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
+  const scoreConfig = getScoreConfig(safetyScore);
+  const scoreLabel = getScoreLabel(safetyScore);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+    backgroundColor: COLORS.white,
+    borderRadius: "12px",
+    padding: "24px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1)",
+    border: `1px solid ${COLORS.slate[200]}`,
+    maxWidth: "600px",
+    margin: "0 auto"
+  }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { size: 20, style: { color: COLORS.slate[400] } }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "24px", fontWeight: 700, color: COLORS.slate[900], letterSpacing: "-0.02em" }, children: isCity ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize" }, children: searchTerm }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500], fontWeight: 400, fontSize: "20px" }, children: [
+          ", ",
+          advisory.country
+        ] })
+      ] }) : advisory.country })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "20px",
+      marginBottom: "24px",
+      padding: "20px",
+      backgroundColor: COLORS.slate[50],
+      borderRadius: "8px",
+      border: `1px solid ${COLORS.slate[200]}`
+    }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 50%, rgba(0,0,0,0.5) 100%)"
-      } }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "button",
-        {
-          onClick: onBack,
-          style: {
-            position: "absolute",
-            top: "16px",
-            left: "16px",
-            width: "40px",
-            height: "40px",
-            borderRadius: "50%",
-            backgroundColor: COLORS.white,
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            boxShadow: SHADOWS.card
-          },
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { size: 20, color: COLORS.textDark })
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "absolute", bottom: "16px", left: "16px", right: "16px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: {
-          margin: 0,
-          fontSize: "24px",
-          fontWeight: 700,
-          color: COLORS.white,
-          textTransform: "capitalize",
-          textShadow: "0 2px 4px rgba(0,0,0,0.3)"
-        }, children: name }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "4px 0 0", fontSize: "14px", color: "rgba(255,255,255,0.9)" }, children: data.advisory.country })
+        width: "72px",
+        height: "72px",
+        borderRadius: "50%",
+        backgroundColor: COLORS.white,
+        border: `4px solid ${scoreConfig.text}`,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0
+      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, color: scoreConfig.text, lineHeight: 1 }, children: safetyScore }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "18px", fontWeight: 600, color: scoreConfig.text, marginBottom: "4px" }, children: scoreLabel }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.5 }, children: safetyScore >= 75 ? "Likely safe for travel. Exercise normal precautions." : safetyScore >= 50 ? "Exercise increased caution. Be aware of surroundings." : safetyScore >= 25 ? "Reconsider travel. Significant safety concerns exist." : "Do not travel. Extreme risks present." })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "16px", marginTop: "-24px", position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "24px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }, children: [
+      gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "12px",
         backgroundColor: COLORS.white,
-        borderRadius: RADIUS.xl,
-        padding: "20px",
-        boxShadow: SHADOWS.card,
-        marginBottom: "16px"
-      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "16px" }, children: [
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.slate[200]}`,
+        textAlign: "center"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "News Tone" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          width: "72px",
-          height: "72px",
-          borderRadius: "50%",
-          backgroundColor: config.bg,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0
+          fontSize: "18px",
+          fontWeight: 700,
+          color: gdeltData.tone_score > 0 ? COLORS.safe.text : gdeltData.tone_score < -3 ? COLORS.danger.text : COLORS.warning.text
         }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "24px", fontWeight: 700, color: config.color }, children: score }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "9px", fontWeight: 600, color: config.color }, children: "SCORE" })
+          gdeltData.tone_score > 0 ? "+" : "",
+          gdeltData.tone_score
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            backgroundColor: config.bg,
-            padding: "6px 12px",
-            borderRadius: RADIUS.full,
-            marginBottom: "8px"
-          }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(config.icon, { size: 14, color: config.color }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "12px", fontWeight: 600, color: config.color }, children: [
-              "Level ",
-              data.advisory.advisory_level,
-              ": ",
-              config.label
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: 0, fontSize: "13px", color: COLORS.textMedium, lineHeight: 1.4 }, children: [
-            getScoreLabel(score),
-            " destination"
-          ] })
-        ] })
-      ] }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          backgroundColor: COLORS.white,
-          borderRadius: RADIUS.lg,
-          padding: "16px",
-          boxShadow: SHADOWS.card
-        }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", fontWeight: 600, color: COLORS.textLight, textTransform: "uppercase", marginBottom: "4px" }, children: "Events (30d)" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.textDark }, children: data.acled.events_last_30_days }),
-            data.acled.trend === "increasing" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, color: COLORS.danger.text }),
-            data.acled.trend === "decreasing" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 16, color: COLORS.safe.text }),
-            data.acled.trend === "stable" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minus, { size: 16, color: COLORS.textLight })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          backgroundColor: COLORS.white,
-          borderRadius: RADIUS.lg,
-          padding: "16px",
-          boxShadow: SHADOWS.card
-        }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "10px", fontWeight: 600, color: COLORS.textLight, textTransform: "uppercase", marginBottom: "4px" }, children: "News Sentiment" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
-              fontSize: "20px",
-              fontWeight: 700,
-              color: data.gdelt.tone_score > 0 ? COLORS.safe.text : data.gdelt.tone_score < -2 ? COLORS.danger.text : COLORS.textDark
-            }, children: [
-              data.gdelt.tone_score > 0 ? "+" : "",
-              data.gdelt.tone_score.toFixed(1)
-            ] }),
-            data.gdelt.trend_7day === "improving" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingUp, { size: 16, color: COLORS.safe.text }),
-            data.gdelt.trend_7day === "worsening" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TrendingDown, { size: 16, color: COLORS.danger.text }),
-            data.gdelt.trend_7day === "stable" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Minus, { size: 16, color: COLORS.textLight })
-          ] })
-        ] })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: gdeltData.volume_level === "spike" ? "High Volume" : "Normal Vol" })
+      ] }),
+      acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "12px",
+        backgroundColor: COLORS.white,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.slate[200]}`,
+        textAlign: "center"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "Events" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+          fontSize: "18px",
+          fontWeight: 700,
+          color: acledData.total_events > 500 ? COLORS.danger.text : acledData.total_events > 100 ? COLORS.warning.text : COLORS.safe.text
+        }, children: acledData.total_events.toLocaleString() }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "Past Year" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "12px",
         backgroundColor: COLORS.white,
-        borderRadius: RADIUS.lg,
-        padding: "16px",
-        boxShadow: SHADOWS.card,
-        marginBottom: "16px"
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.slate[200]}`,
+        textAlign: "center"
       }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 8px", fontSize: "13px", fontWeight: 600, color: COLORS.textDark }, children: "US State Department Advisory" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: 0, fontSize: "13px", color: COLORS.textMedium, lineHeight: 1.5 }, children: data.advisory.advisory_text }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: "8px 0 0", fontSize: "11px", color: COLORS.textLight }, children: [
-          "Updated: ",
-          data.advisory.date_updated
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "US Advisory" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          fontSize: "18px",
+          fontWeight: 700,
+          color: config.style.text
+        }, children: [
+          "Level ",
+          advisory.advisory_level
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "of 4" })
+      ] })
+    ] }) }),
+    isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      NearbyCitiesComparison,
+      {
+        currentCity: searchTerm,
+        acledData,
+        gdeltData,
+        advisories: advisory
+      }
+    ),
+    gdeltData && gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "a",
+      {
+        href: gdeltData.headlines[0].url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          padding: "10px 12px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`,
+          textDecoration: "none",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          transition: "all 0.2s"
+        },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", color: COLORS.slate[900], fontWeight: 500, lineHeight: 1.3 }, children: gdeltData.headlines[0].title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginTop: "2px" }, children: gdeltData.headlines[0].source })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14, style: { color: COLORS.slate[400], flexShrink: 0, marginLeft: "8px" } })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", marginBottom: showMore ? "24px" : "0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "button",
+      {
+        onClick: () => setShowMore(!showMore),
+        style: {
+          padding: "10px 24px",
+          backgroundColor: showMore ? COLORS.slate[100] : COLORS.white,
+          color: showMore ? COLORS.slate[600] : COLORS.primary,
+          border: `1px solid ${showMore ? COLORS.slate[300] : COLORS.slate[200]}`,
+          borderRadius: "50px",
+          fontSize: "13px",
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          transition: "all 0.2s",
+          boxShadow: showMore ? "none" : "0 1px 2px rgba(0,0,0,0.05)"
+        },
+        children: showMore ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { size: 16 }),
+          "Show Less"
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { size: 16 }),
+          "Full Analysis"
         ] })
+      }
+    ) }),
+    showMore && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { borderTop: `1px solid ${COLORS.slate[200]}`, paddingTop: "32px" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { margin: "0 0 24px 0", fontSize: "18px", fontWeight: 600, color: COLORS.slate[900] }, children: "Detailed Analysis" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "24px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "US State Department", icon: Shield, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+            padding: "16px",
+            backgroundColor: config.style.bg,
+            borderRadius: "8px",
+            border: `1px solid ${config.style.border}`
+          }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: config.style.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "18px",
+              fontWeight: 700
+            }, children: advisory.advisory_level }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
+                "Level ",
+                advisory.advisory_level
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: config.style.text }, children: config.label })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SafetyMeter, { level: advisory.advisory_level })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DashboardCard, { title: "Advisory Details", icon: Info, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: advisory.advisory_text }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              advisory.date_updated
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: advisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "16px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View Full Advisory"
+              ]
+            }
+          )
+        ] }),
+        ukAdvisory && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "UK Foreign Office", icon: Shield, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.primary,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: "UK" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: "FCO Travel Advice" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: "Foreign, Commonwealth & Development Office" })
+            ] })
+          ] }),
+          ukAdvisory.alert_status.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.danger.text, marginBottom: "8px", textTransform: "uppercase" }, children: "Travel Alerts" }),
+            ukAdvisory.alert_status.map((status, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              padding: "8px 12px",
+              backgroundColor: COLORS.danger.bg,
+              borderRadius: "6px",
+              fontSize: "13px",
+              color: COLORS.danger.text,
+              marginBottom: "6px",
+              border: `1px solid ${COLORS.danger.border}`,
+              fontWeight: 500
+            }, children: status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, index))
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 16px 0", color: COLORS.slate[700], lineHeight: 1.6, fontSize: "14px" }, children: ukAdvisory.change_description }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              new Date(ukAdvisory.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: ukAdvisory.url,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View UK Advice"
+              ]
+            }
+          )
+        ] }) }),
+        acledData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "ACLED Conflict Data", icon: TriangleAlert, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.warning.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TriangleAlert, { size: 20 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: acledData.location ? `${acledData.location}, ${acledData.country}` : acledData.country }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: [
+                "Conflict Data ",
+                acledData.location ? "(City-level)" : "(Country-level)"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.danger.text }, children: acledData.total_events.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Events (2025)" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.danger.text }, children: acledData.fatalities.toLocaleString() }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Fatalities" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "20px", fontWeight: 700, color: COLORS.warning.text }, children: acledData.events_last_30_days }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Last 30 Days" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: acledData.trend === "increasing" ? COLORS.danger.text : acledData.trend === "decreasing" ? COLORS.safe.text : COLORS.slate[500]
+              }, children: acledData.trend === "increasing" ? "\u2191 Increasing" : acledData.trend === "decreasing" ? "\u2193 Decreasing" : "\u2192 Stable" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Trend" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Event Types" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(acledData.event_types).slice(0, 5).map(([type, count]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              padding: "6px 10px",
+              backgroundColor: COLORS.white,
+              borderRadius: "6px",
+              fontSize: "12px",
+              border: `1px solid ${COLORS.slate[200]}`,
+              color: COLORS.slate[700],
+              fontWeight: 500
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500] }, children: [
+                type,
+                ":"
+              ] }),
+              " ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: count })
+            ] }, type)) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Updated: ",
+              new Date(acledData.last_updated).toLocaleDateString()
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: "https://acleddata.com/dashboard/",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View ACLED Dashboard"
+              ]
+            }
+          )
+        ] }) }),
+        gdeltData && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DashboardCard, { title: "GDELT News Analysis", icon: Globe, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+          padding: "16px",
+          backgroundColor: COLORS.slate[50],
+          borderRadius: "8px",
+          border: `1px solid ${COLORS.slate[200]}`
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: COLORS.safe.icon,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: COLORS.white,
+              fontSize: "16px",
+              fontWeight: 700
+            }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 20 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: gdeltData.location }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "14px", color: COLORS.slate[500] }, children: [
+                "Global News Monitoring ",
+                gdeltData.location !== gdeltData.country ? "(City-level)" : "(Country-level)"
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                fontSize: "20px",
+                fontWeight: 700,
+                color: gdeltData.tone_score > 0 ? COLORS.safe.text : gdeltData.tone_score < -3 ? COLORS.danger.text : COLORS.warning.text
+              }, children: [
+                gdeltData.tone_score > 0 ? "+" : "",
+                gdeltData.tone_score
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "News Tone" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: gdeltData.volume_level === "spike" ? COLORS.danger.text : gdeltData.volume_level === "elevated" ? COLORS.warning.text : COLORS.safe.text
+              }, children: gdeltData.volume_level === "spike" ? "\u{1F534} Spike" : gdeltData.volume_level === "elevated" ? "\u{1F7E1} Elevated" : "\u{1F7E2} Normal" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "Volume" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "12px", backgroundColor: COLORS.white, borderRadius: "6px", border: `1px solid ${COLORS.slate[200]}`, textAlign: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                fontSize: "14px",
+                fontWeight: 700,
+                color: gdeltData.trend_7day === "worsening" ? COLORS.danger.text : gdeltData.trend_7day === "improving" ? COLORS.safe.text : COLORS.slate[500]
+              }, children: gdeltData.trend_7day === "worsening" ? "\u2193 Worsening" : gdeltData.trend_7day === "improving" ? "\u2191 Improving" : "\u2192 Stable" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "12px", color: COLORS.slate[500], fontWeight: 500 }, children: "7-Day Trend" })
+            ] })
+          ] }),
+          Object.keys(gdeltData.themes).length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Themes" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: Object.entries(gdeltData.themes).slice(0, 5).map(([theme, pct]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+              padding: "6px 10px",
+              backgroundColor: COLORS.white,
+              borderRadius: "6px",
+              fontSize: "12px",
+              border: `1px solid ${COLORS.slate[200]}`,
+              color: COLORS.slate[700],
+              fontWeight: 500
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { color: COLORS.slate[500] }, children: [
+                theme,
+                ":"
+              ] }),
+              " ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: COLORS.slate[900] }, children: [
+                pct,
+                "%"
+              ] })
+            ] }, theme)) })
+          ] }),
+          gdeltData.headlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[900], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Headlines" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: gdeltData.headlines.slice(0, 3).map((headline, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "a",
+              {
+                href: headline.url,
+                target: "_blank",
+                rel: "noopener noreferrer",
+                style: {
+                  padding: "12px",
+                  backgroundColor: COLORS.white,
+                  borderRadius: "6px",
+                  border: `1px solid ${COLORS.slate[200]}`,
+                  textDecoration: "none",
+                  display: "block",
+                  transition: "all 0.2s"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                    fontSize: "14px",
+                    color: COLORS.slate[900],
+                    fontWeight: 500,
+                    marginBottom: "4px",
+                    lineHeight: 1.4
+                  }, children: headline.title }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: COLORS.slate[500] }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: headline.source }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[300] }, children: "\u2022" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: {
+                      color: headline.tone > 0 ? COLORS.safe.text : headline.tone < -3 ? COLORS.danger.text : COLORS.warning.text,
+                      fontWeight: 500
+                    }, children: [
+                      "Tone: ",
+                      headline.tone > 0 ? "+" : "",
+                      headline.tone.toFixed(1)
+                    ] })
+                  ] })
+                ]
+              },
+              index
+            )) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: "8px", color: COLORS.slate[500], fontSize: "13px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Calendar, { size: 14 }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+              "Data from GDELT \u2022 ",
+              gdeltData.article_count_24h,
+              " articles in 24h"
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "a",
+            {
+              href: `https://gdeltproject.org/`,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: COLORS.white,
+                color: COLORS.primary,
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: `1px solid ${COLORS.slate[200]}`,
+                transition: "all 0.2s"
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 14 }),
+                "View GDELT Project"
+              ]
+            }
+          )
+        ] }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "a",
-        {
-          href: data.advisory.url,
-          target: "_blank",
-          rel: "noopener noreferrer",
-          style: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            width: "100%",
-            padding: "14px",
-            backgroundColor: COLORS.coral,
-            color: COLORS.white,
-            borderRadius: RADIUS.lg,
-            textDecoration: "none",
-            fontSize: "14px",
-            fontWeight: 600,
-            boxShadow: SHADOWS.button
-          },
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, { size: 16 }),
-            "View Full Advisory"
-          ]
-        }
-      )
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        padding: "16px",
+        backgroundColor: COLORS.slate[50],
+        borderRadius: "12px",
+        border: `1px solid ${COLORS.slate[200]}`
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h4", { style: { margin: "0 0 12px 0", fontSize: "14px", fontWeight: 600, color: COLORS.slate[900], textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Advisory Levels" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gap: "8px" }, children: Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
+          const Icon2 = info.icon;
+          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "div",
+            {
+              style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "8px 12px",
+                backgroundColor: info.style.bg,
+                borderRadius: "6px",
+                fontSize: "13px",
+                border: `1px solid ${info.style.border}`
+              },
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon2, { size: 16, style: { color: info.style.icon } }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontWeight: 600, color: info.style.text }, children: [
+                  "Level ",
+                  level,
+                  ":"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.slate[600] }, children: info.label })
+              ]
+            },
+            level
+          );
+        }) })
+      ] }),
+      isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        marginTop: "16px",
+        padding: "14px",
+        backgroundColor: COLORS.primary + "10",
+        // 10% opacity
+        borderRadius: "10px",
+        border: `1px solid ${COLORS.primary}30`,
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px"
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, { size: 18, style: { color: COLORS.primary, flexShrink: 0, marginTop: "2px" } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { color: COLORS.slate[700], fontSize: "13px", lineHeight: 1.5 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { style: { color: COLORS.primary }, children: "Note:" }),
+          " Government advisories apply to ",
+          advisory.country,
+          " as a whole. Local data (ACLED, GDELT) is specific to ",
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { textTransform: "capitalize", fontWeight: 600 }, children: searchTerm }),
+          "."
+        ] })
+      ] })
     ] })
   ] });
 }
 function TravelSafety() {
-  const [query, setQuery] = (0, import_react3.useState)("");
-  const [selectedDest, setSelectedDest] = (0, import_react3.useState)(null);
-  const [favorites, setFavorites] = (0, import_react3.useState)(/* @__PURE__ */ new Set());
-  const popularDestinations = ["tokyo", "paris", "cancun", "bangkok", "bali", "rome"];
-  const getDestData = (key) => {
-    const country = CITY_TO_COUNTRY[key] || key;
-    const countryKey = country.toLowerCase();
-    return FALLBACK_DATA[countryKey];
-  };
-  const filteredDests = query.trim() ? popularDestinations.filter((d) => d.includes(query.toLowerCase()) || (CITY_TO_COUNTRY[d] || "").toLowerCase().includes(query.toLowerCase())) : popularDestinations;
-  if (selectedDest) {
-    const data = getDestData(selectedDest);
-    if (data) {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DetailView, { name: selectedDest, data, onBack: () => setSelectedDest(null) });
+  const [searchQuery, setSearchQuery] = (0, import_react3.useState)("");
+  const [searchResult, setSearchResult] = (0, import_react3.useState)(null);
+  const [advisories, setAdvisories] = (0, import_react3.useState)(FALLBACK_ADVISORIES);
+  const [ukAdvisories, setUkAdvisories] = (0, import_react3.useState)(FALLBACK_UK_ADVISORIES);
+  const [acledData, setAcledData] = (0, import_react3.useState)(FALLBACK_ACLED_DATA);
+  const [gdeltData, setGdeltData] = (0, import_react3.useState)(FALLBACK_GDELT_DATA);
+  const [loading, setLoading] = (0, import_react3.useState)(false);
+  const [error, setError] = (0, import_react3.useState)(null);
+  const [apiLoaded, setApiLoaded] = (0, import_react3.useState)(false);
+  (0, import_react3.useEffect)(() => {
+    Promise.all([
+      fetchStateAdvisories(),
+      fetchUKAdvisories()
+    ]).then(([usData, ukData]) => {
+      if (Object.keys(usData).length > 0) {
+        setAdvisories({ ...FALLBACK_ADVISORIES, ...usData });
+      }
+      if (Object.keys(ukData).length > 0) {
+        setUkAdvisories({ ...FALLBACK_UK_ADVISORIES, ...ukData });
+      }
+      setApiLoaded(true);
+    });
+  }, []);
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    setLoading(true);
+    setError(null);
+    const query = searchQuery.trim().toLowerCase();
+    const countryFromCity = CITY_TO_COUNTRY[query];
+    if (countryFromCity) {
+      const countryKey = countryFromCity.toLowerCase();
+      const advisory2 = advisories[countryKey];
+      const ukAdvisory2 = ukAdvisories[countryKey];
+      const acled2 = acledData[query] || acledData[countryKey];
+      const gdelt2 = gdeltData[query] || gdeltData[countryKey];
+      if (advisory2) {
+        setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: query });
+        setLoading(false);
+        return;
+      }
     }
-  }
+    const advisory = advisories[query];
+    const ukAdvisory = ukAdvisories[query];
+    const acled = acledData[query];
+    const gdelt = gdeltData[query];
+    if (advisory) {
+      setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
+      setLoading(false);
+      return;
+    }
+    const partialMatch = Object.entries(advisories).find(
+      ([key, value]) => key.includes(query) || value.country.toLowerCase().includes(query)
+    );
+    if (partialMatch) {
+      const ukAdvisory2 = ukAdvisories[partialMatch[0]];
+      const acled2 = acledData[partialMatch[0]];
+      const gdelt2 = gdeltData[partialMatch[0]];
+      setSearchResult({ advisory: partialMatch[1], ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
+      setLoading(false);
+      return;
+    }
+    setError(`No travel advisory found for "${searchQuery}". Try searching for a country name like "Colombia" or a major city like "Medellin".`);
+    setSearchResult(null);
+    setLoading(false);
+  };
+  const popularSearches = ["Colombia", "Mexico", "Japan", "France", "Thailand", "Italy"];
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     minHeight: "100vh",
-    backgroundColor: COLORS.bg,
-    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif'
+    backgroundColor: COLORS.cream,
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    color: COLORS.navy
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "16px 20px 0" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
-          width: "44px",
-          height: "44px",
-          borderRadius: "50%",
-          backgroundColor: COLORS.white,
-          border: `1px solid ${COLORS.border}`,
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+      backgroundColor: COLORS.navy,
+      padding: "64px 24px 48px",
+      textAlign: "center",
+      borderBottomLeftRadius: "32px",
+      borderBottomRightRadius: "32px",
+      color: COLORS.white
+    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "800px", margin: "0 auto" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "16px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+          backgroundColor: COLORS.lime,
+          borderRadius: "12px",
+          padding: "10px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          cursor: "pointer"
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { size: 20, color: COLORS.textDark }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
-          width: "44px",
-          height: "44px",
-          borderRadius: "50%",
-          backgroundColor: COLORS.white,
-          border: `1px solid ${COLORS.border}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer"
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bell, { size: 20, color: COLORS.textDark }) })
+          boxShadow: `0 4px 0 ${COLORS.green}`
+        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Globe, { size: 28, style: { color: COLORS.navy } }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "36px", fontWeight: 800, color: COLORS.white, letterSpacing: "-0.02em" }, children: "Travel Safety Index" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "28px", fontWeight: 400, color: COLORS.textDark }, children: "Explore the" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { style: { margin: 0, fontSize: "28px", fontWeight: 700, color: COLORS.textDark }, children: "Safe destinations" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: "12px", marginBottom: "24px" }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          backgroundColor: COLORS.searchBg,
-          borderRadius: RADIUS.full,
-          padding: "0 20px",
-          height: "52px"
-        }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 20, color: COLORS.textLight }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "0 0 32px 0", fontSize: "18px", color: COLORS.lavender, maxWidth: "540px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }, children: "Real-time safety assessments from official government sources and global news data." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        display: "flex",
+        maxWidth: "600px",
+        margin: "0 auto",
+        backgroundColor: COLORS.white,
+        borderRadius: "50px",
+        overflow: "hidden",
+        boxShadow: `0 8px 0 ${COLORS.plum}`,
+        border: `3px solid ${COLORS.navy}`,
+        position: "relative",
+        zIndex: 10
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "relative", flex: 1 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 20, style: { position: "absolute", left: "20px", top: "50%", transform: "translateY(-50%)", color: COLORS.navy } }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "input",
             {
-              value: query,
-              onChange: (e) => setQuery(e.target.value),
-              placeholder: "Search your destination",
+              type: "text",
+              value: searchQuery,
+              onChange: (e) => setSearchQuery(e.target.value),
+              onKeyDown: (e) => e.key === "Enter" && handleSearch(),
+              placeholder: "Search city or country...",
               style: {
-                flex: 1,
+                width: "100%",
+                padding: "18px 16px 18px 52px",
+                fontSize: "16px",
                 border: "none",
+                outline: "none",
                 backgroundColor: "transparent",
-                fontSize: "15px",
-                color: COLORS.textDark,
-                outline: "none"
+                color: COLORS.navy,
+                fontWeight: 600
               }
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
-          width: "52px",
-          height: "52px",
-          borderRadius: RADIUS.lg,
-          backgroundColor: COLORS.coral,
-          border: "none",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          boxShadow: SHADOWS.button
-        }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlidersHorizontal, { size: 20, color: COLORS.white }) })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: handleSearch,
+            disabled: loading,
+            style: {
+              padding: "0 32px",
+              backgroundColor: COLORS.orange,
+              color: COLORS.white,
+              border: "none",
+              borderLeft: `2px solid ${COLORS.navy}`,
+              cursor: loading ? "wait" : "pointer",
+              fontSize: "16px",
+              fontWeight: 700,
+              transition: "all 0.2s",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em"
+            },
+            children: loading ? "..." : "Search"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: "32px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: COLORS.lavender, fontSize: "12px", marginRight: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Trending:" }),
+        popularSearches.map((term) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: () => {
+              setSearchQuery(term);
+              setTimeout(() => {
+                setSearchQuery(term);
+                const query = term.toLowerCase();
+                const advisory = advisories[query];
+                const ukAdvisory = ukAdvisories[query];
+                const acled = acledData[query];
+                const gdelt = gdeltData[query];
+                if (advisory) {
+                  setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: query });
+                }
+              }, 0);
+            },
+            style: {
+              padding: "6px 14px",
+              margin: "4px",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              color: COLORS.lime,
+              border: `1px solid ${COLORS.lime}`,
+              borderRadius: "20px",
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: 600,
+              transition: "all 0.2s"
+            },
+            children: term
+          },
+          term
+        ))
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "48px 24px", maxWidth: "1000px", margin: "0 auto" }, children: [
+      error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        maxWidth: "600px",
+        margin: "0 auto 32px",
+        padding: "16px 24px",
+        backgroundColor: COLORS.danger.bg,
+        borderRadius: "8px",
+        border: `1px solid ${COLORS.danger.border}`,
+        color: COLORS.danger.text,
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        fontSize: "14px",
+        fontWeight: 500
+      }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, { size: 20 }),
+        error
+      ] }),
+      searchResult && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        SearchResult,
+        {
+          advisory: searchResult.advisory,
+          ukAdvisory: searchResult.ukAdvisory,
+          acledData: searchResult.acledData,
+          gdeltData: searchResult.gdeltData,
+          searchTerm: searchResult.searchTerm,
+          isCity: searchResult.isCity
+        }
+      ),
+      !searchResult && !error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", color: COLORS.slate[400], maxWidth: "480px", margin: "64px auto" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Shield, { size: 48, style: { marginBottom: "24px", opacity: 0.2 } }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { style: { margin: "0 0 12px 0", fontSize: "20px", fontWeight: 600, color: COLORS.slate[900] }, children: "Search for a Destination" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: 0, lineHeight: 1.6, fontSize: "15px", color: COLORS.slate[500] }, children: "Enter a city or country name above to view comprehensive safety data, news sentiment, and travel advisories." })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { padding: "0 20px 100px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(2, 1fr)",
-      gap: "16px"
-    }, children: filteredDests.map((dest) => {
-      const data = getDestData(dest);
-      if (!data) return null;
-      const score = calcScore(data.advisory.advisory_level, data.acled, data.gdelt);
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        DestinationCard,
-        {
-          name: dest,
-          country: data.advisory.country,
-          score,
-          level: data.advisory.advisory_level,
-          image: DESTINATION_IMAGES[dest] || DESTINATION_IMAGES["default"],
-          onClick: () => setSelectedDest(dest),
-          isFavorite: favorites.has(dest)
-        },
-        dest
-      );
-    }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: COLORS.white,
-      borderTop: `1px solid ${COLORS.border}`,
-      padding: "12px 0 20px",
-      display: "flex",
-      justifyContent: "space-around"
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      padding: "32px 24px",
+      textAlign: "center",
+      borderTop: `1px solid ${COLORS.slate[200]}`,
+      backgroundColor: COLORS.white
     }, children: [
-      { icon: House, label: "Home", active: true },
-      { icon: MapPin, label: "Explore", active: false },
-      { icon: Clock, label: "History", active: false },
-      { icon: User, label: "Profile", active: false }
-    ].map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-      "button",
-      {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "4px",
-          backgroundColor: "transparent",
-          border: "none",
-          cursor: "pointer",
-          padding: "4px 16px"
-        },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(item.icon, { size: 22, color: item.active ? COLORS.coral : COLORS.textLight }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: "10px", color: item.active ? COLORS.coral : COLORS.textLight, fontWeight: item.active ? 600 : 400 }, children: item.label })
-        ]
-      },
-      item.label
-    )) })
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { style: { margin: 0, color: COLORS.slate[400], fontSize: "13px" }, children: [
+        "Data sourced from the",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "US Department of State"
+          }
+        ),
+        ",",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://www.gov.uk/foreign-travel-advice",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "UK Foreign Office"
+          }
+        ),
+        ",",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://acleddata.com",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "ACLED"
+          }
+        ),
+        ", and",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "a",
+          {
+            href: "https://www.gdeltproject.org/",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            style: { color: COLORS.primary, textDecoration: "none", fontWeight: 500 },
+            children: "GDELT Project"
+          }
+        ),
+        "."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "8px 0 0 0", color: COLORS.slate[300], fontSize: "12px" }, children: "For informational purposes only. Always verify with official sources before traveling." })
+    ] })
   ] });
 }
 
@@ -25403,7 +26736,7 @@ lucide-react/dist/esm/createLucideIcon.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/bell.js:
+lucide-react/dist/esm/icons/calendar.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25411,7 +26744,15 @@ lucide-react/dist/esm/icons/bell.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/chevron-left.js:
+lucide-react/dist/esm/icons/chevron-down.js:
+  (**
+   * @license lucide-react v0.554.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/chevron-up.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25435,14 +26776,6 @@ lucide-react/dist/esm/icons/circle-check-big.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/clock.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/external-link.js:
   (**
    * @license lucide-react v0.554.0 - ISC
@@ -25451,15 +26784,7 @@ lucide-react/dist/esm/icons/external-link.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/heart.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/house.js:
+lucide-react/dist/esm/icons/globe.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25483,14 +26808,6 @@ lucide-react/dist/esm/icons/map-pin.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/minus.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/search.js:
   (**
    * @license lucide-react v0.554.0 - ISC
@@ -25499,23 +26816,7 @@ lucide-react/dist/esm/icons/search.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/sliders-horizontal.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/trending-down.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/trending-up.js:
+lucide-react/dist/esm/icons/shield.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
@@ -25524,14 +26825,6 @@ lucide-react/dist/esm/icons/trending-up.js:
    *)
 
 lucide-react/dist/esm/icons/triangle-alert.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/user.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *
