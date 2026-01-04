@@ -241,10 +241,15 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
         "https://is-it-safe.onrender.com",
         "https://nominatim.openstreetmap.org",
         "https://api.open-meteo.com",
-        "https://geocoding-api.open-meteo.com"
+        "https://geocoding-api.open-meteo.com",
+        "https://fonts.googleapis.com",
+        "https://fonts.gstatic.com"
       ],
       resource_domains: [
-        "https://is-it-safe.onrender.com"
+        "https://is-it-safe.onrender.com",
+        "https://fonts.googleapis.com",
+        "https://fonts.gstatic.com",
+        "https://*.oaistatic.com"
       ],
     },
     "openai/widgetDomain": "https://web-sandbox.oaiusercontent.com",
@@ -339,7 +344,7 @@ const tools: Tool[] = widgets.map((widget) => ({
     readOnlyHint: true,
     destructiveHint: false,
     idempotentHint: true,
-    openWorldHint: false,
+    openWorldHint: true,
   },
 }));
 
@@ -603,13 +608,11 @@ function createTravelSafetyServer(): Server {
           }
         } catch {}
 
-        // TEXT SUPPRESSION: Return empty content array to prevent ChatGPT from adding
-        // any text after the widget. The widget provides all necessary UI.
-        // See: content: [] means no text content, only the widget is shown.
+        // Return minimal content text for accessibility, with structuredContent for widget hydration
         return {
-          content: [],  // Empty array = no text after widget
+          content: [{ type: "text", text: "Search any city or country to view travel safety data." }],
           structuredContent: structured,
-          _meta: metaForReturn,  // Contains openai/resultCanProduceWidget: true
+          _meta: metaForReturn,
         };
       } catch (error: any) {
         logAnalytics("tool_call_error", {
