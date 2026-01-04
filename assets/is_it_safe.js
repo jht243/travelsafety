@@ -25770,12 +25770,12 @@ function DashboardCard({ title, children, icon: Icon2 }) {
     children
   ] });
 }
-function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories }) {
+function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories, onCityClick }) {
   const nearbyCities = getNearbyCities(currentCity);
   if (nearbyCities.length === 0) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px" }, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px", textAlign: "center" }, children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", fontWeight: 500, color: COLORS.slate[500], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: "Nearby Cities" }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: nearbyCities.map((cityKey) => {
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }, children: nearbyCities.map((cityKey) => {
       const cityInfo = CITY_COORDINATES[cityKey];
       if (!cityInfo) return null;
       const cityAcled = FALLBACK_ACLED_DATA[cityKey];
@@ -25785,8 +25785,9 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
       const score = calculateSafetyScore(cityAdvisory, cityAcled, cityGdelt);
       const config = getScoreConfig(score);
       return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "div",
+        "button",
         {
+          onClick: () => onCityClick?.(cityKey),
           style: {
             display: "flex",
             alignItems: "center",
@@ -25798,7 +25799,7 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
             cursor: "pointer",
             transition: "all 0.2s"
           },
-          title: `${cityInfo.name}, ${cityInfo.country}`,
+          title: `View ${cityInfo.name}, ${cityInfo.country}`,
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
               width: "24px",
@@ -25813,10 +25814,61 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
               fontWeight: 700,
               color: config.text
             }, children: score }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "left" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[700] }, children: cityInfo.name }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: cityInfo.country })
             ] })
+          ]
+        },
+        cityKey
+      );
+    }) })
+  ] });
+}
+function CitiesInCountry({ country, advisories, onCityClick }) {
+  const citiesInCountry = Object.entries(CITY_COORDINATES).filter(([_, info]) => info.country.toLowerCase() === country.toLowerCase()).slice(0, 6);
+  if (citiesInCountry.length === 0) return null;
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "24px", textAlign: "center" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "11px", fontWeight: 500, color: COLORS.slate[500], marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: [
+      "Cities in ",
+      advisories.country
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }, children: citiesInCountry.map(([cityKey, cityInfo]) => {
+      const cityAcled = FALLBACK_ACLED_DATA[cityKey];
+      const cityGdelt = FALLBACK_GDELT_DATA[cityKey];
+      const score = calculateSafetyScore(advisories, cityAcled, cityGdelt);
+      const config = getScoreConfig(score);
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "button",
+        {
+          onClick: () => onCityClick?.(cityKey),
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px 12px",
+            backgroundColor: COLORS.white,
+            borderRadius: "6px",
+            border: `1px solid ${COLORS.slate[200]}`,
+            cursor: "pointer",
+            transition: "all 0.2s"
+          },
+          title: `View ${cityInfo.name}`,
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              backgroundColor: config.bg,
+              border: `1px solid ${config.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "10px",
+              fontWeight: 700,
+              color: config.text
+            }, children: score }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "left" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "13px", fontWeight: 600, color: COLORS.slate[700] }, children: cityInfo.name }) })
           ]
         },
         cityKey
@@ -25877,7 +25929,7 @@ function normalizeExternalUrl(rawUrl) {
   }
   return null;
 }
-function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack, onCityClick }) {
   const [showMore, setShowMore] = (0, import_react3.useState)(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
   const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
@@ -26030,7 +26082,16 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         currentCity: searchTerm,
         acledData,
         gdeltData,
-        advisories: advisory
+        advisories: advisory,
+        onCityClick
+      }
+    ),
+    !isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      CitiesInCountry,
+      {
+        country: advisory.country,
+        advisories: advisory,
+        onCityClick
       }
     ),
     gdeltData && validHeadlines.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginBottom: "12px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -26980,6 +27041,10 @@ function TravelSafety({ initialData: initialData2 }) {
             setSearchResult(null);
             setSearchQuery("");
             setError(null);
+          },
+          onCityClick: (cityKey) => {
+            setSearchQuery(cityKey);
+            searchFor(cityKey);
           }
         }
       ),

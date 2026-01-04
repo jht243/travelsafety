@@ -1314,20 +1314,21 @@ function DashboardCard({ title, children, icon: Icon }: { title: string; childre
 }
 
 // Nearby Cities Comparison Component
-function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories }: { 
+function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories, onCityClick }: { 
   currentCity: string; 
   acledData?: ACLEDData; 
   gdeltData?: GDELTData;
   advisories: TravelAdvisory;
+  onCityClick?: (cityKey: string) => void;
 }) {
   const nearbyCities = getNearbyCities(currentCity);
   
   if (nearbyCities.length === 0) return null;
   
   return (
-    <div style={{ marginBottom: '24px' }}>
+    <div style={{ marginBottom: '24px', textAlign: 'center' }}>
       <div style={{ fontSize: '11px', fontWeight: 500, color: COLORS.slate[500], marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nearby Cities</div>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
         {nearbyCities.map((cityKey) => {
           const cityInfo = CITY_COORDINATES[cityKey];
           if (!cityInfo) return null;
@@ -1343,8 +1344,9 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
           const config = getScoreConfig(score);
           
           return (
-            <div
+            <button
               key={cityKey}
+              onClick={() => onCityClick?.(cityKey)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -1356,7 +1358,7 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
                 cursor: 'pointer',
                 transition: 'all 0.2s',
               }}
-              title={`${cityInfo.name}, ${cityInfo.country}`}
+              title={`View ${cityInfo.name}, ${cityInfo.country}`}
             >
               <div style={{
                 width: '24px',
@@ -1373,11 +1375,79 @@ function NearbyCitiesComparison({ currentCity, acledData, gdeltData, advisories 
               }}>
                 {score}
               </div>
-              <div>
+              <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.slate[700] }}>{cityInfo.name}</div>
                 <div style={{ fontSize: '11px', color: COLORS.slate[400] }}>{cityInfo.country}</div>
               </div>
-            </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Cities in Country Component
+function CitiesInCountry({ country, advisories, onCityClick }: { 
+  country: string; 
+  advisories: TravelAdvisory;
+  onCityClick?: (cityKey: string) => void;
+}) {
+  // Find all cities in this country
+  const citiesInCountry = Object.entries(CITY_COORDINATES)
+    .filter(([_, info]) => info.country.toLowerCase() === country.toLowerCase())
+    .slice(0, 6); // Max 6 cities
+  
+  if (citiesInCountry.length === 0) return null;
+  
+  return (
+    <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+      <div style={{ fontSize: '11px', fontWeight: 500, color: COLORS.slate[500], marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cities in {advisories.country}</div>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {citiesInCountry.map(([cityKey, cityInfo]) => {
+          // Get city's data for score calculation
+          const cityAcled = FALLBACK_ACLED_DATA[cityKey];
+          const cityGdelt = FALLBACK_GDELT_DATA[cityKey];
+          
+          const score = calculateSafetyScore(advisories, cityAcled, cityGdelt);
+          const config = getScoreConfig(score);
+          
+          return (
+            <button
+              key={cityKey}
+              onClick={() => onCityClick?.(cityKey)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                backgroundColor: COLORS.white,
+                borderRadius: '6px',
+                border: `1px solid ${COLORS.slate[200]}`,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              title={`View ${cityInfo.name}`}
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: config.bg,
+                border: `1px solid ${config.border}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: config.text,
+              }}>
+                {score}
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.slate[700] }}>{cityInfo.name}</div>
+              </div>
+            </button>
           );
         })}
       </div>
@@ -1465,7 +1535,7 @@ function getScoreLabel(score: number): string {
    return null;
  }
 
-function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean; onBack?: () => void }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack, onCityClick }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean; onBack?: () => void; onCityClick?: (cityKey: string) => void }) {
   const [showMore, setShowMore] = useState(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
   
@@ -1653,13 +1723,23 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         </div>
       </div>
       
-      {/* COMPARE NEARBY CITIES */}
+      {/* COMPARE NEARBY CITIES (for city view) */}
       {isCity && (
         <NearbyCitiesComparison 
           currentCity={searchTerm} 
           acledData={acledData}
           gdeltData={gdeltData}
           advisories={advisory}
+          onCityClick={onCityClick}
+        />
+      )}
+      
+      {/* CITIES IN COUNTRY (for country view) */}
+      {!isCity && (
+        <CitiesInCountry 
+          country={advisory.country}
+          advisories={advisory}
+          onCityClick={onCityClick}
         />
       )}
       
@@ -2736,6 +2816,10 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
               setSearchResult(null);
               setSearchQuery('');
               setError(null);
+            }}
+            onCityClick={(cityKey) => {
+              setSearchQuery(cityKey);
+              searchFor(cityKey);
             }}
           />
         )}
