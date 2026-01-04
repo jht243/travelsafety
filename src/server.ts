@@ -1317,6 +1317,52 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
+let acledTokenCache: { accessToken: string; expiresAt: number } | null = null;
+
+async function getAcledAccessToken(): Promise<string> {
+  const username = process.env.ACLED_USERNAME;
+  const password = process.env.ACLED_PASSWORD;
+
+  if (!username || !password) {
+    throw new Error("ACLED_USERNAME and ACLED_PASSWORD must be configured");
+  }
+
+  const now = Date.now();
+  if (acledTokenCache && now < acledTokenCache.expiresAt) {
+    return acledTokenCache.accessToken;
+  }
+
+  const body = new URLSearchParams();
+  body.set("username", username);
+  body.set("password", password);
+  body.set("grant_type", "password");
+  body.set("client_id", "acled");
+
+  const tokenRes = await fetch("https://acleddata.com/oauth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  if (!tokenRes.ok) {
+    const text = await tokenRes.text().catch(() => "");
+    throw new Error(`ACLED OAuth token request failed: ${tokenRes.status} ${text}`);
+  }
+
+  const tokenJson: any = await tokenRes.json();
+  const accessToken = tokenJson?.access_token;
+  const expiresIn = Number(tokenJson?.expires_in ?? 0);
+
+  if (!accessToken || !Number.isFinite(expiresIn) || expiresIn <= 0) {
+    throw new Error("ACLED OAuth token response missing access_token or expires_in");
+  }
+
+  // Refresh slightly before actual expiry
+  const expiresAt = now + expiresIn * 1000 - 60_000;
+  acledTokenCache = { accessToken, expiresAt };
+  return accessToken;
+}
+
 async function handleGdeltProxy(req: IncomingMessage, res: ServerResponse, url: URL) {
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
@@ -1400,23 +1446,25 @@ async function handleAcledProxy(req: IncomingMessage, res: ServerResponse, url: 
     return;
   }
 
-  const apiKey = process.env.ACLED_API_KEY;
-  if (!apiKey) {
-    sendJson(res, 501, { error: "ACLED_API_KEY is not configured" });
-    return;
-  }
-
   try {
+    const accessToken = await getAcledAccessToken();
     const currentYear = new Date().getFullYear();
+
     const upstream = await fetch(
-      `https://api.acleddata.com/acled/read?event_date=${currentYear}&event_date_where=>=&country=${encodeURIComponent(country)}&fields=event_type|fatalities|event_date&limit=500&key=${encodeURIComponent(apiKey)}`
+      `https://acleddata.com/api/acled/read?_format=json&country=${encodeURIComponent(country)}&year=${currentYear}&fields=event_type|fatalities|event_date&limit=500`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
     if (!upstream.ok) {
       sendJson(res, 502, { error: "ACLED upstream error", status: upstream.status });
       return;
     }
     const data: any = await upstream.json();
-    const events: any[] = Array.isArray(data?.data) ? data.data : [];
+    const events: any[] = Array.isArray(data?.data) ? data.data : Array.isArray(data?.data?.data) ? data.data.data : [];
 
     const eventTypes: Record<string, number> = {};
     let totalFatalities = 0;
