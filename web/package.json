@@ -1,9 +1,9 @@
 {
-  "name": "is-it-safe-travel-web",
+  "name": "is-it-safe-web",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/main.tsx --bundle --format=esm --outfile=../assets/travel-checklist.js",
+    "build": "esbuild src/main.tsx --bundle --format=esm --outfile=../assets/is_it_safe.js",
     "dev": "esbuild src/main.tsx --bundle --format=esm --outfile=dist/bundle.js --watch --servedir=. --serve=8000"
   },
   "dependencies": {

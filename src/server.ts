@@ -203,7 +203,7 @@ const VERSION = (process.env.RENDER_GIT_COMMIT?.slice(0, 7) || Date.now().toStri
 
 function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
   const templateUri = bustCache
-    ? `ui://widget/travel-checklist.html?v=${VERSION}`
+    ? `ui://widget/is_it_safe.html?v=${VERSION}`
     : widget.templateUri;
 
   return {
@@ -247,13 +247,13 @@ function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
     "openai/widgetPrefersBorder": true,
     "openai/widgetCSP": {
       connect_domains: [
-        "https://travel-checklist-q79n.onrender.com",
+        "https://is-it-safe.onrender.com",
         "https://nominatim.openstreetmap.org",
         "https://api.open-meteo.com",
         "https://geocoding-api.open-meteo.com"
       ],
       resource_domains: [
-        "https://travel-checklist-q79n.onrender.com"
+        "https://is-it-safe.onrender.com"
       ],
     },
     "openai/widgetDomain": "https://web-sandbox.oaiusercontent.com",
@@ -266,14 +266,14 @@ function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
 
 const widgets: TravelChecklistWidget[] = [
   {
-    id: "travel-checklist",
-    title: "Smart Travel Checklist — Generate personalized packing lists for any trip",
-    templateUri: `ui://widget/travel-checklist.html?v=${VERSION}`,
+    id: "is-it-safe",
+    title: "Is It Safe? — Real-time travel safety data for any city or country",
+    templateUri: `ui://widget/is_it_safe.html?v=${VERSION}`,
     invoking:
-      "Opening the Smart Travel Checklist...",
+      "Opening Is It Safe?...",
     invoked:
-      "Here is the Smart Travel Checklist. Enter your trip details to generate a personalized packing list with documents, clothing, toiletries, and more.",
-    html: readWidgetHtml("travel-checklist"),
+      "Here is Is It Safe? Search any city or country to get real-time travel safety data from official government sources.",
+    html: readWidgetHtml("is_it_safe"),
   },
 ];
 
@@ -413,7 +413,7 @@ const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
 function createTravelChecklistServer(): Server {
   const server = new Server(
     {
-      name: "travel-checklist",
+      name: "is-it-safe",
       version: "0.1.0",
       description:
         "Smart Travel Checklist helps users generate personalized packing lists based on their trip profile including destination, duration, climate, and activities.",
@@ -1619,7 +1619,7 @@ async function subscribeToButtondown(email: string, topicId: string, topicName: 
 
   const metadata: Record<string, any> = {
     topicName,
-    source: "travel-checklist",
+    source: "is-it-safe",
     subscribedAt: new Date().toISOString(),
   };
 
@@ -1709,7 +1709,7 @@ async function updateButtondownSubscriber(email: string, topicId: string, topicN
   const updatedMetadata = {
     ...existingMetadata,
     [topicKey]: topicData,
-    source: "travel-checklist",
+    source: "is-it-safe",
   };
 
   const updateRequestBody = {
@@ -1764,8 +1764,8 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
     // Support both old (settlementId/settlementName) and new (topicId/topicName) field names
     const parsed = JSON.parse(body);
     const email = parsed.email;
-    const topicId = parsed.topicId || parsed.settlementId || "travel-checklist";
-    const topicName = parsed.topicName || parsed.settlementName || "Travel Checklist Updates";
+    const topicId = parsed.topicId || parsed.settlementId || "is-it-safe";
+    const topicName = parsed.topicName || parsed.settlementName || "Is It Safe Updates";
     if (!email || !email.includes("@")) {
       res.writeHead(400).end(JSON.stringify({ error: "Invalid email address" }));
       return;
@@ -1978,8 +1978,8 @@ const httpServer = createServer(
     }
 
     // Serve alias for legacy loader path -> our main widget HTML
-    if (req.method === "GET" && url.pathname === "/assets/travel-checklist.html") {
-      const mainAssetPath = path.join(ASSETS_DIR, "travel-checklist.html");
+    if (req.method === "GET" && url.pathname === "/assets/is_it_safe.html") {
+      const mainAssetPath = path.join(ASSETS_DIR, "is_it_safe.html");
       console.log(`[Debug Legacy] Request: ${url.pathname}, Main Path: ${mainAssetPath}, Exists: ${fs.existsSync(mainAssetPath)}`);
       if (fs.existsSync(mainAssetPath) && fs.statSync(mainAssetPath).isFile()) {
         res.writeHead(200, {
