@@ -44,7 +44,10 @@ class ErrorBoundary extends React.Component<
 
 console.log("[Main] Travel Safety App loading...");
 
-const container = document.getElementById("travel-safety-root") || document.getElementById("travel-checklist-root");
+const container =
+  document.getElementById("is-it-safe-root") ||
+  document.getElementById("travel-safety-root") ||
+  document.getElementById("travel-checklist-root");
 
 if (!container) {
   throw new Error("Root element not found");

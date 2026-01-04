@@ -27185,7 +27185,7 @@ var ErrorBoundary = class extends import_react4.default.Component {
   }
 };
 console.log("[Main] Travel Safety App loading...");
-var container = document.getElementById("travel-safety-root") || document.getElementById("travel-checklist-root");
+var container = document.getElementById("is-it-safe-root") || document.getElementById("travel-safety-root") || document.getElementById("travel-checklist-root");
 if (!container) {
   throw new Error("Root element not found");
 }
