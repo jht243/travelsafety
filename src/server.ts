@@ -244,12 +244,11 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
         "https://geocoding-api.open-meteo.com",
         "http://localhost:8001"
       ],
-      script_src_domains: [
+      resource_domains: [
         "https://travelsafety-un15.onrender.com"
       ],
-      resource_domains: [],
     },
-    "openai/widgetDomain": "https://chatgpt.com",
+    "openai/widgetDomain": "https://web-sandbox.oaiusercontent.com",
     "openai/toolInvocation/invoking": widget.invoking,
     "openai/toolInvocation/invoked": widget.invoked,
     "openai/widgetAccessible": true,

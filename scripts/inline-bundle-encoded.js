@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Update the HTML template with a dynamic import() to load the React bundle
- * from the server URL instead of inlining it (avoids ChatGPT sandbox issues)
+ * Inline the compiled JS bundle into the HTML template using base64 encoding
+ * to avoid HTML parser issues with large bundles
  */
 
 import fs from 'fs';
@@ -14,26 +14,26 @@ const __dirname = path.dirname(__filename);
 const htmlPath = path.join(__dirname, '../assets/is_it_safe.html');
 const jsPath = path.join(__dirname, '../assets/is_it_safe.js');
 
-// Server URL - use environment variable or default to Render deployment
-const SERVER_URL = process.env.SERVER_URL || 'https://travelsafety-un15.onrender.com';
-
 console.log('[Inline Bundle] Reading files...');
 const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
 
-// Verify JS bundle exists
-if (!fs.existsSync(jsPath)) {
-  console.error(`[Inline Bundle] ERROR: JS bundle not found at ${jsPath}`);
-  process.exit(1);
-}
-
 const jsContent = fs.readFileSync(jsPath, 'utf-8');
+
 console.log(`[Inline Bundle] JS bundle size: ${(jsContent.length / 1024).toFixed(2)} KB`);
 
-// Create a script that uses dynamic import() from the server URL
+// Base64 encode the JavaScript to avoid parser issues
+const encodedJS = Buffer.from(jsContent, 'utf-8').toString('base64');
+console.log(`[Inline Bundle] Encoded size: ${(encodedJS.length / 1024).toFixed(2)} KB`);
+
+// Create a script that decodes and executes the bundle
 const inlineScript = `
     <script type="module">
-      // Load React bundle via dynamic import from server
-      import('${SERVER_URL}/assets/is_it_safe.js')
+      // Decode and execute the base64-encoded React bundle
+      const encodedScript = ${JSON.stringify(encodedJS)};
+      const decodedScript = atob(encodedScript);
+      const blob = new Blob([decodedScript], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      import(url)
         .catch(err => {
           console.error('[Is It Safe] Failed to load:', err);
           const root = document.getElementById('is-it-safe-root');
@@ -55,6 +55,6 @@ if (updatedHtml === htmlContent) {
 }
 
 fs.writeFileSync(htmlPath, updatedHtml, 'utf-8');
-console.log(`[Inline Bundle] Successfully updated HTML with dynamic import from ${SERVER_URL}`);
+console.log('[Inline Bundle] Successfully inlined encoded bundle into HTML');
 console.log(`[Inline Bundle] Output: ${htmlPath}`);
 
