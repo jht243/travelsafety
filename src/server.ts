@@ -1448,6 +1448,7 @@ async function handleAcledProxy(req: IncomingMessage, res: ServerResponse, url: 
 
   try {
     const accessToken = await getAcledAccessToken();
+    console.log(`[ACLED] Got access token (first 20 chars): ${accessToken.substring(0, 20)}...`);
     const currentYear = new Date().getFullYear();
 
     const upstream = await fetch(
@@ -1460,7 +1461,9 @@ async function handleAcledProxy(req: IncomingMessage, res: ServerResponse, url: 
       }
     );
     if (!upstream.ok) {
-      sendJson(res, 502, { error: "ACLED upstream error", status: upstream.status });
+      const errorText = await upstream.text().catch(() => "");
+      console.error(`[ACLED] Upstream error ${upstream.status}:`, errorText);
+      sendJson(res, 502, { error: "ACLED upstream error", status: upstream.status, details: errorText });
       return;
     }
     const data: any = await upstream.json();
@@ -1492,6 +1495,7 @@ async function handleAcledProxy(req: IncomingMessage, res: ServerResponse, url: 
       trend: recentEvents > events.length / 12 ? "increasing" : "stable",
     });
   } catch (error: any) {
+    console.error("[ACLED] Proxy error:", error);
     sendJson(res, 500, { error: "Failed to fetch ACLED", message: error?.message || String(error) });
   }
 }
@@ -1870,8 +1874,8 @@ async function handlePostMessage(
   }
 }
 
-const portEnv = Number(process.env.PORT ?? 8000);
-const port = Number.isFinite(portEnv) ? portEnv : 8000;
+const portEnv = Number(process.env.PORT ?? 8001);
+const port = Number.isFinite(portEnv) ? portEnv : 8001;
 
 const httpServer = createServer(
   async (req: IncomingMessage, res: ServerResponse) => {

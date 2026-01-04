@@ -1442,7 +1442,7 @@ function getScoreLabel(score: number): string {
   return 'High Risk';
 }
 
-function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean; onBack?: () => void }) {
   const [showMore, setShowMore] = useState(false);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
   
@@ -1461,6 +1461,31 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
       maxWidth: '600px',
       margin: '0 auto',
     }}>
+      {/* Back/Home Button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            marginBottom: '16px',
+            backgroundColor: COLORS.slate[50],
+            color: COLORS.slate[600],
+            border: `1px solid ${COLORS.slate[200]}`,
+            borderRadius: UI.radius.pill,
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+        >
+          <ChevronUp size={16} style={{ transform: 'rotate(-90deg)' }} />
+          Back to Home
+        </button>
+      )}
+      
       {/* MAIN VIEW - Always Visible */}
       {/* Header with Location */}
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -1670,156 +1695,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           
           {/* Full Data Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '24px' }}>
-            {/* US State Department Card */}
-            <DashboardCard title="US State Department" icon={Shield}>
-              <div style={{ 
-                padding: '16px', 
-                backgroundColor: config.style.bg, 
-                borderRadius: '8px',
-                border: `1px solid ${config.style.border}`,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                  <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                backgroundColor: config.style.icon,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: COLORS.white,
-                fontSize: '18px',
-                fontWeight: 700,
-              }}>
-                {advisory.advisory_level}
-              </div>
-              <div>
-                <div style={{ fontWeight: 600, color: COLORS.slate[900] }}>Level {advisory.advisory_level}</div>
-                <div style={{ fontSize: '14px', color: config.style.text }}>{config.label}</div>
-              </div>
-            </div>
-          </div>
-          <SafetyMeter level={advisory.advisory_level} />
-        </DashboardCard>
-        
-        {/* Advisory Details Card */}
-        <DashboardCard title="Advisory Details" icon={Info}>
-          <p style={{ margin: '0 0 16px 0', color: COLORS.slate[700], lineHeight: 1.6, fontSize: '14px' }}>
-            {advisory.advisory_text}
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: COLORS.slate[500], fontSize: '13px' }}>
-            <Calendar size={14} />
-            <span>Updated: {advisory.date_updated}</span>
-          </div>
-          <a 
-            href={advisory.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginTop: '16px',
-              padding: '8px 16px',
-              backgroundColor: COLORS.white,
-              color: COLORS.primary,
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontSize: '13px',
-              fontWeight: 600,
-              border: `1px solid ${COLORS.slate[200]}`,
-              transition: 'all 0.2s',
-            }}
-          >
-            <ExternalLink size={14} />
-            View Full Advisory
-          </a>
-        </DashboardCard>
-        
-        {/* UK Foreign Office Card */}
-        {ukAdvisory && (
-          <DashboardCard title="UK Foreign Office" icon={Shield}>
-            <div style={{ 
-              padding: '16px', 
-              backgroundColor: COLORS.slate[50], 
-              borderRadius: '8px',
-              border: `1px solid ${COLORS.slate[200]}`,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  backgroundColor: COLORS.primary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: COLORS.white,
-                  fontSize: '16px',
-                  fontWeight: 700,
-                }}>
-                  UK
-                </div>
-                <div>
-                  <div style={{ fontWeight: 600, color: COLORS.slate[900] }}>FCO Travel Advice</div>
-                  <div style={{ fontSize: '14px', color: COLORS.slate[500] }}>Foreign, Commonwealth & Development Office</div>
-                </div>
-              </div>
-              {ukAdvisory.alert_status.length > 0 && (
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.danger.text, marginBottom: '8px', textTransform: 'uppercase' }}>
-                    Travel Alerts
-                  </div>
-                  {ukAdvisory.alert_status.map((status, index) => (
-                    <div key={index} style={{ 
-                      padding: '8px 12px', 
-                      backgroundColor: COLORS.danger.bg, 
-                      borderRadius: '6px', 
-                      fontSize: '13px', 
-                      color: COLORS.danger.text,
-                      marginBottom: '6px',
-                      border: `1px solid ${COLORS.danger.border}`,
-                      fontWeight: 500,
-                    }}>
-                      {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <p style={{ margin: '0 0 16px 0', color: COLORS.slate[700], lineHeight: 1.6, fontSize: '14px' }}>
-                {ukAdvisory.change_description}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: COLORS.slate[500], fontSize: '13px', marginBottom: '16px' }}>
-                <Calendar size={14} />
-                <span>Updated: {new Date(ukAdvisory.last_updated).toLocaleDateString()}</span>
-              </div>
-              <a 
-                href={ukAdvisory.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 16px',
-                  backgroundColor: COLORS.white,
-                  color: COLORS.primary,
-                  borderRadius: '6px',
-                  textDecoration: 'none',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  border: `1px solid ${COLORS.slate[200]}`,
-                  transition: 'all 0.2s',
-                }}
-              >
-                <ExternalLink size={14} />
-                View UK Advice
-              </a>
-            </div>
-          </DashboardCard>
-        )}
-        
-        {/* ACLED Conflict Data Card */}
+            {/* ACLED Conflict Data Card */}
         {acledData && (
           <DashboardCard title="ACLED Conflict Data" icon={AlertTriangle}>
             <div style={{ 
@@ -2096,6 +1972,152 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             </div>
           </DashboardCard>
         )}
+            
+            {/* US State Department Card - Combined with Advisory Details */}
+            <DashboardCard title="US State Department" icon={Shield}>
+              <div style={{ 
+                padding: '16px', 
+                backgroundColor: config.style.bg, 
+                borderRadius: '8px',
+                border: `1px solid ${config.style.border}`,
+                marginBottom: '16px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: config.style.icon,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: COLORS.white,
+                    fontSize: '18px',
+                    fontWeight: 700,
+                  }}>
+                    {advisory.advisory_level}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, color: COLORS.slate[900] }}>Level {advisory.advisory_level}</div>
+                    <div style={{ fontSize: '14px', color: config.style.text }}>{config.label}</div>
+                  </div>
+                </div>
+              </div>
+              <SafetyMeter level={advisory.advisory_level} />
+              <p style={{ margin: '16px 0', color: COLORS.slate[700], lineHeight: 1.6, fontSize: '14px' }}>
+                {advisory.advisory_text}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: COLORS.slate[500], fontSize: '13px' }}>
+                <Calendar size={14} />
+                <span>Updated: {advisory.date_updated}</span>
+              </div>
+              <a 
+                href={advisory.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '16px',
+                  padding: '8px 16px',
+                  backgroundColor: COLORS.white,
+                  color: COLORS.primary,
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  border: `1px solid ${COLORS.slate[200]}`,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <ExternalLink size={14} />
+                View Full Advisory
+              </a>
+            </DashboardCard>
+        
+        {/* UK Foreign Office Card */}
+        {ukAdvisory && (
+          <DashboardCard title="UK Foreign Office" icon={Shield}>
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: COLORS.slate[50], 
+              borderRadius: '8px',
+              border: `1px solid ${COLORS.slate[200]}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  backgroundColor: COLORS.primary,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: COLORS.white,
+                  fontSize: '16px',
+                  fontWeight: 700,
+                }}>
+                  UK
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, color: COLORS.slate[900] }}>FCO Travel Advice</div>
+                  <div style={{ fontSize: '14px', color: COLORS.slate[500] }}>Foreign, Commonwealth & Development Office</div>
+                </div>
+              </div>
+              {ukAdvisory.alert_status.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: COLORS.danger.text, marginBottom: '8px', textTransform: 'uppercase' }}>
+                    Travel Alerts
+                  </div>
+                  {ukAdvisory.alert_status.map((status, index) => (
+                    <div key={index} style={{ 
+                      padding: '8px 12px', 
+                      backgroundColor: COLORS.danger.bg, 
+                      borderRadius: '6px', 
+                      fontSize: '13px', 
+                      color: COLORS.danger.text,
+                      marginBottom: '6px',
+                      border: `1px solid ${COLORS.danger.border}`,
+                      fontWeight: 500,
+                    }}>
+                      {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p style={{ margin: '0 0 16px 0', color: COLORS.slate[700], lineHeight: 1.6, fontSize: '14px' }}>
+                {ukAdvisory.change_description}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: COLORS.slate[500], fontSize: '13px', marginBottom: '16px' }}>
+                <Calendar size={14} />
+                <span>Updated: {new Date(ukAdvisory.last_updated).toLocaleDateString()}</span>
+              </div>
+              <a 
+                href={ukAdvisory.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: COLORS.white,
+                  color: COLORS.primary,
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  border: `1px solid ${COLORS.slate[200]}`,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <ExternalLink size={14} />
+                View UK Advice
+              </a>
+            </div>
+          </DashboardCard>
+        )}
           </div>
           
           {/* Advisory Level Legend */}
@@ -2109,6 +2131,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             <div style={{ display: 'grid', gap: '8px' }}>
               {Object.entries(ADVISORY_LEVELS).map(([level, info]) => {
                 const Icon = info.icon;
+                const isCurrentLevel = Number(level) === advisory.advisory_level;
                 return (
                   <div 
                     key={level}
@@ -2120,12 +2143,30 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                       backgroundColor: info.style.bg,
                       borderRadius: '6px',
                       fontSize: '13px',
-                      border: `1px solid ${info.style.border}`,
+                      border: isCurrentLevel ? `3px solid ${info.style.icon}` : `1px solid ${info.style.border}`,
+                      boxShadow: isCurrentLevel ? `0 0 12px ${info.style.icon}40` : 'none',
+                      transform: isCurrentLevel ? 'scale(1.02)' : 'scale(1)',
+                      position: 'relative',
                     }}
                   >
                     <Icon size={16} style={{ color: info.style.icon }} />
                     <span style={{ fontWeight: 600, color: info.style.text }}>Level {level}:</span>
                     <span style={{ color: COLORS.slate[600] }}>{info.label}</span>
+                    {isCurrentLevel && (
+                      <span style={{ 
+                        marginLeft: 'auto', 
+                        padding: '2px 8px', 
+                        backgroundColor: info.style.icon, 
+                        color: COLORS.white, 
+                        borderRadius: '12px', 
+                        fontSize: '10px', 
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}>
+                        Current
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -2578,7 +2619,7 @@ export default function TravelSafety() {
           </div>
           
           {/* Popular Searches */}
-          <div style={{ marginTop: '32px' }}>
+          <div style={{ marginTop: '20px' }}>
             <span style={{ color: COLORS.slate[500], fontSize: '12px', marginRight: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trending:</span>
             {popularSearches.map((term) => (
               <button
@@ -2609,7 +2650,7 @@ export default function TravelSafety() {
       </div>
       
       {/* Results Section */}
-      <div style={{ padding: '48px 24px', maxWidth: '1000px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 24px 48px', maxWidth: '1000px', margin: '0 auto' }}>
         {error && (
           <div style={{
             maxWidth: '600px',
@@ -2638,11 +2679,16 @@ export default function TravelSafety() {
             gdeltData={searchResult.gdeltData}
             searchTerm={searchResult.searchTerm}
             isCity={searchResult.isCity}
+            onBack={() => {
+              setSearchResult(null);
+              setSearchQuery('');
+              setError(null);
+            }}
           />
         )}
         
         {!searchResult && !error && (
-          <div style={{ maxWidth: '880px', margin: '32px auto 0' }}>
+          <div style={{ maxWidth: '880px', margin: '8px auto 0' }}>
             <div style={{ textAlign: 'center', marginBottom: '18px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: UI.radius.pill, backgroundColor: COLORS.white, border: `1px solid ${COLORS.slate[100]}`, boxShadow: '0 10px 24px rgba(17, 24, 39, 0.06)' }}>
                 <Shield size={18} style={{ color: COLORS.primary }} />
