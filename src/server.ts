@@ -30,7 +30,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
-type TravelChecklistWidget = {
+type TravelSafetyWidget = {
   id: string;
   title: string;
   templateUri: string;
@@ -124,31 +124,23 @@ function classifyDevice(userAgent?: string | null): string {
 }
 
 function computeSummary(args: any) {
-  // Compute travel checklist summary
-  const destination = args.destination || "Not specified";
-  const tripDuration = Number(args.trip_duration) || 5;
-  const isInternational = Boolean(args.is_international);
-  const climate = args.climate || "summer";
-  const purpose = args.purpose || "leisure";
-  const travelers = Number(args.travelers) || 1;
+  // Compute travel safety summary
+  const location = args.location || args.city || args.country || "Not specified";
+  const country = args.country || "";
+  const city = args.city || "";
   
-  // Estimate checklist items based on trip profile
-  let estimatedItems = 25; // Base items
-  if (isInternational) estimatedItems += 5; // Extra documents
-  if (tripDuration > 7) estimatedItems += 5; // More clothing
-  if (purpose === "business") estimatedItems += 3;
-  if (purpose === "adventure") estimatedItems += 8;
-  if (travelers > 1) estimatedItems += 5;
+  // Determine query type
+  let queryType = "general";
+  if (city && country) queryType = "city";
+  else if (city) queryType = "city";
+  else if (country) queryType = "country";
   
   return {
-    destination,
-    trip_duration: tripDuration,
-    is_international: isInternational,
-    climate,
-    purpose,
-    travelers,
-    estimated_items: estimatedItems,
-    trip_type: isInternational ? "International" : "Domestic"
+    location,
+    country,
+    city,
+    query_type: queryType,
+    data_sources: ["US State Dept", "UK Foreign Office", "GDELT News", "ACLED Conflict Data"],
   };
 }
 
@@ -201,7 +193,7 @@ function readWidgetHtml(componentName: string): string {
 // Added timestamp suffix to force cache invalidation for width fix
 const VERSION = (process.env.RENDER_GIT_COMMIT?.slice(0, 7) || Date.now().toString()) + '-' + Date.now();
 
-function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
+function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
   const templateUri = bustCache
     ? `ui://widget/is_it_safe.html?v=${VERSION}`
     : widget.templateUri;
@@ -209,40 +201,39 @@ function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
   return {
     "openai/outputTemplate": templateUri,
     "openai/widgetDescription":
-      "A smart travel checklist generator that creates personalized, customizable packing lists based on your trip profile. Generates checklists for documents, clothing, toiletries, health, tech, activities, and pre-departure tasks. Call this tool immediately with NO arguments to let the user enter their trip details manually. Only provide arguments if the user has explicitly stated them.",
+      "A travel safety tool that provides real-time safety data for any city or country. Shows official travel advisories from US State Department and UK Foreign Office, recent conflict data from ACLED, and news sentiment analysis from GDELT. Call this tool immediately with NO arguments to let the user search for a location manually. Only provide arguments if the user has explicitly stated a location.",
     "openai/componentDescriptions": {
-      "trip-form": "Input form for trip details including destination, duration, travelers, climate, and purpose.",
-      "checklist-display": "Display showing categorized packing checklist items with checkboxes.",
-      "progress-tracker": "Progress bar showing how many items have been packed.",
+      "search-form": "Search input for entering a city or country name to check safety data.",
+      "safety-dashboard": "Dashboard showing advisory levels, risk scores, and safety information from multiple sources.",
+      "news-analysis": "Recent news headlines and sentiment analysis for the searched location.",
     },
     "openai/widgetKeywords": [
-      "travel",
-      "checklist",
-      "packing",
-      "vacation",
-      "trip",
-      "luggage",
-      "travel planning",
-      "packing list",
-      "documents",
-      "toiletries",
-      "clothes",
-      "international",
-      "domestic"
+      "travel safety",
+      "is it safe",
+      "travel advisory",
+      "danger",
+      "risk",
+      "travel warning",
+      "state department",
+      "foreign office",
+      "conflict",
+      "crime",
+      "safety data",
+      "travel risk"
     ],
     "openai/sampleConversations": [
-      { "user": "What should I pack for my trip?", "assistant": "Here is the Smart Travel Checklist. Enter your trip details to generate a personalized packing list." },
-      { "user": "I'm going to Paris for 7 days", "assistant": "I'll create a customized packing checklist for your 7-day trip to Paris with all the essentials." },
-      { "user": "Help me pack for a beach vacation", "assistant": "I've loaded the travel checklist for a beach trip. It includes swimwear, sunscreen, and other beach essentials." },
+      { "user": "Is it safe to travel to Egypt?", "assistant": "Here is the safety data for Egypt, including US State Department advisories and recent news analysis." },
+      { "user": "How dangerous is Mexico City right now?", "assistant": "I'll show you the current safety situation for Mexico City with data from official government sources and conflict monitoring." },
+      { "user": "What's the travel advisory for Thailand?", "assistant": "Here's the travel advisory information for Thailand from both US and UK government sources." },
     ],
     "openai/starterPrompts": [
-      "What should I pack for my trip?",
-      "Create a packing list for my vacation",
-      "Help me pack for an international trip",
-      "Beach vacation packing checklist",
-      "Business trip essentials",
-      "What clothing do I need to travel to New York?",
-      "Family vacation packing list",
+      "Is it safe to travel to Egypt?",
+      "What's the travel advisory for Thailand?",
+      "How safe is Mexico City?",
+      "Is Colombia dangerous right now?",
+      "Travel warnings for Israel",
+      "Safety information for Paris",
+      "Is it safe to visit Brazil?",
     ],
     "openai/widgetPrefersBorder": true,
     "openai/widgetCSP": {
@@ -264,7 +255,7 @@ function widgetMeta(widget: TravelChecklistWidget, bustCache: boolean = false) {
   } as const;
 }
 
-const widgets: TravelChecklistWidget[] = [
+const widgets: TravelSafetyWidget[] = [
   {
     id: "is-it-safe",
     title: "Is It Safe? — Real-time travel safety data for any city or country",
@@ -277,8 +268,8 @@ const widgets: TravelChecklistWidget[] = [
   },
 ];
 
-const widgetsById = new Map<string, TravelChecklistWidget>();
-const widgetsByUri = new Map<string, TravelChecklistWidget>();
+const widgetsById = new Map<string, TravelSafetyWidget>();
+const widgetsByUri = new Map<string, TravelSafetyWidget>();
 
 widgets.forEach((widget) => {
   widgetsById.set(widget.id, widget);
@@ -288,28 +279,11 @@ widgets.forEach((widget) => {
 const toolInputSchema = {
   type: "object",
   properties: {
-    destination: { type: "string", description: "Travel destination (city, country, or region)." },
-    start_date: { type: "string", description: "Trip start date in YYYY-MM-DD format (use this only if user gives exact date)." },
-    end_date: { type: "string", description: "Trip end date in YYYY-MM-DD format (use this only if user gives exact date)." },
-    trip_month: { type: "string", description: "Month of travel if user says 'in December', 'in January', etc. Use lowercase month name." },
-    departure_timing: { type: "string", enum: ["this_week", "next_week", "in_two_weeks", "in_three_weeks", "this_weekend", "next_weekend", "next_month", "in_two_months"], description: "Relative departure timing like 'going in two weeks', 'leaving next week', 'this weekend'." },
-    trip_duration: { type: "number", description: "Trip duration in days." },
-    trip_weeks: { type: "number", description: "Trip duration in weeks if user says 'for one week', 'for two weeks', etc." },
-    is_international: { type: "boolean", description: "Whether this is an international trip." },
-    climate: { type: "string", enum: ["summer", "winter", "spring", "tropical", "variable"], description: "Expected weather/climate at destination." },
-    purpose: { type: "string", enum: ["leisure", "business", "adventure", "beach", "city"], description: "Primary purpose of the trip." },
-    adult_males: { type: "number", description: "Number of adult male travelers." },
-    adult_females: { type: "number", description: "Number of adult female travelers." },
-    male_children: { type: "number", description: "Number of male children." },
-    female_children: { type: "number", description: "Number of female children." },
-    infants: { type: "number", description: "Number of infants." },
-    travelers: { type: "number", description: "Total number of travelers (if breakdown not specified, assume adult males)." },
-    packing_constraint: { type: "string", enum: ["carry_on_only", "checked_bags", "minimal"], description: "Luggage type constraint." },
-    has_children: { type: "boolean", description: "Whether traveling with children." },
-    has_infants: { type: "boolean", description: "Whether traveling with infants." },
-    has_pets: { type: "boolean", description: "Whether traveling with pets." },
-    activities: { type: "array", items: { type: "string" }, description: "Planned activities (hiking, beach, camping, etc.)." },
-    presets: { type: "array", items: { type: "string", enum: ["lightSleeper", "gymRat", "yoga", "swimmer", "remoteWorker", "contentCreator", "gamer", "photographer"] }, description: "Traveler presets - lightSleeper (mentions sleep issues, light sleeper), gymRat (gym, workout, fitness), yoga, swimmer (swimming, pool), remoteWorker (remote work, digital nomad), contentCreator (influencer, content creator, vlogger), gamer (gaming), photographer (photography)." },
+    location: { type: "string", description: "Location to check safety for (city, country, or region)." },
+    country: { type: "string", description: "Country name to check safety data for." },
+    city: { type: "string", description: "City name to check safety data for." },
+    include_news: { type: "boolean", description: "Whether to include recent news analysis from GDELT." },
+    include_conflict: { type: "boolean", description: "Whether to include conflict data from ACLED." },
   },
   required: [],
   additionalProperties: false,
@@ -317,58 +291,35 @@ const toolInputSchema = {
 } as const;
 
 const toolInputParser = z.object({
-  destination: z.string().optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  trip_month: z.string().optional(),
-  departure_timing: z.enum(["this_week", "next_week", "in_two_weeks", "in_three_weeks", "this_weekend", "next_weekend", "next_month", "in_two_months"]).optional(),
-  trip_duration: z.number().optional(),
-  trip_weeks: z.number().optional(),
-  is_international: z.boolean().optional(),
-  climate: z.enum(["summer", "winter", "spring", "tropical", "variable"]).optional(),
-  purpose: z.enum(["leisure", "business", "adventure", "beach", "city"]).optional(),
-  adult_males: z.number().optional(),
-  adult_females: z.number().optional(),
-  male_children: z.number().optional(),
-  female_children: z.number().optional(),
-  infants: z.number().optional(),
-  travelers: z.number().optional(),
-  packing_constraint: z.enum(["carry_on_only", "checked_bags", "minimal"]).optional(),
-  has_children: z.boolean().optional(),
-  has_infants: z.boolean().optional(),
-  has_pets: z.boolean().optional(),
-  activities: z.array(z.string()).optional(),
-  presets: z.array(z.enum(["lightSleeper", "gymRat", "yoga", "swimmer", "remoteWorker", "contentCreator", "gamer", "photographer"])).optional(),
+  location: z.string().optional(),
+  country: z.string().optional(),
+  city: z.string().optional(),
+  include_news: z.boolean().optional(),
+  include_conflict: z.boolean().optional(),
 });
 
 const tools: Tool[] = widgets.map((widget) => ({
   name: widget.id,
   description:
-    "Use this tool to generate a personalized travel packing checklist based on location, number of travelers, travel preferences, and other details. Helps users create customized packing lists based on their trip details. Call this tool immediately with NO arguments to let the user enter their trip details manually. Only provide arguments if the user has explicitly stated them.",
+    "Use this tool to check travel safety data for any city or country. Shows official travel advisories from US State Department and UK Foreign Office, conflict data from ACLED, and news analysis from GDELT. Call this tool immediately with NO arguments to let the user search for a location manually. Only provide arguments if the user has explicitly stated a location.",
   inputSchema: toolInputSchema,
   outputSchema: {
     type: "object",
     properties: {
       ready: { type: "boolean" },
       timestamp: { type: "string" },
-      destination: { type: "string" },
-      trip_duration: { type: "number" },
-      is_international: { type: "boolean" },
-      climate: { type: "string" },
-      purpose: { type: "string" },
-      travelers: { type: "number" },
+      location: { type: "string" },
+      country: { type: "string" },
+      city: { type: "string" },
       input_source: { type: "string", enum: ["user", "default"] },
       summary: {
         type: "object",
         properties: {
-          destination: { type: ["string", "null"] },
-          trip_duration: { type: ["number", "null"] },
-          is_international: { type: ["boolean", "null"] },
-          climate: { type: ["string", "null"] },
-          purpose: { type: ["string", "null"] },
-          travelers: { type: ["number", "null"] },
-          estimated_items: { type: ["number", "null"] },
-          trip_type: { type: ["string", "null"] },
+          location: { type: ["string", "null"] },
+          country: { type: ["string", "null"] },
+          city: { type: ["string", "null"] },
+          query_type: { type: ["string", "null"] },
+          data_sources: { type: "array", items: { type: "string" } },
         },
       },
       suggested_followups: {
@@ -396,7 +347,7 @@ const resources: Resource[] = widgets.map((widget) => ({
   uri: widget.templateUri,
   name: widget.title,
   description:
-    "HTML template for the Travel Checklist widget that generates personalized packing lists based on trip details.",
+    "HTML template for the Is It Safe travel safety widget that provides real-time safety data for cities and countries.",
   mimeType: "text/html+skybridge",
   _meta: widgetMeta(widget),
 }));
@@ -405,18 +356,18 @@ const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
   uriTemplate: widget.templateUri,
   name: widget.title,
   description:
-    "Template descriptor for the Travel Checklist widget.",
+    "Template descriptor for the Is It Safe travel safety widget.",
   mimeType: "text/html+skybridge",
   _meta: widgetMeta(widget),
 }));
 
-function createTravelChecklistServer(): Server {
+function createTravelSafetyServer(): Server {
   const server = new Server(
     {
       name: "is-it-safe",
       version: "0.1.0",
       description:
-        "Smart Travel Checklist helps users generate personalized packing lists based on their trip profile including destination, duration, climate, and activities.",
+        "Is It Safe provides real-time travel safety data for any city or country, including official government advisories, conflict data, and news analysis.",
     },
     {
       capabilities: {
@@ -530,84 +481,29 @@ function createTravelChecklistServer(): Server {
           ];
           const userText = candidates.find((t) => typeof t === "string" && t.trim().length > 0) || "";
 
-          // Try to infer destination from user text (e.g., "trip to Paris", "vacation in Hawaii")
-          if (args.destination === undefined) {
-            const destMatch = userText.match(/(?:trip|travel|going|vacation|visit|flying)\s+(?:to|in)\s+([A-Za-z\s,]+?)(?:\.|,|for|\s+\d|\s*$)/i);
-            if (destMatch) {
-              args.destination = destMatch[1].trim();
-            }
-          }
-          
-          // Try to infer trip duration (e.g., "7 days", "2 weeks", "a week")
-          if (args.trip_duration === undefined) {
-            const durationMatch = userText.match(/(\d+)\s*(?:day|night)s?/i);
-            if (durationMatch) {
-              args.trip_duration = parseInt(durationMatch[1]);
-            } else if (/a\s+week|one\s+week/i.test(userText)) {
-              args.trip_duration = 7;
-            } else if (/two\s+weeks?|2\s+weeks?/i.test(userText)) {
-              args.trip_duration = 14;
-            }
-          }
-          
-          // Infer international vs domestic
-          if (args.is_international === undefined) {
-            if (/international|abroad|overseas|passport/i.test(userText)) {
-              args.is_international = true;
-            } else if (/domestic|within|local/i.test(userText)) {
-              args.is_international = false;
-            }
-          }
-          
-          // Infer climate from keywords
-          if (args.climate === undefined) {
-            if (/beach|tropical|caribbean|hawaii|mexico|thailand|bali/i.test(userText)) args.climate = "tropical";
-            else if (/winter|cold|snow|ski|skiing|christmas|december|january|february/i.test(userText)) args.climate = "winter";
-            else if (/summer|hot|warm|july|august|june/i.test(userText)) args.climate = "summer";
-            else if (/spring|fall|autumn|mild/i.test(userText)) args.climate = "spring";
-          }
-          
-          // Infer purpose from keywords
-          if (args.purpose === undefined) {
-            if (/business|work|conference|meeting/i.test(userText)) args.purpose = "business";
-            else if (/beach|swim|ocean|resort/i.test(userText)) args.purpose = "beach";
-            else if (/hike|hiking|adventure|camping|outdoor/i.test(userText)) args.purpose = "adventure";
-            else if (/city|urban|sightseeing|museum/i.test(userText)) args.purpose = "city";
-          }
-          
-          // Infer presets from keywords
-          if (!args.presets || args.presets.length === 0) {
-            const inferredPresets: ("lightSleeper" | "gymRat" | "yoga" | "swimmer" | "remoteWorker" | "contentCreator" | "gamer" | "photographer")[] = [];
-            if (/light\s*sleeper|trouble\s*sleep|insomnia|sleep\s*issues|noise\s*sensitive/i.test(userText)) inferredPresets.push("lightSleeper");
-            if (/gym|workout|fitness|exercise|weight\s*train|lift\s*weight/i.test(userText)) inferredPresets.push("gymRat");
-            if (/yoga|meditat|stretch/i.test(userText)) inferredPresets.push("yoga");
-            if (/swim|pool|lap\s*swim/i.test(userText)) inferredPresets.push("swimmer");
-            if (/remote\s*work|digital\s*nomad|work\s*remote|laptop|home\s*office/i.test(userText)) inferredPresets.push("remoteWorker");
-            if (/content\s*creat|influencer|vlog|youtube|tiktok|social\s*media/i.test(userText)) inferredPresets.push("contentCreator");
-            if (/gamer|gaming|video\s*game|nintendo|switch|playstation|xbox/i.test(userText)) inferredPresets.push("gamer");
-            if (/photograph|camera|dslr|mirrorless|shoot\s*photo/i.test(userText)) inferredPresets.push("photographer");
-            if (inferredPresets.length > 0) args.presets = inferredPresets;
-          }
-          
-          // Infer travelers from relationship mentions
-          // "with my girlfriend/wife/partner" = 1 adult male (me) + 1 adult female
-          // "with my boyfriend/husband" = 1 adult female (me) + 1 adult male
-          if (!args.adult_males && !args.adult_females && !args.travelers) {
-            if (/\b(girlfriend|wife|gf)\b/i.test(userText)) {
-              // User is likely male, traveling with female partner
-              args.adult_males = 1;
-              args.adult_females = 1;
-            } else if (/\b(boyfriend|husband|bf)\b/i.test(userText)) {
-              // User is likely female, traveling with male partner
-              args.adult_females = 1;
-              args.adult_males = 1;
-            } else if (/\b(partner|spouse)\b/i.test(userText)) {
-              // Gender-neutral, assume 1 male + 1 female
-              args.adult_males = 1;
-              args.adult_females = 1;
-            } else if (/\bfor\s+(?:me|myself)\b/i.test(userText) && !(/\bwith\b/i.test(userText))) {
-              // Solo traveler - "for me", "for myself" without "with"
-              args.adult_males = 1;
+          // Try to infer location from user text (e.g., "safe to travel to Egypt", "dangerous in Mexico City")
+          if (args.location === undefined && args.country === undefined && args.city === undefined) {
+            // Match patterns like "safe to travel to X", "is X safe", "dangerous in X", "safety of X"
+            const locationPatterns = [
+              /(?:safe|dangerous|safety|risk|travel|visit|go)\s+(?:to|in|for|of)\s+([A-Za-z\s,]+?)(?:\?|\.|,|right now|\s*$)/i,
+              /(?:is|how)\s+([A-Za-z\s,]+?)\s+(?:safe|dangerous|risky)/i,
+              /(?:travel\s+)?(?:advisory|warning)\s+(?:for|in)\s+([A-Za-z\s,]+?)(?:\?|\.|,|\s*$)/i,
+            ];
+            
+            for (const pattern of locationPatterns) {
+              const match = userText.match(pattern);
+              if (match) {
+                const inferredLocation = match[1].trim();
+                // Check if it looks like a city (contains spaces or common city indicators)
+                if (/city|town|metro/i.test(inferredLocation) || /\s/.test(inferredLocation)) {
+                  args.city = inferredLocation;
+                } else {
+                  // Assume country if single word
+                  args.country = inferredLocation;
+                }
+                args.location = inferredLocation;
+                break;
+              }
             }
           }
 
@@ -623,15 +519,14 @@ function createTravelChecklistServer(): Server {
 
         // Infer likely user query from parameters
         const inferredQuery = [] as string[];
-        if (args.destination) inferredQuery.push(`Destination: ${args.destination}`);
-        if (args.trip_duration) inferredQuery.push(`Duration: ${args.trip_duration} days`);
-        if (args.purpose) inferredQuery.push(`Purpose: ${args.purpose}`);
-        if (args.climate) inferredQuery.push(`Climate: ${args.climate}`);
+        if (args.location) inferredQuery.push(`Location: ${args.location}`);
+        if (args.country) inferredQuery.push(`Country: ${args.country}`);
+        if (args.city) inferredQuery.push(`City: ${args.city}`);
 
         logAnalytics("tool_call_success", {
           toolName: request.params.name,
           params: args,
-          inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Checklist",
+          inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
           responseTime,
 
           device: deviceCategory,
@@ -652,7 +547,7 @@ function createTravelChecklistServer(): Server {
         console.log(`[MCP] Tool called: ${request.params.name}, returning templateUri: ${(widgetMetadata as any)["openai/outputTemplate"]}`);
 
         // Build structured content once so we can log it and return it.
-        // For the travel checklist, expose fields relevant to trip details
+        // For travel safety, expose fields relevant to location safety data
         const structured = {
           ready: true,
           timestamp: new Date().toISOString(),
@@ -661,10 +556,10 @@ function createTravelChecklistServer(): Server {
           // Summary + follow-ups for natural language UX
           summary: computeSummary(args),
           suggested_followups: [
-            "What documents do I need?",
-            "What clothes should I pack?",
-            "Do I need any vaccines?",
-            "What about toiletries for carry-on?"
+            "What are the main safety concerns?",
+            "Is it safe for solo travelers?",
+            "What areas should I avoid?",
+            "Are there any recent incidents?"
           ],
         } as const;
 
@@ -687,14 +582,14 @@ function createTravelChecklistServer(): Server {
 
         // Log success analytics
         try {
-          // Check for "empty" result - when no main travel inputs are provided
-          const hasMainInputs = args.destination || args.trip_duration || args.purpose;
+          // Check for "empty" result - when no location inputs are provided
+          const hasMainInputs = args.location || args.country || args.city;
           
           if (!hasMainInputs) {
              logAnalytics("tool_call_empty", {
                toolName: request.params.name,
                params: request.params.arguments || {},
-               reason: "No trip details provided"
+               reason: "No location provided"
              });
           } else {
           logAnalytics("tool_call_success", {
@@ -918,8 +813,8 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       : "N/A";
 
   const paramUsage: Record<string, number> = {};
-  const tripPurposeDist: Record<string, number> = {};
-  const climateDist: Record<string, number> = {};
+  const countryDist: Record<string, number> = {};
+  const cityDist: Record<string, number> = {};
   
   successLogs.forEach((log) => {
     if (log.params) {
@@ -928,15 +823,15 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           paramUsage[key] = (paramUsage[key] || 0) + 1;
         }
       });
-      // Track trip purpose distribution
-      if (log.params.purpose) {
-        const purpose = log.params.purpose;
-        tripPurposeDist[purpose] = (tripPurposeDist[purpose] || 0) + 1;
+      // Track country distribution
+      if (log.params.country) {
+        const country = log.params.country;
+        countryDist[country] = (countryDist[country] || 0) + 1;
       }
-      // Track climate distribution
-      if (log.params.climate) {
-        const climate = log.params.climate;
-        climateDist[climate] = (climateDist[climate] || 0) + 1;
+      // Track city distribution
+      if (log.params.city) {
+        const city = log.params.city;
+        cityDist[city] = (cityDist[city] || 0) + 1;
       }
     }
   });
@@ -947,55 +842,32 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     widgetInteractions[humanName] = (widgetInteractions[humanName] || 0) + 1;
   });
   
-  // Trip duration distribution
-  const tripDurationDist: Record<string, number> = {};
+  // Location distribution (top searched locations)
+  const locationDist: Record<string, number> = {};
   successLogs.forEach((log) => {
-    if (log.params?.trip_duration) {
-      const days = log.params.trip_duration;
-      let bucket = "Unknown";
-      if (days <= 3) bucket = "1-3 days";
-      else if (days <= 7) bucket = "4-7 days";
-      else if (days <= 14) bucket = "8-14 days";
-      else bucket = "15+ days";
-      tripDurationDist[bucket] = (tripDurationDist[bucket] || 0) + 1;
+    if (log.params?.location) {
+      const loc = log.params.location;
+      locationDist[loc] = (locationDist[loc] || 0) + 1;
     }
   });
 
-  // International vs Domestic distribution
-  const tripTypeDist: Record<string, number> = {};
-  successLogs.forEach((log) => {
-    if (log.params?.is_international !== undefined) {
-      const tripType = log.params.is_international ? "International" : "Domestic";
-      tripTypeDist[tripType] = (tripTypeDist[tripType] || 0) + 1;
-    }
-  });
-
-  // Destinations (top 10)
-  const destinationDist: Record<string, number> = {};
-  successLogs.forEach((log) => {
-    if (log.params?.destination) {
-      const dest = log.params.destination;
-      destinationDist[dest] = (destinationDist[dest] || 0) + 1;
-    }
-  });
-
-  // Checklist Actions
+  // Safety Actions
   const actionCounts: Record<string, number> = {
-    "Generate Checklist": 0,
+    "Search Location": 0,
     "Subscribe": 0,
-    "Check Item": 0, 
-    "Add Custom Item": 0,
-    "Save Checklist": 0,
-    "Print/Share": 0
+    "View Advisory": 0, 
+    "View News": 0,
+    "View Conflict Data": 0,
+    "Share": 0
   };
 
   widgetEvents.forEach(log => {
-      if (log.event === "widget_generate_checklist") actionCounts["Generate Checklist"]++;
+      if (log.event === "widget_search_location") actionCounts["Search Location"]++;
       if (log.event === "widget_notify_me_subscribe") actionCounts["Subscribe"]++;
-      if (log.event === "widget_check_item") actionCounts["Check Item"]++;
-      if (log.event === "widget_add_custom_item") actionCounts["Add Custom Item"]++;
-      if (log.event === "widget_save_checklist") actionCounts["Save Checklist"]++;
-      if (log.event === "widget_print_share") actionCounts["Print/Share"]++;
+      if (log.event === "widget_view_advisory") actionCounts["View Advisory"]++;
+      if (log.event === "widget_view_news") actionCounts["View News"]++;
+      if (log.event === "widget_view_conflict") actionCounts["View Conflict Data"]++;
+      if (log.event === "widget_share") actionCounts["Share"]++;
   });
 
   return `<!DOCTYPE html>
@@ -1003,7 +875,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Travel Checklist Analytics</title>
+  <title>Is It Safe Analytics</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
@@ -1030,7 +902,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 </head>
 <body>
   <div class="container">
-    <h1>📊 Travel Checklist Analytics</h1>
+    <h1>📊 Is It Safe Analytics</h1>
     <p class="subtitle">Last 7 days • Auto-refresh every 60s</p>
     
     <div class="grid">
@@ -1088,16 +960,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
-        <h2>Trip Purpose</h2>
+        <h2>Top Countries</h2>
         <table>
-          <thead><tr><th>Purpose</th><th>Count</th></tr></thead>
+          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
           <tbody>
-            ${Object.entries(tripPurposeDist).length > 0 ? Object.entries(tripPurposeDist)
+            ${Object.entries(countryDist).length > 0 ? Object.entries(countryDist)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
               .map(
-                ([purpose, count]) => `
+                ([country, count]) => `
               <tr>
-                <td>${purpose}</td>
+                <td>${country}</td>
                 <td>${count}</td>
               </tr>
             `
@@ -1151,57 +1024,38 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
-        <h2>Trip Duration</h2>
+        <h2>Top Cities</h2>
         <table>
-          <thead><tr><th>Duration</th><th>Users</th></tr></thead>
+          <thead><tr><th>City</th><th>Searches</th></tr></thead>
           <tbody>
-            ${Object.entries(tripDurationDist).length > 0 ? Object.entries(tripDurationDist)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .map(
-                ([duration, count]) => `
-              <tr>
-                <td>${duration}</td>
-                <td>${count}</td>
-              </tr>
-            `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="card">
-        <h2>Trip Type</h2>
-        <table>
-          <thead><tr><th>Type</th><th>Users</th></tr></thead>
-          <tbody>
-            ${Object.entries(tripTypeDist).length > 0 ? Object.entries(tripTypeDist)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .map(
-                ([tripType, count]) => `
-              <tr>
-                <td>${tripType}</td>
-                <td>${count}</td>
-              </tr>
-            `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="card">
-        <h2>Top Destinations</h2>
-        <table>
-          <thead><tr><th>Destination</th><th>Users</th></tr></thead>
-          <tbody>
-            ${Object.entries(destinationDist).length > 0 ? Object.entries(destinationDist)
+            ${Object.entries(cityDist).length > 0 ? Object.entries(cityDist)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
               .slice(0, 10)
               .map(
-                ([dest, count]) => `
+                ([city, count]) => `
               <tr>
-                <td>${dest}</td>
+                <td>${city}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <h2>Top Locations</h2>
+        <table>
+          <thead><tr><th>Location</th><th>Searches</th></tr></thead>
+          <tbody>
+            ${Object.entries(locationDist).length > 0 ? Object.entries(locationDist)
+              .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
+              .map(
+                ([loc, count]) => `
+              <tr>
+                <td>${loc}</td>
                 <td>${count}</td>
               </tr>
             `
@@ -1781,7 +1635,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
       await subscribeToButtondown(email, topicId, topicName);
       res.writeHead(200).end(JSON.stringify({ 
         success: true, 
-        message: "Successfully subscribed! You'll receive travel tips and packing list updates." 
+        message: "Successfully subscribed! You'll receive travel safety updates and alerts." 
       }));
     } catch (subscribeError: any) {
       const rawMessage = String(subscribeError?.message ?? "").trim();
@@ -1839,7 +1693,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
 
 async function handleSseRequest(res: ServerResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  const server = createTravelChecklistServer();
+  const server = createTravelSafetyServer();
   const transport = new SSEServerTransport(postPath, res);
   const sessionId = transport.sessionId;
 
@@ -2051,7 +1905,7 @@ function startMonitoring() {
 
 httpServer.listen(port, () => {
   startMonitoring();
-  console.log(`Travel Checklist MCP server listening on http://localhost:${port}`);
+  console.log(`Is It Safe MCP server listening on http://localhost:${port}`);
   console.log(`  SSE stream: GET http://localhost:${port}${ssePath}`);
   console.log(
     `  Message post endpoint: POST http://localhost:${port}${postPath}?sessionId=...`
