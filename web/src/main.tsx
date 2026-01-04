@@ -17,7 +17,7 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: any, errorInfo: any) {
-    console.error("Error Boundary caught error:", error, errorInfo);
+    console.error("Widget Error Boundary caught error:", error, errorInfo);
   }
 
   render() {
@@ -42,23 +42,104 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-console.log("[Main] Travel Safety App loading...");
+// Add hydration type definitions
+interface OpenAIGlobals {
+  toolOutput?: any;
+  structuredContent?: any;
+  toolInput?: any;
+  result?: {
+    structuredContent?: any;
+  };
+}
 
-const container =
-  document.getElementById("is-it-safe-root") ||
-  document.getElementById("travel-safety-root") ||
-  document.getElementById("travel-checklist-root");
+// Hydration Helper
+const getHydrationData = (): any => {
+  console.log("[Hydration] Starting hydration check...");
+
+  // Check for window.openai
+  if (typeof window === 'undefined') {
+    console.log("[Hydration] Window is undefined");
+    return {};
+  }
+
+  const oa = (window as any).openai as OpenAIGlobals;
+  if (!oa) {
+    console.log("[Hydration] window.openai not found, rendering with defaults");
+    return {};
+  }
+
+  console.log("[Hydration] window.openai found:", Object.keys(oa));
+
+  // Prioritize sources as per reference implementation
+  const candidates = [
+    oa.toolOutput,
+    oa.structuredContent,
+    oa.result?.structuredContent,
+    oa.toolInput
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === 'object' && Object.keys(candidate).length > 0) {
+      console.log("[Hydration] Found data:", candidate);
+      return candidate;
+    }
+  }
+
+  console.log("[Hydration] No data found in any candidate source");
+  return {};
+};
+
+console.log("[Main] Is It Safe main.tsx loading...");
+
+// App wrapper
+function App({ initialData }: { initialData: any }) {
+  return <TravelSafety initialData={initialData} />;
+}
+
+// Get initial data
+const container = document.getElementById("is-it-safe-root");
 
 if (!container) {
-  throw new Error("Root element not found");
+  throw new Error("is-it-safe-root element not found");
 }
 
 const root = createRoot(container);
 
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <TravelSafety />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+const renderApp = (data: any) => {
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App key={Date.now()} initialData={data} />
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+};
+
+// Initial render
+const initialData = getHydrationData();
+renderApp(initialData);
+
+// Listen for late hydration events (Apps SDK pattern)
+window.addEventListener('openai:set_globals', (ev: any) => {
+  const globals = ev?.detail?.globals;
+  if (globals) {
+    console.log("[Hydration] Late event received:", globals);
+
+    // Extract data from the event globals similar to getHydrationData
+    const candidates = [
+      globals.toolOutput,
+      globals.structuredContent,
+      globals.result?.structuredContent,
+      globals.toolInput
+    ];
+
+    for (const candidate of candidates) {
+       if (candidate && typeof candidate === 'object' && Object.keys(candidate).length > 0) {
+          console.log("[Hydration] Re-rendering with late data:", candidate);
+          // Force re-mount by changing key, ensuring initialData is applied fresh
+          renderApp(candidate);
+          return;
+       }
+    }
+  }
+});

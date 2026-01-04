@@ -2228,8 +2228,8 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
   );
 }
 
-export default function TravelSafety() {
-  const [searchQuery, setSearchQuery] = useState('');
+export default function TravelSafety({ initialData }: { initialData?: any }) {
+  const [searchQuery, setSearchQuery] = useState(initialData?.searchQuery || '');
   const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; isCity: boolean; searchTerm: string } | null>(null);
   const [advisories, setAdvisories] = useState<AdvisoryData>(FALLBACK_ADVISORIES);
   const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(FALLBACK_UK_ADVISORIES);
