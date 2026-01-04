@@ -2228,8 +2228,10 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
   );
 }
 
-export default function TravelSafety() {
-  const [searchQuery, setSearchQuery] = useState('');
+export default function TravelSafety({ initialData }: { initialData?: any }) {
+  // Extract location from hydration data
+  const initialLocation = initialData?.location || initialData?.city || initialData?.country || '';
+  const [searchQuery, setSearchQuery] = useState(initialLocation);
   const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; isCity: boolean; searchTerm: string } | null>(null);
   const [advisories, setAdvisories] = useState<AdvisoryData>(FALLBACK_ADVISORIES);
   const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(FALLBACK_UK_ADVISORIES);
@@ -2267,6 +2269,14 @@ export default function TravelSafety() {
       setApiLoaded(true);
     });
   }, []);
+
+  // Auto-search if initialData has a location (hydration from ChatGPT prompt)
+  useEffect(() => {
+    if (initialLocation && apiLoaded) {
+      console.log("[TravelSafety] Auto-searching for:", initialLocation);
+      searchFor(initialLocation);
+    }
+  }, [initialLocation, apiLoaded]);
 
   const searchFor = async (rawQuery: string) => {
     if (!rawQuery.trim()) return;

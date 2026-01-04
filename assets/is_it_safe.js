@@ -26551,8 +26551,9 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
     ] })
   ] });
 }
-function TravelSafety() {
-  const [searchQuery, setSearchQuery] = (0, import_react3.useState)("");
+function TravelSafety({ initialData: initialData2 }) {
+  const initialLocation = initialData2?.location || initialData2?.city || initialData2?.country || "";
+  const [searchQuery, setSearchQuery] = (0, import_react3.useState)(initialLocation);
   const [searchResult, setSearchResult] = (0, import_react3.useState)(null);
   const [advisories, setAdvisories] = (0, import_react3.useState)(FALLBACK_ADVISORIES);
   const [ukAdvisories, setUkAdvisories] = (0, import_react3.useState)(FALLBACK_UK_ADVISORIES);
@@ -26587,6 +26588,12 @@ function TravelSafety() {
       setApiLoaded(true);
     });
   }, []);
+  (0, import_react3.useEffect)(() => {
+    if (initialLocation && apiLoaded) {
+      console.log("[TravelSafety] Auto-searching for:", initialLocation);
+      searchFor(initialLocation);
+    }
+  }, [initialLocation, apiLoaded]);
   const searchFor = async (rawQuery) => {
     if (!rawQuery.trim()) return;
     setLoading(true);
@@ -27154,14 +27161,59 @@ function TravelSafety() {
 
 // src/main.tsx
 var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
+var getHydrationData = () => {
+  if (typeof window === "undefined") return {};
+  const oa = window.openai;
+  if (!oa) {
+    console.log("[Hydration] window.openai not found");
+    return {};
+  }
+  console.log("[Hydration] window.openai found:", Object.keys(oa));
+  const candidates = [
+    oa.toolOutput,
+    oa.structuredContent,
+    oa.result?.structuredContent,
+    oa.toolInput
+  ];
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === "object" && Object.keys(candidate).length > 0) {
+      console.log("[Hydration] Found data:", candidate);
+      return candidate;
+    }
+  }
+  return {};
+};
 var container = document.getElementById("is-it-safe-root");
 if (!container) {
   throw new Error("is-it-safe-root element not found");
 }
 var root = (0, import_client.createRoot)(container);
-root.render(
-  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react4.default.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(TravelSafety, {}) })
-);
+var renderApp = (data) => {
+  root.render(
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react4.default.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(TravelSafety, { initialData: data }) })
+  );
+};
+var initialData = getHydrationData();
+renderApp(initialData);
+window.addEventListener("openai:set_globals", (ev) => {
+  const globals = ev?.detail?.globals;
+  if (globals) {
+    console.log("[Hydration] Late event received:", globals);
+    const candidates = [
+      globals.toolOutput,
+      globals.structuredContent,
+      globals.result?.structuredContent,
+      globals.toolInput
+    ];
+    for (const candidate of candidates) {
+      if (candidate && typeof candidate === "object" && Object.keys(candidate).length > 0) {
+        console.log("[Hydration] Re-rendering with:", candidate);
+        renderApp(candidate);
+        return;
+      }
+    }
+  }
+});
 /*! Bundled license information:
 
 react/cjs/react.development.js:
