@@ -81,58 +81,171 @@ const CITY_COORDINATES: Record<string, { lat: number; lng: number; name: string;
   // Venezuela
   'caracas': { lat: 10.4806, lng: -66.9036, name: 'Caracas', country: 'Venezuela' },
   'maracaibo': { lat: 10.6544, lng: -71.6390, name: 'Maracaibo', country: 'Venezuela' },
+  'valencia': { lat: 10.1620, lng: -67.9993, name: 'Valencia', country: 'Venezuela' },
+  'barquisimeto': { lat: 10.0678, lng: -69.3474, name: 'Barquisimeto', country: 'Venezuela' },
   
-  // Central America
+  // Panama
   'panama city': { lat: 8.9824, lng: -79.5199, name: 'Panama City', country: 'Panama' },
+  'bocas del toro': { lat: 9.3403, lng: -82.2419, name: 'Bocas del Toro', country: 'Panama' },
+  'david': { lat: 8.4333, lng: -82.4333, name: 'David', country: 'Panama' },
+  'colon': { lat: 9.3592, lng: -79.9012, name: 'Colón', country: 'Panama' },
+  
+  // Guatemala
   'guatemala city': { lat: 14.6349, lng: -90.5069, name: 'Guatemala City', country: 'Guatemala' },
   'antigua': { lat: 14.5586, lng: -90.7295, name: 'Antigua', country: 'Guatemala' },
+  'flores': { lat: 16.9319, lng: -89.8924, name: 'Flores', country: 'Guatemala' },
+  'quetzaltenango': { lat: 14.8347, lng: -91.5181, name: 'Quetzaltenango', country: 'Guatemala' },
+  
+  // El Salvador
   'san salvador': { lat: 13.6929, lng: -89.2182, name: 'San Salvador', country: 'El Salvador' },
+  'santa ana': { lat: 13.9942, lng: -89.5597, name: 'Santa Ana', country: 'El Salvador' },
+  'la libertad': { lat: 13.4833, lng: -89.3167, name: 'La Libertad', country: 'El Salvador' },
+  
+  // Honduras
   'tegucigalpa': { lat: 14.0723, lng: -87.1921, name: 'Tegucigalpa', country: 'Honduras' },
   'roatan': { lat: 16.3333, lng: -86.5167, name: 'Roatán', country: 'Honduras' },
+  'san pedro sula': { lat: 15.5000, lng: -88.0333, name: 'San Pedro Sula', country: 'Honduras' },
+  'la ceiba': { lat: 15.7833, lng: -86.8000, name: 'La Ceiba', country: 'Honduras' },
+  
+  // Nicaragua
   'managua': { lat: 12.1149, lng: -86.2362, name: 'Managua', country: 'Nicaragua' },
   'granada': { lat: 11.9344, lng: -85.9560, name: 'Granada', country: 'Nicaragua' },
-  'san jose': { lat: 9.9281, lng: -84.0907, name: 'San José', country: 'Costa Rica' },
-  'belize city': { lat: 17.4986, lng: -88.1886, name: 'Belize City', country: 'Belize' },
+  'leon': { lat: 12.4379, lng: -86.8780, name: 'León', country: 'Nicaragua' },
+  'san juan del sur': { lat: 11.2533, lng: -85.8706, name: 'San Juan del Sur', country: 'Nicaragua' },
   
-  // South America
+  // Costa Rica
+  'san jose': { lat: 9.9281, lng: -84.0907, name: 'San José', country: 'Costa Rica' },
+  'liberia': { lat: 10.6333, lng: -85.4333, name: 'Liberia', country: 'Costa Rica' },
+  'la fortuna': { lat: 10.4678, lng: -84.6428, name: 'La Fortuna', country: 'Costa Rica' },
+  'puerto limon': { lat: 9.9907, lng: -83.0359, name: 'Puerto Limón', country: 'Costa Rica' },
+  'tamarindo': { lat: 10.2994, lng: -85.8375, name: 'Tamarindo', country: 'Costa Rica' },
+  'manuel antonio': { lat: 9.3925, lng: -84.1364, name: 'Manuel Antonio', country: 'Costa Rica' },
+  
+  // Belize
+  'belize city': { lat: 17.4986, lng: -88.1886, name: 'Belize City', country: 'Belize' },
+  'san pedro': { lat: 17.9214, lng: -87.9611, name: 'San Pedro', country: 'Belize' },
+  'placencia': { lat: 16.5167, lng: -88.3667, name: 'Placencia', country: 'Belize' },
+  'caye caulker': { lat: 17.7500, lng: -88.0167, name: 'Caye Caulker', country: 'Belize' },
+  
+  // Ecuador
   'quito': { lat: -0.1807, lng: -78.4678, name: 'Quito', country: 'Ecuador' },
   'guayaquil': { lat: -2.1710, lng: -79.9224, name: 'Guayaquil', country: 'Ecuador' },
   'galapagos': { lat: -0.9538, lng: -90.9656, name: 'Galápagos', country: 'Ecuador' },
+  'cuenca': { lat: -2.9001, lng: -79.0059, name: 'Cuenca', country: 'Ecuador' },
+  'manta': { lat: -0.9500, lng: -80.7333, name: 'Manta', country: 'Ecuador' },
+  
+  // Peru
   'lima': { lat: -12.0464, lng: -77.0428, name: 'Lima', country: 'Peru' },
   'cusco': { lat: -13.5320, lng: -71.9675, name: 'Cusco', country: 'Peru' },
   'arequipa': { lat: -16.4090, lng: -71.5375, name: 'Arequipa', country: 'Peru' },
+  'machu picchu': { lat: -13.1631, lng: -72.5450, name: 'Machu Picchu', country: 'Peru' },
+  'iquitos': { lat: -3.7491, lng: -73.2538, name: 'Iquitos', country: 'Peru' },
+  'puno': { lat: -15.8402, lng: -70.0219, name: 'Puno', country: 'Peru' },
+  
+  // Bolivia
   'la paz': { lat: -16.4897, lng: -68.1193, name: 'La Paz', country: 'Bolivia' },
   'santa cruz': { lat: -17.7833, lng: -63.1821, name: 'Santa Cruz', country: 'Bolivia' },
+  'sucre': { lat: -19.0333, lng: -65.2627, name: 'Sucre', country: 'Bolivia' },
+  'cochabamba': { lat: -17.3895, lng: -66.1568, name: 'Cochabamba', country: 'Bolivia' },
+  
+  // Chile
   'santiago': { lat: -33.4489, lng: -70.6693, name: 'Santiago', country: 'Chile' },
   'valparaiso': { lat: -33.0458, lng: -71.6197, name: 'Valparaíso', country: 'Chile' },
+  'vina del mar': { lat: -33.0153, lng: -71.5500, name: 'Viña del Mar', country: 'Chile' },
+  'punta arenas': { lat: -53.1638, lng: -70.9171, name: 'Punta Arenas', country: 'Chile' },
+  'san pedro de atacama': { lat: -22.9087, lng: -68.1997, name: 'San Pedro de Atacama', country: 'Chile' },
+  
+  // Argentina
   'buenos aires': { lat: -34.6037, lng: -58.3816, name: 'Buenos Aires', country: 'Argentina' },
   'mendoza': { lat: -32.8895, lng: -68.8458, name: 'Mendoza', country: 'Argentina' },
   'bariloche': { lat: -41.1335, lng: -71.3103, name: 'Bariloche', country: 'Argentina' },
+  'cordoba': { lat: -31.4201, lng: -64.1888, name: 'Córdoba', country: 'Argentina' },
+  'ushuaia': { lat: -54.8019, lng: -68.3030, name: 'Ushuaia', country: 'Argentina' },
+  'iguazu': { lat: -25.5972, lng: -54.5786, name: 'Puerto Iguazú', country: 'Argentina' },
+  
+  // Uruguay
   'montevideo': { lat: -34.9011, lng: -56.1645, name: 'Montevideo', country: 'Uruguay' },
   'punta del este': { lat: -34.9667, lng: -54.9500, name: 'Punta del Este', country: 'Uruguay' },
+  'colonia del sacramento': { lat: -34.4626, lng: -57.8400, name: 'Colonia del Sacramento', country: 'Uruguay' },
+  
+  // Paraguay
   'asuncion': { lat: -25.2637, lng: -57.5759, name: 'Asunción', country: 'Paraguay' },
+  'ciudad del este': { lat: -25.5167, lng: -54.6167, name: 'Ciudad del Este', country: 'Paraguay' },
+  'encarnacion': { lat: -27.3333, lng: -55.8667, name: 'Encarnación', country: 'Paraguay' },
+  
+  // Brazil
   'rio de janeiro': { lat: -22.9068, lng: -43.1729, name: 'Rio de Janeiro', country: 'Brazil' },
   'sao paulo': { lat: -23.5505, lng: -46.6333, name: 'São Paulo', country: 'Brazil' },
   'salvador': { lat: -12.9777, lng: -38.5016, name: 'Salvador', country: 'Brazil' },
   'fortaleza': { lat: -3.7172, lng: -38.5433, name: 'Fortaleza', country: 'Brazil' },
+  'brasilia': { lat: -15.7942, lng: -47.8822, name: 'Brasília', country: 'Brazil' },
+  'recife': { lat: -8.0476, lng: -34.8770, name: 'Recife', country: 'Brazil' },
+  'manaus': { lat: -3.1019, lng: -60.0250, name: 'Manaus', country: 'Brazil' },
+  'florianopolis': { lat: -27.5954, lng: -48.5480, name: 'Florianópolis', country: 'Brazil' },
   
-  // Caribbean
+  // Jamaica
   'kingston': { lat: 17.9714, lng: -76.7936, name: 'Kingston', country: 'Jamaica' },
   'montego bay': { lat: 18.4762, lng: -77.8939, name: 'Montego Bay', country: 'Jamaica' },
   'ocho rios': { lat: 18.4074, lng: -77.1025, name: 'Ocho Rios', country: 'Jamaica' },
   'negril': { lat: 18.2680, lng: -78.3478, name: 'Negril', country: 'Jamaica' },
+  
+  // Aruba
   'oranjestad': { lat: 12.5092, lng: -70.0086, name: 'Oranjestad', country: 'Aruba' },
+  'palm beach': { lat: 12.5833, lng: -70.0500, name: 'Palm Beach', country: 'Aruba' },
+  'san nicolas': { lat: 12.4333, lng: -69.9167, name: 'San Nicolás', country: 'Aruba' },
+  
+  // Curaçao
   'willemstad': { lat: 12.1696, lng: -68.9900, name: 'Willemstad', country: 'Curaçao' },
+  'westpunt': { lat: 12.3708, lng: -69.1533, name: 'Westpunt', country: 'Curaçao' },
+  'jan thiel': { lat: 12.0833, lng: -68.8667, name: 'Jan Thiel', country: 'Curaçao' },
+  
+  // Dominican Republic
   'santo domingo': { lat: 18.4861, lng: -69.9312, name: 'Santo Domingo', country: 'Dominican Republic' },
   'punta cana': { lat: 18.5601, lng: -68.3725, name: 'Punta Cana', country: 'Dominican Republic' },
+  'puerto plata': { lat: 19.7903, lng: -70.6878, name: 'Puerto Plata', country: 'Dominican Republic' },
+  'la romana': { lat: 18.4272, lng: -68.9728, name: 'La Romana', country: 'Dominican Republic' },
+  
+  // Haiti
   'port-au-prince': { lat: 18.5944, lng: -72.3074, name: 'Port-au-Prince', country: 'Haiti' },
+  'cap-haitien': { lat: 19.7578, lng: -72.2047, name: 'Cap-Haïtien', country: 'Haiti' },
+  'jacmel': { lat: 18.2342, lng: -72.5347, name: 'Jacmel', country: 'Haiti' },
+  
+  // Puerto Rico
   'san juan': { lat: 18.4655, lng: -66.1057, name: 'San Juan', country: 'Puerto Rico' },
+  'ponce': { lat: 18.0111, lng: -66.6141, name: 'Ponce', country: 'Puerto Rico' },
+  'rincon': { lat: 18.3400, lng: -67.2500, name: 'Rincón', country: 'Puerto Rico' },
+  'vieques': { lat: 18.1263, lng: -65.4401, name: 'Vieques', country: 'Puerto Rico' },
+  
+  // Cuba
   'havana': { lat: 23.1136, lng: -82.3666, name: 'Havana', country: 'Cuba' },
+  'varadero': { lat: 23.1394, lng: -81.2861, name: 'Varadero', country: 'Cuba' },
+  'trinidad': { lat: 21.8022, lng: -79.9842, name: 'Trinidad', country: 'Cuba' },
+  'santiago de cuba': { lat: 20.0247, lng: -75.8219, name: 'Santiago de Cuba', country: 'Cuba' },
+  
+  // Bahamas
   'nassau': { lat: 25.0480, lng: -77.3554, name: 'Nassau', country: 'Bahamas' },
+  'freeport': { lat: 26.5333, lng: -78.7000, name: 'Freeport', country: 'Bahamas' },
+  'exuma': { lat: 23.5000, lng: -75.7667, name: 'Exuma', country: 'Bahamas' },
+  
+  // Barbados
   'bridgetown': { lat: 13.0969, lng: -59.6145, name: 'Bridgetown', country: 'Barbados' },
+  'speightstown': { lat: 13.2500, lng: -59.6500, name: 'Speightstown', country: 'Barbados' },
+  'oistins': { lat: 13.0667, lng: -59.5333, name: 'Oistins', country: 'Barbados' },
+  
+  // Trinidad and Tobago
   'port of spain': { lat: 10.6596, lng: -61.5086, name: 'Port of Spain', country: 'Trinidad and Tobago' },
+  'scarborough': { lat: 11.1833, lng: -60.7333, name: 'Scarborough', country: 'Trinidad and Tobago' },
+  'san fernando': { lat: 10.2833, lng: -61.4667, name: 'San Fernando', country: 'Trinidad and Tobago' },
+  
+  // Grenada
   'st george': { lat: 12.0561, lng: -61.7486, name: "St. George's", country: 'Grenada' },
+  'gouyave': { lat: 12.1647, lng: -61.7292, name: 'Gouyave', country: 'Grenada' },
+  'grenville': { lat: 12.1167, lng: -61.6167, name: 'Grenville', country: 'Grenada' },
+  
+  // Saint Lucia
   'castries': { lat: 14.0101, lng: -60.9875, name: 'Castries', country: 'Saint Lucia' },
+  'soufriere': { lat: 13.8500, lng: -61.0667, name: 'Soufrière', country: 'Saint Lucia' },
+  'rodney bay': { lat: 14.0833, lng: -60.9500, name: 'Rodney Bay', country: 'Saint Lucia' },
 
   // Mexico
   'mexico city': { lat: 19.4326, lng: -99.1332, name: 'Mexico City', country: 'Mexico' },
