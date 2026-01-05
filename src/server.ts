@@ -643,7 +643,7 @@ const ukProxyPath = "/api/uk";
 const domainVerificationPath = "/.well-known/openai-apps-challenge";
 const domainVerificationToken =
   process.env.OPENAI_DOMAIN_VERIFICATION_TOKEN ??
-  "X1C2u_pL7rpRTEqXIorF7SPz-yc1ucHWvuIoUEEYwQE";
+  "U7I2UA8J7ha5MpDAmi2F0dFnC75L4XY5QMXwU3jpcsU";
 
 const ANALYTICS_PASSWORD = process.env.ANALYTICS_PASSWORD || "changeme123";
 
