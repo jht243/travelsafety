@@ -11,6 +11,10 @@ import dotenv from "dotenv";
 // Load environment variables from .env file
 dotenv.config();
 
+// Git commit hash for versioning logs
+const GIT_COMMIT = process.env.RENDER_GIT_COMMIT || process.env.GIT_COMMIT || 'local';
+const GIT_COMMIT_SHORT = GIT_COMMIT.slice(0, 7);
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
@@ -60,11 +64,16 @@ const ROOT_DIR = (() => {
 })();
 
 const ASSETS_DIR = path.resolve(ROOT_DIR, "assets");
-const LOGS_DIR = path.resolve(__dirname, "..", "logs");
+
+// Use Render persistent disk if available, otherwise fall back to local logs directory
+// To enable on Render: Add a disk with mount path /var/data/logs (Settings → Disks)
+const LOGS_DIR = process.env.RENDER ? "/var/data/logs" : path.resolve(__dirname, "..", "logs");
 
 if (!fs.existsSync(LOGS_DIR)) {
   fs.mkdirSync(LOGS_DIR, { recursive: true });
 }
+
+console.log(`[Analytics] Logs directory: ${LOGS_DIR} (persistent: ${!!process.env.RENDER})`);
 
 type AnalyticsEvent = {
   timestamp: string;
@@ -76,6 +85,7 @@ function logAnalytics(event: string, data: Record<string, any> = {}) {
   const entry: AnalyticsEvent = {
     timestamp: new Date().toISOString(),
     event,
+    version: GIT_COMMIT_SHORT,
     ...data,
   };
 
