@@ -921,6 +921,7 @@ function humanizeEventName(event: string): string {
     sentiment_vote: "Sentiment Vote",
     widget_notify_me_subscribe: "Email Subscribe",
     widget_app_open: "App Open",
+    widget_page_load: "Page Load",
     widget_session_end: "Session End",
     widget_notify_me_subscribe_error: "Subscribe Error",
     widget_button_click: "Button Click",
@@ -1088,7 +1089,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   });
 
   // App opens and session duration tracking
-  const appOpenEvents = widgetEvents.filter((l) => l.event === "widget_app_open");
+  const appOpenEvents = widgetEvents.filter((l) => l.event === "widget_app_open" || l.event === "widget_page_load");
   const sessionEndEvents = widgetEvents.filter((l) => l.event === "widget_session_end");
   const appOpens = appOpenEvents.length;
   const sessionDurations = sessionEndEvents
@@ -2306,8 +2307,12 @@ const httpServer = createServer(
     // Serve alias for legacy loader path -> our main widget HTML
     if (req.method === "GET" && url.pathname === "/assets/is_it_safe.html") {
       const mainAssetPath = path.join(ASSETS_DIR, "is_it_safe.html");
-      console.log(`[Debug Legacy] Request: ${url.pathname}, Main Path: ${mainAssetPath}, Exists: ${fs.existsSync(mainAssetPath)}`);
       if (fs.existsSync(mainAssetPath) && fs.statSync(mainAssetPath).isFile()) {
+        // Track widget page load server-side
+        logAnalytics("widget_page_load", {
+          userAgent: req.headers["user-agent"] || "unknown",
+          referer: req.headers["referer"] || "direct",
+        });
         res.writeHead(200, {
           "Content-Type": "text/html",
           "Access-Control-Allow-Origin": "*",
