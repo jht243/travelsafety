@@ -920,6 +920,8 @@ function humanizeEventName(event: string): string {
     widget_safety_vote: "Safety Vote",
     sentiment_vote: "Sentiment Vote",
     widget_notify_me_subscribe: "Email Subscribe",
+    widget_app_open: "App Open",
+    widget_session_end: "Session End",
     widget_notify_me_subscribe_error: "Subscribe Error",
     widget_button_click: "Button Click",
   };
@@ -1084,6 +1086,21 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     const humanName = humanizeEventName(log.event);
     widgetInteractions[humanName] = (widgetInteractions[humanName] || 0) + 1;
   });
+
+  // App opens and session duration tracking
+  const appOpenEvents = widgetEvents.filter((l) => l.event === "widget_app_open");
+  const sessionEndEvents = widgetEvents.filter((l) => l.event === "widget_session_end");
+  const appOpens = appOpenEvents.length;
+  const sessionDurations = sessionEndEvents
+    .map((l) => l.durationSeconds || 0)
+    .filter((d) => d > 0);
+  const avgSessionDuration = sessionDurations.length > 0
+    ? Math.round(sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length)
+    : 0;
+  const totalSessionTime = sessionDurations.reduce((a, b) => a + b, 0);
+  
+  // Unique sessions (by sessionId)
+  const uniqueSessions = new Set(appOpenEvents.map((l) => l.sessionId).filter(Boolean)).size;
   
   // Location distribution (top searched locations)
   const locationDist: Record<string, number> = {};
@@ -1238,6 +1255,29 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       <div class="card">
         <h2>Avg Response Time</h2>
         <div class="value">${avgResponseTime}<span style="font-size: 16px; color: #666;">ms</span></div>
+      </div>
+    </div>
+
+    <!-- Basic Usage Analytics -->
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1px solid #a855f7;">
+      <h2 style="color: #7c3aed;">📈 Usage Analytics</h2>
+      <div class="grid" style="margin-top: 16px;">
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #7c3aed;">${appOpens}</div>
+          <div style="font-size: 12px; color: #64748b;">App Opens</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #6366f1;">${uniqueSessions}</div>
+          <div style="font-size: 12px; color: #64748b;">Unique Sessions</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #8b5cf6;">${avgSessionDuration}<span style="font-size: 14px;">s</span></div>
+          <div style="font-size: 12px; color: #64748b;">Avg Session Duration</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${Math.round(totalSessionTime / 60)}<span style="font-size: 14px;">m</span></div>
+          <div style="font-size: 12px; color: #64748b;">Total Time in App</div>
+        </div>
       </div>
     </div>
 
@@ -2075,6 +2115,11 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
 
     try {
       await subscribeToButtondown(email, topicId, topicName);
+      logAnalytics("widget_notify_me_subscribe", {
+        email,
+        topicId,
+        topicName,
+      });
       res.writeHead(200).end(JSON.stringify({ 
         success: true, 
         message: "Successfully subscribed! You'll receive travel safety updates and alerts." 
@@ -2088,6 +2133,12 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
         console.log("Subscriber already on list, attempting update", { email, topicId, message: rawMessage });
         try {
           await updateButtondownSubscriber(email, topicId, topicName);
+          logAnalytics("widget_notify_me_subscribe", {
+            email,
+            topicId,
+            topicName,
+            updated: true,
+          });
           res.writeHead(200).end(JSON.stringify({ 
             success: true, 
             message: "You're now subscribed to this topic!" 

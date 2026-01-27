@@ -27332,6 +27332,31 @@ function TravelSafety({ initialData: initialData2 }) {
     };
   };
   (0, import_react3.useEffect)(() => {
+    const sessionStart = Date.now();
+    const sessionId = Math.random().toString(36).substring(2, 15);
+    trackEvent("app_open", {
+      sessionId,
+      referrer: document.referrer || "direct",
+      userAgent: navigator.userAgent,
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight
+    });
+    const handleUnload = () => {
+      const duration = Math.round((Date.now() - sessionStart) / 1e3);
+      const data = JSON.stringify({
+        event: "session_end",
+        data: {
+          sessionId,
+          durationSeconds: duration,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        }
+      });
+      navigator.sendBeacon(`${API_BASE}/api/track`, data);
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, []);
+  (0, import_react3.useEffect)(() => {
     Promise.all([
       fetchStateAdvisories(),
       fetchUKAdvisories()

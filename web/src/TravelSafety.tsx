@@ -3004,6 +3004,39 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     };
   };
 
+  // Track app open and session duration
+  useEffect(() => {
+    const sessionStart = Date.now();
+    const sessionId = Math.random().toString(36).substring(2, 15);
+    
+    // Track app open
+    trackEvent('app_open', {
+      sessionId,
+      referrer: document.referrer || 'direct',
+      userAgent: navigator.userAgent,
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight,
+    });
+
+    // Track session end on unload
+    const handleUnload = () => {
+      const duration = Math.round((Date.now() - sessionStart) / 1000);
+      // Use sendBeacon for reliable tracking on page unload
+      const data = JSON.stringify({
+        event: 'session_end',
+        data: {
+          sessionId,
+          durationSeconds: duration,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      navigator.sendBeacon(`${API_BASE}/api/track`, data);
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => window.removeEventListener('beforeunload', handleUnload);
+  }, []);
+
   // Load advisories on mount
   useEffect(() => {
     Promise.all([
