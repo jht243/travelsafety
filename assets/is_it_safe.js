@@ -24734,10 +24734,10 @@ var trackEvent = (event, data = {}) => {
     fetch(`${API_BASE}/api/track`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event, ...data, timestamp: (/* @__PURE__ */ new Date()).toISOString() })
-    }).catch(() => {
-    });
+      body: JSON.stringify({ event, data: { ...data, timestamp: (/* @__PURE__ */ new Date()).toISOString() } })
+    }).catch((err) => console.error("[trackEvent] Failed:", err));
   } catch (e) {
+    console.error("[trackEvent] Error:", e);
   }
 };
 var ADVISORY_LEVELS = {

@@ -72,9 +72,11 @@ const trackEvent = (event: string, data: Record<string, any> = {}) => {
     fetch(`${API_BASE}/api/track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event, ...data, timestamp: new Date().toISOString() }),
-    }).catch(() => {});
-  } catch (e) {}
+      body: JSON.stringify({ event, data: { ...data, timestamp: new Date().toISOString() } }),
+    }).catch((err) => console.error('[trackEvent] Failed:', err));
+  } catch (e) {
+    console.error('[trackEvent] Error:', e);
+  }
 };
 
 // State Department Advisory Levels

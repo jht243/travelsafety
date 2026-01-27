@@ -1830,14 +1830,26 @@ async function handleTrackEvent(req: IncomingMessage, res: ServerResponse) {
       body += chunk;
     }
 
-    const { event, data } = JSON.parse(body);
+    const parsed = JSON.parse(body);
+    const event = parsed.event;
+    const data = parsed.data || parsed; // Support both { event, data } and { event, ...data } formats
 
     if (!event) {
       res.writeHead(400).end(JSON.stringify({ error: "Missing event name" }));
       return;
     }
 
-    logAnalytics(`widget_${event}`, data || {});
+    // Log with all data fields at top level for dashboard access
+    logAnalytics(`widget_${event}`, {
+      ...data,
+      query: data.query,
+      normalizedQuery: data.normalizedQuery,
+      isCity: data.isCity,
+      country: data.country,
+      city: data.city,
+      location: data.location,
+      vote: data.vote,
+    });
 
     res.writeHead(200).end(JSON.stringify({ success: true }));
   } catch (error) {
