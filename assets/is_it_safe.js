@@ -24637,22 +24637,15 @@ var __iconNode13 = [
 ];
 var Printer = createLucideIcon("printer", __iconNode13);
 
-// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/rotate-ccw.js
-var __iconNode14 = [
-  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
-  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
-];
-var RotateCcw = createLucideIcon("rotate-ccw", __iconNode14);
-
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/search.js
-var __iconNode15 = [
+var __iconNode14 = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-var Search = createLucideIcon("search", __iconNode15);
+var Search = createLucideIcon("search", __iconNode14);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/shield.js
-var __iconNode16 = [
+var __iconNode15 = [
   [
     "path",
     {
@@ -24661,10 +24654,10 @@ var __iconNode16 = [
     }
   ]
 ];
-var Shield = createLucideIcon("shield", __iconNode16);
+var Shield = createLucideIcon("shield", __iconNode15);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/thumbs-down.js
-var __iconNode17 = [
+var __iconNode16 = [
   ["path", { d: "M17 14V2", key: "8ymqnk" }],
   [
     "path",
@@ -24674,10 +24667,10 @@ var __iconNode17 = [
     }
   ]
 ];
-var ThumbsDown = createLucideIcon("thumbs-down", __iconNode17);
+var ThumbsDown = createLucideIcon("thumbs-down", __iconNode16);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/thumbs-up.js
-var __iconNode18 = [
+var __iconNode17 = [
   ["path", { d: "M7 10v12", key: "1qc93n" }],
   [
     "path",
@@ -24687,24 +24680,24 @@ var __iconNode18 = [
     }
   ]
 ];
-var ThumbsUp = createLucideIcon("thumbs-up", __iconNode18);
+var ThumbsUp = createLucideIcon("thumbs-up", __iconNode17);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-down.js
-var __iconNode19 = [
+var __iconNode18 = [
   ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
   ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
 ];
-var TrendingDown = createLucideIcon("trending-down", __iconNode19);
+var TrendingDown = createLucideIcon("trending-down", __iconNode18);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-up.js
-var __iconNode20 = [
+var __iconNode19 = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-var TrendingUp = createLucideIcon("trending-up", __iconNode20);
+var TrendingUp = createLucideIcon("trending-up", __iconNode19);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
-var __iconNode21 = [
+var __iconNode20 = [
   [
     "path",
     {
@@ -24715,14 +24708,14 @@ var __iconNode21 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-var TriangleAlert = createLucideIcon("triangle-alert", __iconNode21);
+var TriangleAlert = createLucideIcon("triangle-alert", __iconNode20);
 
 // node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/x.js
-var __iconNode22 = [
+var __iconNode21 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ];
-var X = createLucideIcon("x", __iconNode22);
+var X = createLucideIcon("x", __iconNode21);
 
 // src/TravelSafety.tsx
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
@@ -27922,7 +27915,10 @@ function TravelSafety({ initialData: initialData2 }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
-          onClick: () => setShowSubscribeModal(true),
+          onClick: () => {
+            trackEvent("button_click", { button: "subscribe" });
+            setShowSubscribeModal(true);
+          },
           style: {
             display: "flex",
             alignItems: "center",
@@ -27947,32 +27943,7 @@ function TravelSafety({ initialData: initialData2 }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
-          onClick: handleReset,
-          style: {
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: COLORS.slate[500],
-            fontSize: "14px",
-            fontWeight: 600,
-            padding: "8px",
-            transition: "color 0.2s"
-          },
-          onMouseEnter: (e) => e.currentTarget.style.color = COLORS.primary,
-          onMouseLeave: (e) => e.currentTarget.style.color = COLORS.slate[500],
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { size: 16 }),
-            " Reset"
-          ]
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "button",
-        {
-          onClick: () => window.open("https://buymeacoffee.com/isitsafe", "_blank"),
+          onClick: () => trackEvent("button_click", { button: "donate" }),
           style: {
             display: "flex",
             alignItems: "center",
@@ -27997,7 +27968,10 @@ function TravelSafety({ initialData: initialData2 }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
-          onClick: () => setShowFeedbackModal(true),
+          onClick: () => {
+            trackEvent("button_click", { button: "feedback" });
+            setShowFeedbackModal(true);
+          },
           style: {
             display: "flex",
             alignItems: "center",
@@ -28022,7 +27996,10 @@ function TravelSafety({ initialData: initialData2 }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
-          onClick: () => window.print(),
+          onClick: () => {
+            trackEvent("button_click", { button: "print" });
+            window.print();
+          },
           style: {
             display: "flex",
             alignItems: "center",
@@ -28559,14 +28536,6 @@ lucide-react/dist/esm/icons/message-square.js:
    *)
 
 lucide-react/dist/esm/icons/printer.js:
-  (**
-   * @license lucide-react v0.554.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/rotate-ccw.js:
   (**
    * @license lucide-react v0.554.0 - ISC
    *

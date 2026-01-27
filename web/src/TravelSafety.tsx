@@ -3707,7 +3707,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
         backgroundColor: COLORS.white,
       }} className="no-print">
         <button 
-          onClick={() => setShowSubscribeModal(true)}
+          onClick={() => { trackEvent('button_click', { button: 'subscribe' }); setShowSubscribeModal(true); }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -3727,27 +3727,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
           <Mail size={16} /> Subscribe
         </button>
         <button 
-          onClick={handleReset}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: COLORS.slate[500],
-            fontSize: '14px',
-            fontWeight: 600,
-            padding: '8px',
-            transition: 'color 0.2s',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = COLORS.primary}
-          onMouseLeave={(e) => e.currentTarget.style.color = COLORS.slate[500]}
-        >
-          <RotateCcw size={16} /> Reset
-        </button>
-        <button 
-          onClick={() => window.open('https://buymeacoffee.com/isitsafe', '_blank')}
+          onClick={() => trackEvent('button_click', { button: 'donate' })}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -3767,7 +3747,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
           <Heart size={16} /> Donate
         </button>
         <button 
-          onClick={() => setShowFeedbackModal(true)}
+          onClick={() => { trackEvent('button_click', { button: 'feedback' }); setShowFeedbackModal(true); }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -3787,7 +3767,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
           <MessageSquare size={16} /> Feedback
         </button>
         <button 
-          onClick={() => window.print()}
+          onClick={() => { trackEvent('button_click', { button: 'print' }); window.print(); }}
           style={{
             display: 'flex',
             alignItems: 'center',

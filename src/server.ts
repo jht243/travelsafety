@@ -921,6 +921,7 @@ function humanizeEventName(event: string): string {
     sentiment_vote: "Sentiment Vote",
     widget_notify_me_subscribe: "Email Subscribe",
     widget_notify_me_subscribe_error: "Subscribe Error",
+    widget_button_click: "Button Click",
   };
   return eventMap[event] || event;
 }
@@ -1104,9 +1105,18 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     "Safety Vote": 0
   };
 
+  // Button click counts
+  const buttonClicks: Record<string, number> = {
+    "Subscribe": 0,
+    "Donate": 0,
+    "Feedback": 0,
+    "Print": 0
+  };
+
   // Helper to check event names (handles both old double-prefix and new single-prefix)
   const isSearchEvent = (e: string) => e === "widget_search_location" || e === "widget_widget_search_location";
   const isVoteEvent = (e: string) => e === "widget_safety_vote" || e === "widget_widget_safety_vote";
+  const isButtonClick = (e: string) => e === "widget_button_click" || e === "widget_widget_button_click";
 
   widgetEvents.forEach(log => {
       if (isSearchEvent(log.event)) actionCounts["Search Location"]++;
@@ -1116,6 +1126,14 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       if (log.event === "widget_view_conflict") actionCounts["View Conflict Data"]++;
       if (log.event === "widget_share") actionCounts["Share"]++;
       if (isVoteEvent(log.event)) actionCounts["Safety Vote"]++;
+      
+      // Track button clicks
+      if (isButtonClick(log.event) && log.button) {
+        const btn = log.button.charAt(0).toUpperCase() + log.button.slice(1);
+        if (buttonClicks[btn] !== undefined) {
+          buttonClicks[btn]++;
+        }
+      }
   });
 
   // Widget search distribution (countries and cities from widget searches)
@@ -1320,24 +1338,46 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     </div>
 
 
-    <div class="card" style="margin-bottom: 20px;">
-      <h2>Widget Interactions</h2>
-      <table>
-        <thead><tr><th>Action</th><th>Count</th></tr></thead>
-        <tbody>
-          ${Object.entries(widgetInteractions).length > 0 ? Object.entries(widgetInteractions)
-            .sort((a, b) => b[1] - a[1])
-            .map(
-              ([action, count]) => `
-            <tr>
-              <td>${action}</td>
-              <td>${count}</td>
-            </tr>
-          `
-            )
-            .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-        </tbody>
-      </table>
+    <div class="grid" style="margin-bottom: 20px;">
+      <div class="card">
+        <h2>Widget Interactions</h2>
+        <table>
+          <thead><tr><th>Action</th><th>Count</th></tr></thead>
+          <tbody>
+            ${Object.entries(widgetInteractions).length > 0 ? Object.entries(widgetInteractions)
+              .sort((a, b) => b[1] - a[1])
+              .map(
+                ([action, count]) => `
+              <tr>
+                <td>${action}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>🖱️ Button Clicks</h2>
+        <table>
+          <thead><tr><th>Button</th><th>Clicks</th></tr></thead>
+          <tbody>
+            ${Object.entries(buttonClicks).length > 0 ? Object.entries(buttonClicks)
+              .sort((a, b) => b[1] - a[1])
+              .map(
+                ([button, count]) => `
+              <tr>
+                <td>${button}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No clicks yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="grid" style="margin-bottom: 20px;">
