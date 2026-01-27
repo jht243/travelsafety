@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp, TrendingUp, TrendingDown, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 // Brand Color Palette - Soft Purple Reference Palette
 const COLORS = {
@@ -737,6 +737,13 @@ const FALLBACK_UK_ADVISORIES: UKAdvisoryData = {
     last_updated: '2025-10-15T09:30:00Z',
     url: 'https://www.gov.uk/foreign-travel-advice/japan',
   },
+  'thailand': {
+    country: 'Thailand',
+    alert_status: ['avoid_all_but_essential_travel_to_parts'],
+    change_description: 'FCO advises against all but essential travel to parts of Thailand (the southern provinces) due to ongoing violence.',
+    last_updated: '2025-01-15T10:00:00Z',
+    url: 'https://www.gov.uk/foreign-travel-advice/thailand',
+  },
 };
 
 // Fallback ACLED conflict data for countries AND cities
@@ -1372,6 +1379,14 @@ const FALLBACK_ADVISORIES: AdvisoryData = {
     date_updated: '2024-11-05',
     url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/italy-travel-advisory.html',
   },
+  'thailand': {
+    country: 'Thailand',
+    country_code: 'TH',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-15',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/thailand-travel-advisory.html',
+  },
   'united kingdom': {
     country: 'United Kingdom',
     country_code: 'GB',
@@ -1848,6 +1863,145 @@ function CitiesInCountry({ country, advisories, onCityClick }: {
   );
 }
 
+// Community Sentiment Component
+function CommunitySentiment({ location }: { location: string }) {
+  const [sentiment, setSentiment] = React.useState<{ safe: number; unsafe: number; total: number; safePercent: number } | null>(null);
+  const [hasVoted, setHasVoted] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const API_BASE = window.location.hostname === 'localhost' 
+    ? `http://localhost:${window.location.port || '8000'}`
+    : '';
+
+  React.useEffect(() => {
+    const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
+    if (votedLocations[location.toLowerCase()]) {
+      setHasVoted(true);
+    } else {
+      setHasVoted(false);
+    }
+    
+    fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`)
+      .then(res => res.json())
+      .then(data => setSentiment(data))
+      .catch(err => console.error('Failed to load sentiment:', err));
+  }, [location]);
+
+  const handleVote = async (vote: 'safe' | 'unsafe') => {
+    if (hasVoted || isLoading) return;
+    setIsLoading(true);
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vote }),
+      });
+      const data = await res.json();
+      setSentiment(data);
+      setHasVoted(true);
+      
+      const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
+      votedLocations[location.toLowerCase()] = vote;
+      localStorage.setItem('sentimentVotes', JSON.stringify(votedLocations));
+    } catch (err) {
+      console.error('Failed to vote:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const safePercent = sentiment?.safePercent ?? 50;
+  const unsafePercent = 100 - safePercent;
+
+  return (
+    <div style={{
+      backgroundColor: COLORS.white,
+      borderRadius: UI.radius.lg,
+      padding: '16px 18px',
+      marginBottom: '24px',
+      boxShadow: UI.shadow.soft,
+      border: `1px solid ${COLORS.slate[100]}`,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.lavender, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Globe size={14} style={{ color: COLORS.primary }} />
+          </div>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Community Sentiment</span>
+        </div>
+        <span style={{ fontSize: '11px', fontWeight: 600, color: COLORS.slate[400], textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+          {sentiment?.total || 0} votes
+        </span>
+      </div>
+      
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+        <span style={{ fontSize: '13px', fontWeight: 700, color: COLORS.safe.text, minWidth: '36px' }}>{safePercent}%</span>
+        <div style={{ flex: 1, height: '10px', borderRadius: UI.radius.pill, overflow: 'hidden', display: 'flex', backgroundColor: COLORS.slate[100], border: `1px solid ${COLORS.slate[200]}` }}>
+          <div style={{ width: `${safePercent}%`, height: '100%', background: `linear-gradient(90deg, ${COLORS.safe.text} 0%, #34d399 100%)`, transition: 'width 0.3s' }} />
+          <div style={{ width: `${unsafePercent}%`, height: '100%', background: `linear-gradient(90deg, #f87171 0%, ${COLORS.danger.text} 100%)`, transition: 'width 0.3s' }} />
+        </div>
+        <span style={{ fontSize: '13px', fontWeight: 700, color: COLORS.danger.text, minWidth: '36px', textAlign: 'right' }}>{unsafePercent}%</span>
+      </div>
+
+      {!hasVoted ? (
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={() => handleVote('safe')}
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 16px',
+              backgroundColor: COLORS.safe.bg,
+              border: `1px solid ${COLORS.safe.border}`,
+              borderRadius: UI.radius.md,
+              color: COLORS.safe.text,
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            <ThumbsUp size={15} />
+            Safe
+          </button>
+          <button
+            onClick={() => handleVote('unsafe')}
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 16px',
+              backgroundColor: COLORS.danger.bg,
+              border: `1px solid ${COLORS.danger.border}`,
+              borderRadius: UI.radius.md,
+              color: COLORS.danger.text,
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            <ThumbsDown size={15} />
+            Unsafe
+          </button>
+        </div>
+      ) : (
+        <div style={{ textAlign: 'center', fontSize: '12px', color: COLORS.slate[500], fontWeight: 500, padding: '8px 0' }}>
+          Thanks for voting!
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Calculate composite safety score (1-100) from all data sources
 function calculateSafetyScore(advisory: TravelAdvisory, acledData?: ACLEDData, gdeltData?: GDELTData): number {
   let score = 100;
@@ -2040,6 +2194,9 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           </div>
         </div>
       </div>
+
+      {/* Community Sentiment */}
+      <CommunitySentiment location={isCity ? searchTerm : advisory.country} />
       
       {/* KEY INSIGHTS - Minimal Grid */}
       <div style={{ marginBottom: '24px' }}>
@@ -2291,7 +2448,7 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
                 <span>Updated: {new Date(acledData.last_updated).toLocaleDateString()}</span>
               </div>
               <a 
-                href="https://acleddata.com/dashboard/"
+                href={`https://acleddata.com/curated-data-files/#regional-overviews`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -2860,43 +3017,45 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       momentum: number;
     };
 
-    const cities: CityInsight[] = Object.entries(CITY_COORDINATES).map(([cityKey, info]) => {
-      const countryKey = info.country.toLowerCase();
-      const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey];
-      const acled = acledData[cityKey] || acledData[countryKey];
-      const gdelt = gdeltData[cityKey] || gdeltData[countryKey];
+    const cities: CityInsight[] = Object.entries(CITY_COORDINATES)
+      .map(([cityKey, info]) => {
+        const countryKey = info.country.toLowerCase();
+        const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey];
+        const acled = acledData[cityKey] || acledData[countryKey] || FALLBACK_ACLED_DATA[cityKey];
+        const gdelt = gdeltData[cityKey] || gdeltData[countryKey] || FALLBACK_GDELT_DATA[cityKey];
 
-      const score = advisory ? calculateSafetyScore(advisory, acled, gdelt) : 50;
+        // Only include cities with all 4 data points (advisory, UK advisory via country, ACLED, GDELT)
+        if (!advisory || !acled || !gdelt) return null;
 
-      let momentum = 0;
-      if (gdelt) {
+        const score = calculateSafetyScore(advisory, acled, gdelt);
+
+        let momentum = 0;
         if (gdelt.trend_7day === 'improving') momentum += 2;
         if (gdelt.trend_7day === 'worsening') momentum -= 2;
         if (gdelt.tone_score >= 2) momentum += 1;
         if (gdelt.tone_score <= -3) momentum -= 1;
         if (gdelt.volume_level === 'spike') momentum -= 1;
-      }
-      if (acled) {
         if (acled.trend === 'decreasing') momentum += 2;
         if (acled.trend === 'increasing') momentum -= 2;
         if (acled.events_last_30_days <= 5) momentum += 1;
         if (acled.events_last_30_days >= 30) momentum -= 1;
-      }
 
-      return {
-        key: cityKey,
-        name: info.name,
-        country: info.country,
-        score,
-        momentum,
-      };
-    });
+        return {
+          key: cityKey,
+          name: info.name,
+          country: info.country,
+          score,
+          momentum,
+        };
+      })
+      .filter((c): c is CityInsight => c !== null);
 
     const safest = [...cities].sort((a, b) => b.score - a.score).slice(0, 5);
     const dangerous = [...cities].sort((a, b) => a.score - b.score).slice(0, 5);
-    const movers = [...cities].sort((a, b) => b.momentum - a.momentum).slice(0, 5);
+    const improving = [...cities].sort((a, b) => b.momentum - a.momentum).slice(0, 5);
+    const worsening = [...cities].sort((a, b) => a.momentum - b.momentum).slice(0, 5);
 
-    return { safest, dangerous, movers };
+    return { safest, dangerous, improving, worsening };
   }, [acledData, advisories, gdeltData]);
 
   const citySuggestions = useMemo(() => {
@@ -3176,7 +3335,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       )}
       
       {/* Results Section */}
-      <div style={{ padding: '24px 24px 48px', maxWidth: '1000px', margin: '0 auto' }}>
+      <div style={{ padding: '8px 24px 48px', maxWidth: '1000px', margin: '0 auto' }}>
         {error && (
           <div style={{
             maxWidth: '600px',
@@ -3318,18 +3477,17 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
                 </div>
               </div>
 
-              {/* Biggest Improvements */}
+              {/* Most Improved (30d) */}
               <div style={{ backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Most Improved (7d)</div>
-                  <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.lavender, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <TrendingUp size={16} style={{ color: COLORS.primary }} />
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Most Improved (30d)</div>
+                  <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.safe.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TrendingUp size={16} style={{ color: COLORS.safe.text }} />
                   </div>
                 </div>
                 <div style={{ display: 'grid', gap: '8px' }}>
-                  {geoInsights.movers.map((c) => {
+                  {geoInsights.improving.map((c) => {
                     const s = getScoreConfig(c.score);
-                    const isUp = c.momentum >= 1;
                     return (
                       <button
                         key={c.key}
@@ -3358,8 +3516,57 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
                           <div style={{ padding: '6px 10px', borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: '12px', fontWeight: 800 }}>
                             {c.score}
                           </div>
-                          <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: isUp ? COLORS.safe.bg : COLORS.warning.bg, border: `1px solid ${isUp ? COLORS.safe.border : COLORS.warning.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {isUp ? <TrendingUp size={14} style={{ color: isUp ? COLORS.safe.text : COLORS.warning.text }} /> : <TrendingDown size={14} style={{ color: COLORS.warning.text }} />}
+                          <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.safe.bg, border: `1px solid ${COLORS.safe.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <TrendingUp size={14} style={{ color: COLORS.safe.text }} />
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Worsening Conditions (30d) */}
+              <div style={{ backgroundColor: COLORS.white, borderRadius: UI.radius.lg, boxShadow: UI.shadow.soft, border: `1px solid ${COLORS.slate[100]}`, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: COLORS.slate[900], letterSpacing: '-0.01em' }}>Worsening (30d)</div>
+                  <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.warning.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <TrendingDown size={16} style={{ color: COLORS.warning.text }} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {geoInsights.worsening.map((c) => {
+                    const s = getScoreConfig(c.score);
+                    return (
+                      <button
+                        key={c.key}
+                        onClick={() => {
+                          setSearchQuery(c.key);
+                          searchFor(c.key);
+                        }}
+                        style={{
+                          width: '100%',
+                          backgroundColor: COLORS.slate[50],
+                          border: `1px solid ${COLORS.slate[100]}`,
+                          borderRadius: UI.radius.md,
+                          padding: '10px 10px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                        }}
+                      >
+                        <div style={{ textAlign: 'left', minWidth: 0 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: COLORS.slate[900], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                          <div style={{ fontSize: '11px', color: COLORS.slate[500], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.country}</div>
+                        </div>
+                        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ padding: '6px 10px', borderRadius: UI.radius.pill, backgroundColor: s.bg, color: s.text, border: `1px solid ${s.border}`, fontSize: '12px', fontWeight: 800 }}>
+                            {c.score}
+                          </div>
+                          <div style={{ width: '28px', height: '28px', borderRadius: UI.radius.md, backgroundColor: COLORS.warning.bg, border: `1px solid ${COLORS.warning.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <TrendingDown size={14} style={{ color: COLORS.warning.text }} />
                           </div>
                         </div>
                       </button>

@@ -639,6 +639,247 @@ const healthPath = "/health";
 const gdeltProxyPath = "/api/gdelt";
 const acledProxyPath = "/api/acled";
 const ukProxyPath = "/api/uk";
+const sentimentPath = "/api/sentiment";
+
+// Community sentiment storage
+const SENTIMENT_FILE = path.join(LOGS_DIR, "sentiment.json");
+
+type LocationSentiment = {
+  seeded: { safe: number; unsafe: number };
+  real: { safe: number; unsafe: number };
+};
+
+type SentimentData = Record<string, LocationSentiment>;
+
+// City safety scores for seeding (approximate scores based on advisory levels)
+const CITY_SAFETY_SCORES: Record<string, number> = {
+  // Safe cities (score 80-100)
+  'tokyo': 100, 'osaka': 100, 'kyoto': 100, 'paris': 80, 'london': 85,
+  'dublin': 85, 'edinburgh': 85, 'barcelona': 78, 'madrid': 78, 'lisbon': 80,
+  'porto': 80, 'amsterdam': 82, 'brussels': 80, 'berlin': 82, 'munich': 85,
+  'prague': 82, 'vienna': 85, 'budapest': 80, 'warsaw': 80, 'krakow': 82,
+  'copenhagen': 88, 'stockholm': 88, 'oslo': 90, 'helsinki': 90, 'reykjavik': 92,
+  'zurich': 90, 'geneva': 90, 'rome': 75, 'florence': 78, 'venice': 80,
+  'milan': 75, 'naples': 70, 'athens': 72, 'dubai': 85, 'abu dhabi': 88,
+  'singapore': 95, 'hong kong': 80, 'sydney': 88, 'melbourne': 88,
+  'auckland': 90, 'queenstown': 92, 'vancouver': 85, 'toronto': 82,
+  'montreal': 82, 'bangkok': 72, 'phuket': 75, 'bali': 78, 'seoul': 88,
+  // Aruba, Barbados, etc (safe Caribbean)
+  'oranjestad': 85, 'palm beach': 85, 'san nicolas': 82, 'bridgetown': 82,
+  'speightstown': 80, 'oistins': 80, 'nassau': 70, 'freeport': 68, 'exuma': 75,
+  // Uruguay, Argentina (relatively safe South America)
+  'montevideo': 78, 'punta del este': 82, 'colonia del sacramento': 80,
+  'buenos aires': 70, 'mendoza': 75, 'bariloche': 80, 'cordoba': 72,
+  'ushuaia': 85, 'iguazu': 75,
+  // Chile
+  'santiago': 72, 'valparaiso': 70, 'vina del mar': 72, 'punta arenas': 80,
+  'san pedro de atacama': 78,
+  // Costa Rica (relatively safe Central America)
+  'san jose': 68, 'liberia': 70, 'la fortuna': 75, 'puerto limon': 65,
+  'tamarindo': 72, 'manuel antonio': 75,
+  // Panama
+  'panama city': 65, 'bocas del toro': 70, 'david': 68, 'colon': 55,
+  // Moderate risk cities (score 50-70)
+  'mexico city': 55, 'cancun': 60, 'cabo': 65, 'guadalajara': 50,
+  'monterrey': 45, 'tulum': 62, 'playa del carmen': 58, 'oaxaca': 60,
+  'puerto vallarta': 62, 'medellin': 55, 'bogota': 52, 'cartagena': 60,
+  'cali': 45, 'barranquilla': 48, 'quito': 58, 'guayaquil': 52,
+  'galapagos': 75, 'cuenca': 62, 'manta': 55, 'lima': 55, 'cusco': 65,
+  'arequipa': 60, 'machu picchu': 70, 'iquitos': 50, 'puno': 58,
+  'la paz': 55, 'santa cruz': 52, 'sucre': 58, 'cochabamba': 55,
+  'rio de janeiro': 45, 'sao paulo': 48, 'salvador': 42, 'fortaleza': 45,
+  'brasilia': 55, 'recife': 40, 'manaus': 48, 'florianopolis': 60,
+  'asuncion': 58, 'ciudad del este': 50, 'encarnacion': 60,
+  // Dominican Republic
+  'santo domingo': 55, 'punta cana': 65, 'puerto plata': 58, 'la romana': 62,
+  // Cuba
+  'havana': 60, 'varadero': 65, 'trinidad': 62, 'santiago de cuba': 55,
+  // Puerto Rico
+  'san juan': 65, 'ponce': 60, 'rincon': 68, 'vieques': 70,
+  // Trinidad
+  'port of spain': 50, 'scarborough': 55, 'san fernando': 48,
+  // Higher risk cities (score 25-50)
+  'kingston': 35, 'montego bay': 40, 'ocho rios': 45, 'negril': 48,
+  'guatemala city': 38, 'antigua': 55, 'flores': 50, 'quetzaltenango': 45,
+  'san salvador': 35, 'santa ana': 38, 'la libertad': 40,
+  'tegucigalpa': 32, 'roatan': 55, 'san pedro sula': 28, 'la ceiba': 35,
+  'managua': 40, 'granada': 48, 'leon': 45, 'san juan del sur': 52,
+  'belize city': 45, 'san pedro': 55, 'placencia': 60, 'caye caulker': 58,
+  // Very high risk (score < 25)
+  'caracas': 18, 'maracaibo': 22, 'valencia': 25, 'barquisimeto': 28,
+  'port-au-prince': 12, 'cap-haitien': 18, 'jacmel': 22,
+  // Curacao, Grenada, Saint Lucia (safe)
+  'willemstad': 78, 'westpunt': 75, 'jan thiel': 78,
+  'st george': 80, 'gouyave': 78, 'grenville': 75,
+  'castries': 75, 'soufriere': 78, 'rodney bay': 78,
+};
+
+function generateSeedData(): SentimentData {
+  const data: SentimentData = {};
+  
+  for (const [city, score] of Object.entries(CITY_SAFETY_SCORES)) {
+    // Random total votes between 500 and 1000
+    const totalVotes = Math.floor(Math.random() * 501) + 500;
+    
+    // Safe percentage should roughly match the safety score
+    // Add some variance (+/- 5%)
+    const variance = (Math.random() * 10 - 5);
+    const safePercent = Math.max(5, Math.min(95, score + variance));
+    
+    const safeVotes = Math.round(totalVotes * (safePercent / 100));
+    const unsafeVotes = totalVotes - safeVotes;
+    
+    data[city] = {
+      seeded: { safe: safeVotes, unsafe: unsafeVotes },
+      real: { safe: 0, unsafe: 0 },
+    };
+  }
+  
+  return data;
+}
+
+function loadSentiment(): SentimentData {
+  try {
+    if (fs.existsSync(SENTIMENT_FILE)) {
+      const raw = JSON.parse(fs.readFileSync(SENTIMENT_FILE, "utf-8"));
+      // Check if it's the old format and migrate
+      const firstKey = Object.keys(raw)[0];
+      if (firstKey && raw[firstKey] && !('seeded' in raw[firstKey])) {
+        // Old format - migrate to new format
+        console.log("[Sentiment] Migrating old format to new format with seeded data");
+        const migrated: SentimentData = {};
+        for (const [loc, votes] of Object.entries(raw as Record<string, { safe: number; unsafe: number }>)) {
+          migrated[loc] = {
+            seeded: { safe: 0, unsafe: 0 },
+            real: votes,
+          };
+        }
+        // Add seed data for cities not already in the file
+        const seedData = generateSeedData();
+        for (const [city, data] of Object.entries(seedData)) {
+          if (!migrated[city]) {
+            migrated[city] = data;
+          } else {
+            migrated[city].seeded = data.seeded;
+          }
+        }
+        saveSentiment(migrated);
+        return migrated;
+      }
+      return raw;
+    }
+  } catch (e) {
+    console.error("Failed to load sentiment data:", e);
+  }
+  
+  // No file exists - generate seed data
+  console.log("[Sentiment] Generating initial seed data for all cities");
+  const seedData = generateSeedData();
+  saveSentiment(seedData);
+  return seedData;
+}
+
+function saveSentiment(data: SentimentData): void {
+  try {
+    // Ensure logs directory exists
+    if (!fs.existsSync(LOGS_DIR)) {
+      fs.mkdirSync(LOGS_DIR, { recursive: true });
+    }
+    fs.writeFileSync(SENTIMENT_FILE, JSON.stringify(data, null, 2));
+    console.log(`[Sentiment] Saved ${Object.keys(data).length} locations to ${SENTIMENT_FILE}`);
+  } catch (e) {
+    console.error("Failed to save sentiment data:", e);
+  }
+}
+
+function getSentiment(location: string): { safe: number; unsafe: number; seededSafe: number; seededUnsafe: number; realSafe: number; realUnsafe: number } {
+  const data = loadSentiment();
+  const key = location.toLowerCase().trim();
+  const loc = data[key] || { seeded: { safe: 0, unsafe: 0 }, real: { safe: 0, unsafe: 0 } };
+  
+  // Return combined totals plus breakdown
+  return {
+    safe: loc.seeded.safe + loc.real.safe,
+    unsafe: loc.seeded.unsafe + loc.real.unsafe,
+    seededSafe: loc.seeded.safe,
+    seededUnsafe: loc.seeded.unsafe,
+    realSafe: loc.real.safe,
+    realUnsafe: loc.real.unsafe,
+  };
+}
+
+function voteSentiment(location: string, isSafe: boolean): { safe: number; unsafe: number } {
+  const data = loadSentiment();
+  const key = location.toLowerCase().trim();
+  if (!data[key]) {
+    // Check if we have seed data for this city
+    const seedData = generateSeedData();
+    data[key] = seedData[key] || { seeded: { safe: 0, unsafe: 0 }, real: { safe: 0, unsafe: 0 } };
+  }
+  // Real votes go to the 'real' bucket
+  if (isSafe) {
+    data[key].real.safe++;
+  } else {
+    data[key].real.unsafe++;
+  }
+  saveSentiment(data);
+  
+  // Return combined totals
+  return {
+    safe: data[key].seeded.safe + data[key].real.safe,
+    unsafe: data[key].seeded.unsafe + data[key].real.unsafe,
+  };
+}
+
+async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+
+  const location = url.searchParams.get("location");
+  if (!location) {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Missing location parameter" }));
+    return;
+  }
+
+  if (req.method === "GET") {
+    const sentiment = getSentiment(location);
+    const total = sentiment.safe + sentiment.unsafe;
+    const safePercent = total > 0 ? Math.round((sentiment.safe / total) * 100) : 50;
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ...sentiment, total, safePercent }));
+    return;
+  }
+
+  if (req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { vote } = JSON.parse(body);
+        if (vote !== "safe" && vote !== "unsafe") {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Invalid vote. Must be 'safe' or 'unsafe'" }));
+          return;
+        }
+        const sentiment = voteSentiment(location, vote === "safe");
+        const total = sentiment.safe + sentiment.unsafe;
+        const safePercent = total > 0 ? Math.round((sentiment.safe / total) * 100) : 50;
+        logAnalytics("sentiment_vote", { location, vote });
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ...sentiment, total, safePercent }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid JSON body" }));
+      }
+    });
+    return;
+  }
+
+  res.writeHead(405, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: "Method not allowed" }));
+}
 
 const domainVerificationPath = "/.well-known/openai-apps-challenge";
 const domainVerificationToken =
@@ -1764,7 +2005,8 @@ const httpServer = createServer(
         url.pathname === postPath ||
         url.pathname === gdeltProxyPath ||
         url.pathname === acledProxyPath ||
-        url.pathname === ukProxyPath)
+        url.pathname === ukProxyPath ||
+        url.pathname === sentimentPath)
     ) {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
@@ -1824,6 +2066,11 @@ const httpServer = createServer(
 
     if (url.pathname === ukProxyPath) {
       await handleUkProxy(req, res, url);
+      return;
+    }
+
+    if (url.pathname === sentimentPath) {
+      await handleSentiment(req, res, url);
       return;
     }
 
