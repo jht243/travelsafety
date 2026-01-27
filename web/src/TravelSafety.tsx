@@ -61,6 +61,22 @@ const UI = {
   },
 };
 
+// API base URL for tracking
+const API_BASE = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+  ? '' 
+  : 'https://travel-checklist-q79n.onrender.com';
+
+// Analytics tracking helper
+const trackEvent = (event: string, data: Record<string, any> = {}) => {
+  try {
+    fetch(`${API_BASE}/api/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, ...data, timestamp: new Date().toISOString() }),
+    }).catch(() => {});
+  } catch (e) {}
+};
+
 // State Department Advisory Levels
 const ADVISORY_LEVELS = {
   1: { label: 'Exercise Normal Precautions', color: COLORS.safe.text, bgColor: COLORS.safe.bg, style: COLORS.safe, icon: CheckCircle },
@@ -1891,6 +1907,14 @@ function CommunitySentiment({ location }: { location: string }) {
     if (hasVoted || isLoading) return;
     setIsLoading(true);
     
+    // Track the vote
+    trackEvent('widget_safety_vote', {
+      location,
+      vote,
+      isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
+      country: CITY_TO_COUNTRY[location.toLowerCase()] || location,
+    });
+    
     try {
       const res = await fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`, {
         method: 'POST',
@@ -2928,6 +2952,16 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
 
     const query = rawQuery.trim().toLowerCase();
     const normalizedQuery = CITY_ALIASES[query] || query;
+    
+    // Track the search
+    const isCity = !!CITY_TO_COUNTRY[normalizedQuery];
+    trackEvent('widget_search_location', {
+      query: rawQuery,
+      normalizedQuery,
+      isCity,
+      country: isCity ? CITY_TO_COUNTRY[normalizedQuery] : normalizedQuery,
+      city: isCity ? normalizedQuery : undefined,
+    });
     
     // Check if it's a city
     const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];

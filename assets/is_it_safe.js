@@ -24728,6 +24728,18 @@ var UI = {
     input: "0 8px 24px rgba(109, 94, 249, 0.14)"
   }
 };
+var API_BASE = typeof window !== "undefined" && window.location.hostname === "localhost" ? "" : "https://travel-checklist-q79n.onrender.com";
+var trackEvent = (event, data = {}) => {
+  try {
+    fetch(`${API_BASE}/api/track`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, ...data, timestamp: (/* @__PURE__ */ new Date()).toISOString() })
+    }).catch(() => {
+    });
+  } catch (e) {
+  }
+};
 var ADVISORY_LEVELS = {
   1: { label: "Exercise Normal Precautions", color: COLORS.safe.text, bgColor: COLORS.safe.bg, style: COLORS.safe, icon: CircleCheckBig },
   2: { label: "Exercise Increased Caution", color: COLORS.caution.text, bgColor: COLORS.caution.bg, style: COLORS.caution, icon: Info },
@@ -26286,7 +26298,7 @@ function CommunitySentiment({ location }) {
   const [sentiment, setSentiment] = import_react3.default.useState(null);
   const [hasVoted, setHasVoted] = import_react3.default.useState(false);
   const [isLoading, setIsLoading] = import_react3.default.useState(false);
-  const API_BASE = window.location.hostname === "localhost" ? `http://localhost:${window.location.port || "8000"}` : "";
+  const API_BASE2 = window.location.hostname === "localhost" ? `http://localhost:${window.location.port || "8000"}` : "";
   import_react3.default.useEffect(() => {
     const votedLocations = JSON.parse(localStorage.getItem("sentimentVotes") || "{}");
     if (votedLocations[location.toLowerCase()]) {
@@ -26294,13 +26306,19 @@ function CommunitySentiment({ location }) {
     } else {
       setHasVoted(false);
     }
-    fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`).then((res) => res.json()).then((data) => setSentiment(data)).catch((err) => console.error("Failed to load sentiment:", err));
+    fetch(`${API_BASE2}/api/sentiment?location=${encodeURIComponent(location)}`).then((res) => res.json()).then((data) => setSentiment(data)).catch((err) => console.error("Failed to load sentiment:", err));
   }, [location]);
   const handleVote = async (vote) => {
     if (hasVoted || isLoading) return;
     setIsLoading(true);
+    trackEvent("widget_safety_vote", {
+      location,
+      vote,
+      isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
+      country: CITY_TO_COUNTRY[location.toLowerCase()] || location
+    });
     try {
-      const res = await fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`, {
+      const res = await fetch(`${API_BASE2}/api/sentiment?location=${encodeURIComponent(location)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vote })
@@ -27211,6 +27229,14 @@ function TravelSafety({ initialData: initialData2 }) {
     setError(null);
     const query = rawQuery.trim().toLowerCase();
     const normalizedQuery = CITY_ALIASES[query] || query;
+    const isCity = !!CITY_TO_COUNTRY[normalizedQuery];
+    trackEvent("widget_search_location", {
+      query: rawQuery,
+      normalizedQuery,
+      isCity,
+      country: isCity ? CITY_TO_COUNTRY[normalizedQuery] : normalizedQuery,
+      city: isCity ? normalizedQuery : void 0
+    });
     const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();

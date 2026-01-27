@@ -916,6 +916,11 @@ function humanizeEventName(event: string): string {
     widget_test_event: "Test Event",
     widget_followup_click: "Follow-up Click",
     widget_crash: "Widget Crash",
+    widget_search_location: "Search Location",
+    widget_safety_vote: "Safety Vote",
+    sentiment_vote: "Sentiment Vote",
+    widget_notify_me_subscribe: "Email Subscribe",
+    widget_notify_me_subscribe_error: "Subscribe Error",
   };
   return eventMap[event] || event;
 }
@@ -1095,7 +1100,8 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     "View Advisory": 0, 
     "View News": 0,
     "View Conflict Data": 0,
-    "Share": 0
+    "Share": 0,
+    "Safety Vote": 0
   };
 
   widgetEvents.forEach(log => {
@@ -1105,6 +1111,45 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       if (log.event === "widget_view_news") actionCounts["View News"]++;
       if (log.event === "widget_view_conflict") actionCounts["View Conflict Data"]++;
       if (log.event === "widget_share") actionCounts["Share"]++;
+      if (log.event === "widget_safety_vote") actionCounts["Safety Vote"]++;
+  });
+
+  // Widget search distribution (countries and cities from widget searches)
+  const widgetSearchCountries: Record<string, number> = {};
+  const widgetSearchCities: Record<string, number> = {};
+  widgetEvents.filter(l => l.event === "widget_search_location").forEach(log => {
+    if (log.country) {
+      widgetSearchCountries[log.country] = (widgetSearchCountries[log.country] || 0) + 1;
+    }
+    if (log.city) {
+      widgetSearchCities[log.city] = (widgetSearchCities[log.city] || 0) + 1;
+    }
+  });
+
+  // Safety votes by location
+  const safetyVotes: Record<string, { safe: number; unsafe: number }> = {};
+  widgetEvents.filter(l => l.event === "widget_safety_vote").forEach(log => {
+    const loc = log.location || "unknown";
+    if (!safetyVotes[loc]) safetyVotes[loc] = { safe: 0, unsafe: 0 };
+    if (log.vote === "safe") safetyVotes[loc].safe++;
+    if (log.vote === "unsafe") safetyVotes[loc].unsafe++;
+  });
+
+  // Sentiment votes (from server-side tracking)
+  const sentimentVotes = logs.filter(l => l.event === "sentiment_vote");
+  const sentimentByLocation: Record<string, { safe: number; unsafe: number }> = {};
+  sentimentVotes.forEach(log => {
+    const loc = log.location || "unknown";
+    if (!sentimentByLocation[loc]) sentimentByLocation[loc] = { safe: 0, unsafe: 0 };
+    if (log.vote === "safe") sentimentByLocation[loc].safe++;
+    if (log.vote === "unsafe") sentimentByLocation[loc].unsafe++;
+  });
+
+  // Merge widget votes and sentiment votes
+  Object.entries(sentimentByLocation).forEach(([loc, votes]) => {
+    if (!safetyVotes[loc]) safetyVotes[loc] = { safe: 0, unsafe: 0 };
+    safetyVotes[loc].safe += votes.safe;
+    safetyVotes[loc].unsafe += votes.unsafe;
   });
 
   return `<!DOCTYPE html>
@@ -1172,6 +1217,38 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
         <h2>Avg Response Time</h2>
         <div class="value">${avgResponseTime}<span style="font-size: 16px; color: #666;">ms</span></div>
       </div>
+    </div>
+
+    <!-- ChatGPT App Store Engagement Metrics -->
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #0ea5e9;">
+      <h2 style="color: #0369a1;">📊 ChatGPT App Store Metrics</h2>
+      <div class="grid" style="margin-top: 16px;">
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #0369a1;">${actionCounts["Search Location"]}</div>
+          <div style="font-size: 12px; color: #64748b;">Widget Searches</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #16a34a;">${actionCounts["Safety Vote"]}</div>
+          <div style="font-size: 12px; color: #64748b;">Safety Votes</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #7c3aed;">${actionCounts["Subscribe"]}</div>
+          <div style="font-size: 12px; color: #64748b;">Email Subscribers</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #ea580c;">${Object.keys(widgetSearchCountries).length}</div>
+          <div style="font-size: 12px; color: #64748b;">Unique Countries</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #db2777;">${Object.keys(widgetSearchCities).length}</div>
+          <div style="font-size: 12px; color: #64748b;">Unique Cities</div>
+        </div>
+        <div style="text-align: center; padding: 12px;">
+          <div style="font-size: 28px; font-weight: bold; color: #059669;">${Object.keys(safetyVotes).length}</div>
+          <div style="font-size: 12px; color: #64748b;">Locations Rated</div>
+        </div>
+      </div>
+      <p style="margin-top: 16px; font-size: 12px; color: #64748b;">These metrics help track user engagement for ChatGPT app store ranking. Higher engagement = better visibility.</p>
     </div>
 
     <div class="card" style="margin-bottom: 20px;">
@@ -1261,7 +1338,79 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
-        <h2>Top Cities</h2>
+        <h2>🌍 Widget Searches - Countries</h2>
+        <table>
+          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
+          <tbody>
+            ${Object.entries(widgetSearchCountries).length > 0 ? Object.entries(widgetSearchCountries)
+              .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
+              .map(
+                ([country, count]) => `
+              <tr>
+                <td>${country}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No widget searches yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <h2>🏙️ Widget Searches - Cities</h2>
+        <table>
+          <thead><tr><th>City</th><th>Searches</th></tr></thead>
+          <tbody>
+            ${Object.entries(widgetSearchCities).length > 0 ? Object.entries(widgetSearchCities)
+              .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
+              .map(
+                ([city, count]) => `
+              <tr>
+                <td>${city}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No city searches yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <h2>👍👎 Safety Votes by Location</h2>
+      <table>
+        <thead><tr><th>Location</th><th>Safe 👍</th><th>Unsafe 👎</th><th>Total</th><th>Safe %</th></tr></thead>
+        <tbody>
+          ${Object.entries(safetyVotes).length > 0 ? Object.entries(safetyVotes)
+            .sort((a, b) => (b[1].safe + b[1].unsafe) - (a[1].safe + a[1].unsafe))
+            .slice(0, 15)
+            .map(
+              ([loc, votes]) => {
+                const total = votes.safe + votes.unsafe;
+                const safePercent = total > 0 ? Math.round((votes.safe / total) * 100) : 0;
+                return `
+              <tr>
+                <td>${loc}</td>
+                <td style="color: #16a34a; font-weight: 600;">${votes.safe}</td>
+                <td style="color: #dc2626; font-weight: 600;">${votes.unsafe}</td>
+                <td>${total}</td>
+                <td style="font-weight: 600; color: ${safePercent >= 50 ? '#16a34a' : '#dc2626'};">${safePercent}%</td>
+              </tr>
+            `;
+              }
+            )
+            .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No votes yet</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid" style="margin-bottom: 20px;">
+      <div class="card">
+        <h2>Top Cities (MCP)</h2>
         <table>
           <thead><tr><th>City</th><th>Searches</th></tr></thead>
           <tbody>
@@ -1282,7 +1431,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       </div>
       
       <div class="card">
-        <h2>Top Locations</h2>
+        <h2>Top Locations (MCP)</h2>
         <table>
           <thead><tr><th>Location</th><th>Searches</th></tr></thead>
           <tbody>
