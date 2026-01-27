@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp, TrendingUp, TrendingDown, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Search, Shield, AlertTriangle, AlertCircle, CheckCircle, Info, MapPin, Calendar, ExternalLink, Globe, ChevronDown, ChevronUp, TrendingUp, TrendingDown, ThumbsUp, ThumbsDown, Mail, RotateCcw, Heart, MessageSquare, Printer, X } from 'lucide-react';
 
 // Brand Color Palette - Soft Purple Reference Palette
 const COLORS = {
@@ -2911,6 +2911,88 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
 
+  // Footer modal states
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [feedbackText, setFeedbackText] = useState('');
+  const [subscribeStatus, setSubscribeStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [subscribeMessage, setSubscribeMessage] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+  // Footer handlers
+  const handleSubscribe = async () => {
+    if (!email || !email.includes('@')) {
+      setSubscribeMessage('Please enter a valid email.');
+      setSubscribeStatus('error');
+      return;
+    }
+    setSubscribeStatus('loading');
+    try {
+      const response = await fetch(`${API_BASE}/api/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          settlementId: 'travel-safety-alerts',
+          settlementName: 'Travel Safety Alerts'
+        })
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSubscribeStatus('success');
+        setSubscribeMessage(data.message || 'Successfully subscribed!');
+        trackEvent('subscribe', { email: email.split('@')[1] }); // Track domain only for privacy
+        setTimeout(() => {
+          setShowSubscribeModal(false);
+          setEmail('');
+          setSubscribeStatus('idle');
+          setSubscribeMessage('');
+        }, 3000);
+      } else {
+        setSubscribeStatus('error');
+        setSubscribeMessage(data.error || 'Failed to subscribe.');
+      }
+    } catch (e) {
+      setSubscribeStatus('error');
+      setSubscribeMessage('Network error. Please try again.');
+    }
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackText.trim()) return;
+    setFeedbackStatus('submitting');
+    try {
+      const response = await fetch(`${API_BASE}/api/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'user_feedback',
+          data: { feedback: feedbackText, location: searchResult?.searchTerm || 'none' }
+        })
+      });
+      if (response.ok) {
+        setFeedbackStatus('success');
+        setTimeout(() => {
+          setShowFeedbackModal(false);
+          setFeedbackText('');
+          setFeedbackStatus('idle');
+        }, 2000);
+      } else {
+        setFeedbackStatus('error');
+      }
+    } catch (e) {
+      setFeedbackStatus('error');
+    }
+  };
+
+  const handleReset = () => {
+    setSearchQuery('');
+    setSearchResult(null);
+    setError(null);
+    trackEvent('reset', {});
+  };
+
   const createPlaceholderAdvisory = (countryKey: string, countryName: string): TravelAdvisory => {
     return {
       country: countryName,
@@ -3615,12 +3697,122 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
         )}
       </div>
       
-      {/* Footer */}
+      {/* Footer Action Buttons */}
       <div style={{
-        padding: '32px 24px',
-        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '24px',
+        padding: '24px',
         borderTop: `1px solid ${COLORS.slate[200]}`,
         backgroundColor: COLORS.white,
+      }} className="no-print">
+        <button 
+          onClick={() => setShowSubscribeModal(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: COLORS.slate[500],
+            fontSize: '14px',
+            fontWeight: 600,
+            padding: '8px',
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = COLORS.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = COLORS.slate[500]}
+        >
+          <Mail size={16} /> Subscribe
+        </button>
+        <button 
+          onClick={handleReset}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: COLORS.slate[500],
+            fontSize: '14px',
+            fontWeight: 600,
+            padding: '8px',
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = COLORS.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = COLORS.slate[500]}
+        >
+          <RotateCcw size={16} /> Reset
+        </button>
+        <button 
+          onClick={() => window.open('https://buymeacoffee.com/isitsafe', '_blank')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: COLORS.slate[500],
+            fontSize: '14px',
+            fontWeight: 600,
+            padding: '8px',
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = COLORS.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = COLORS.slate[500]}
+        >
+          <Heart size={16} /> Donate
+        </button>
+        <button 
+          onClick={() => setShowFeedbackModal(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: COLORS.slate[500],
+            fontSize: '14px',
+            fontWeight: 600,
+            padding: '8px',
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = COLORS.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = COLORS.slate[500]}
+        >
+          <MessageSquare size={16} /> Feedback
+        </button>
+        <button 
+          onClick={() => window.print()}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: COLORS.slate[500],
+            fontSize: '14px',
+            fontWeight: 600,
+            padding: '8px',
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = COLORS.primary}
+          onMouseLeave={(e) => e.currentTarget.style.color = COLORS.slate[500]}
+        >
+          <Printer size={16} /> Print
+        </button>
+      </div>
+
+      {/* Data Sources Footer */}
+      <div style={{
+        padding: '24px',
+        textAlign: 'center',
+        backgroundColor: COLORS.slate[50],
       }}>
         <p style={{ margin: 0, color: COLORS.slate[400], fontSize: '13px' }}>
           Data sourced from the{' '}
@@ -3665,6 +3857,236 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
           For informational purposes only. Always verify with official sources before traveling.
         </p>
       </div>
+
+      {/* Subscribe Modal */}
+      {showSubscribeModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setShowSubscribeModal(false)}
+        >
+          <div 
+            style={{
+              backgroundColor: COLORS.white,
+              borderRadius: '16px',
+              padding: '32px',
+              maxWidth: '400px',
+              width: '90%',
+              position: 'relative',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowSubscribeModal(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: COLORS.slate[400],
+                padding: '4px',
+              }}
+            >
+              <X size={24} />
+            </button>
+            
+            <div style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px', color: COLORS.textMain }}>
+              Stay Updated
+            </div>
+            <div style={{ fontSize: '14px', color: COLORS.textSecondary, marginBottom: '24px' }}>
+              Get travel safety alerts and updates delivered to your inbox.
+            </div>
+
+            {subscribeStatus === 'success' ? (
+              <div style={{ textAlign: 'center', padding: '20px', color: COLORS.primary, fontWeight: 600 }}>
+                <div style={{ fontSize: '40px', marginBottom: '10px' }}>🎉</div>
+                {subscribeMessage}
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: COLORS.textMain }}>
+                    Email Address
+                  </label>
+                  <input 
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: '10px',
+                      border: `1px solid ${COLORS.slate[200]}`,
+                      fontSize: '16px',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = COLORS.primary}
+                    onBlur={(e) => e.currentTarget.style.borderColor = COLORS.slate[200]}
+                  />
+                </div>
+
+                {subscribeStatus === 'error' && (
+                  <div style={{ color: '#EF4444', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>
+                    {subscribeMessage}
+                  </div>
+                )}
+
+                <button 
+                  onClick={handleSubscribe}
+                  disabled={subscribeStatus === 'loading'}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: COLORS.primary,
+                    color: COLORS.white,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    cursor: subscribeStatus === 'loading' ? 'not-allowed' : 'pointer',
+                    opacity: subscribeStatus === 'loading' ? 0.7 : 1,
+                  }}
+                >
+                  {subscribeStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setShowFeedbackModal(false)}
+        >
+          <div 
+            style={{
+              backgroundColor: COLORS.white,
+              borderRadius: '16px',
+              padding: '32px',
+              maxWidth: '400px',
+              width: '90%',
+              position: 'relative',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowFeedbackModal(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: COLORS.slate[400],
+                padding: '4px',
+              }}
+            >
+              <X size={24} />
+            </button>
+            
+            <div style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px', color: COLORS.textMain }}>
+              Feedback
+            </div>
+            <div style={{ fontSize: '14px', color: COLORS.textSecondary, marginBottom: '24px' }}>
+              Help us improve the travel safety tool.
+            </div>
+
+            {feedbackStatus === 'success' ? (
+              <div style={{ textAlign: 'center', padding: '20px', color: COLORS.primary, fontWeight: 600 }}>
+                Thanks for your feedback!
+              </div>
+            ) : (
+              <>
+                <textarea 
+                  placeholder="Tell us what you think..."
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  style={{
+                    width: '100%',
+                    height: '120px',
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: `1px solid ${COLORS.slate[200]}`,
+                    fontSize: '16px',
+                    outline: 'none',
+                    resize: 'none',
+                    fontFamily: 'inherit',
+                    boxSizing: 'border-box',
+                    marginBottom: '16px',
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = COLORS.primary}
+                  onBlur={(e) => e.currentTarget.style.borderColor = COLORS.slate[200]}
+                />
+
+                {feedbackStatus === 'error' && (
+                  <div style={{ color: '#EF4444', fontSize: '14px', marginBottom: '10px' }}>
+                    Failed to send. Please try again.
+                  </div>
+                )}
+
+                <button 
+                  onClick={handleFeedbackSubmit}
+                  disabled={feedbackStatus === 'submitting' || !feedbackText.trim()}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: COLORS.primary,
+                    color: COLORS.white,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    cursor: (feedbackStatus === 'submitting' || !feedbackText.trim()) ? 'not-allowed' : 'pointer',
+                    opacity: (feedbackStatus === 'submitting' || !feedbackText.trim()) ? 0.7 : 1,
+                  }}
+                >
+                  {feedbackStatus === 'submitting' ? 'Sending...' : 'Send Feedback'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
