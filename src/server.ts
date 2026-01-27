@@ -1104,20 +1104,24 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     "Safety Vote": 0
   };
 
+  // Helper to check event names (handles both old double-prefix and new single-prefix)
+  const isSearchEvent = (e: string) => e === "widget_search_location" || e === "widget_widget_search_location";
+  const isVoteEvent = (e: string) => e === "widget_safety_vote" || e === "widget_widget_safety_vote";
+
   widgetEvents.forEach(log => {
-      if (log.event === "widget_search_location") actionCounts["Search Location"]++;
+      if (isSearchEvent(log.event)) actionCounts["Search Location"]++;
       if (log.event === "widget_notify_me_subscribe") actionCounts["Subscribe"]++;
       if (log.event === "widget_view_advisory") actionCounts["View Advisory"]++;
       if (log.event === "widget_view_news") actionCounts["View News"]++;
       if (log.event === "widget_view_conflict") actionCounts["View Conflict Data"]++;
       if (log.event === "widget_share") actionCounts["Share"]++;
-      if (log.event === "widget_safety_vote") actionCounts["Safety Vote"]++;
+      if (isVoteEvent(log.event)) actionCounts["Safety Vote"]++;
   });
 
   // Widget search distribution (countries and cities from widget searches)
   const widgetSearchCountries: Record<string, number> = {};
   const widgetSearchCities: Record<string, number> = {};
-  widgetEvents.filter(l => l.event === "widget_search_location").forEach(log => {
+  widgetEvents.filter(l => isSearchEvent(l.event)).forEach(log => {
     if (log.country) {
       widgetSearchCountries[log.country] = (widgetSearchCountries[log.country] || 0) + 1;
     }
@@ -1128,7 +1132,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
   // Safety votes by location
   const safetyVotes: Record<string, { safe: number; unsafe: number }> = {};
-  widgetEvents.filter(l => l.event === "widget_safety_vote").forEach(log => {
+  widgetEvents.filter(l => isVoteEvent(l.event)).forEach(log => {
     const loc = log.location || "unknown";
     if (!safetyVotes[loc]) safetyVotes[loc] = { safe: 0, unsafe: 0 };
     if (log.vote === "safe") safetyVotes[loc].safe++;

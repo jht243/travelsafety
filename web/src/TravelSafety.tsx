@@ -1910,7 +1910,7 @@ function CommunitySentiment({ location }: { location: string }) {
     setIsLoading(true);
     
     // Track the vote
-    trackEvent('widget_safety_vote', {
+    trackEvent('safety_vote', {
       location,
       vote,
       isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
@@ -2957,7 +2957,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     
     // Track the search
     const isCity = !!CITY_TO_COUNTRY[normalizedQuery];
-    trackEvent('widget_search_location', {
+    trackEvent('search_location', {
       query: rawQuery,
       normalizedQuery,
       isCity,

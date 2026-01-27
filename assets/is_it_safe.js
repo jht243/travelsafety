@@ -26311,7 +26311,7 @@ function CommunitySentiment({ location }) {
   const handleVote = async (vote) => {
     if (hasVoted || isLoading) return;
     setIsLoading(true);
-    trackEvent("widget_safety_vote", {
+    trackEvent("safety_vote", {
       location,
       vote,
       isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
@@ -27230,7 +27230,7 @@ function TravelSafety({ initialData: initialData2 }) {
     const query = rawQuery.trim().toLowerCase();
     const normalizedQuery = CITY_ALIASES[query] || query;
     const isCity = !!CITY_TO_COUNTRY[normalizedQuery];
-    trackEvent("widget_search_location", {
+    trackEvent("search_location", {
       query: rawQuery,
       normalizedQuery,
       isCity,
