@@ -1089,9 +1089,11 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   });
 
   // App opens and session duration tracking
-  const appOpenEvents = widgetEvents.filter((l) => l.event === "widget_app_open" || l.event === "widget_page_load");
+  // Count both widget-side events AND MCP tool calls (since MCP tool call = widget loaded in ChatGPT)
+  const widgetAppOpenEvents = widgetEvents.filter((l) => l.event === "widget_app_open" || l.event === "widget_page_load");
+  const mcpToolCalls = successLogs; // Each MCP tool call means the widget was opened
   const sessionEndEvents = widgetEvents.filter((l) => l.event === "widget_session_end");
-  const appOpens = appOpenEvents.length;
+  const appOpens = widgetAppOpenEvents.length + mcpToolCalls.length;
   const sessionDurations = sessionEndEvents
     .map((l) => l.durationSeconds || 0)
     .filter((d) => d > 0);
@@ -1100,8 +1102,9 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     : 0;
   const totalSessionTime = sessionDurations.reduce((a, b) => a + b, 0);
   
-  // Unique sessions (by sessionId)
-  const uniqueSessions = new Set(appOpenEvents.map((l) => l.sessionId).filter(Boolean)).size;
+  // Unique sessions (by sessionId for widget events, or count MCP calls as unique sessions)
+  const widgetSessions = new Set(widgetAppOpenEvents.map((l) => l.sessionId).filter(Boolean)).size;
+  const uniqueSessions = widgetSessions + mcpToolCalls.length; // Each MCP call is a unique session
   
   // Location distribution (top searched locations)
   const locationDist: Record<string, number> = {};
@@ -1131,6 +1134,13 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   const isSearchEvent = (e: string) => e === "widget_search_location" || e === "widget_widget_search_location";
   const isVoteEvent = (e: string) => e === "widget_safety_vote" || e === "widget_widget_safety_vote";
   const isButtonClick = (e: string) => e === "widget_button_click" || e === "widget_widget_button_click";
+
+  // Count MCP tool calls with location as searches
+  successLogs.forEach(log => {
+    if (log.params?.location || log.params?.city || log.params?.country) {
+      actionCounts["Search Location"]++;
+    }
+  });
 
   widgetEvents.forEach(log => {
       if (isSearchEvent(log.event)) actionCounts["Search Location"]++;
