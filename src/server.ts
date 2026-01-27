@@ -65,15 +65,41 @@ const ROOT_DIR = (() => {
 
 const ASSETS_DIR = path.resolve(ROOT_DIR, "assets");
 
-// Use Render persistent disk if available, otherwise fall back to local logs directory
+// Use Render persistent disk if available and writable, otherwise fall back to local logs directory
 // To enable on Render: Add a disk with mount path /var/data/logs (Settings → Disks)
-const LOGS_DIR = process.env.RENDER ? "/var/data/logs" : path.resolve(__dirname, "..", "logs");
+const PERSISTENT_LOGS_DIR = "/var/data/logs";
+const LOCAL_LOGS_DIR = path.resolve(__dirname, "..", "logs");
 
-if (!fs.existsSync(LOGS_DIR)) {
-  fs.mkdirSync(LOGS_DIR, { recursive: true });
+function getLogsDir(): string {
+  // On Render, try to use persistent disk if it exists
+  if (process.env.RENDER) {
+    try {
+      // Check if persistent disk is mounted (directory exists)
+      if (fs.existsSync(PERSISTENT_LOGS_DIR)) {
+        return PERSISTENT_LOGS_DIR;
+      }
+      // Try to create it (will fail if disk not attached, which is fine)
+      fs.mkdirSync(PERSISTENT_LOGS_DIR, { recursive: true });
+      return PERSISTENT_LOGS_DIR;
+    } catch (e) {
+      // Persistent disk not available, fall back to /tmp which is always writable
+      const tmpLogs = "/tmp/logs";
+      if (!fs.existsSync(tmpLogs)) {
+        fs.mkdirSync(tmpLogs, { recursive: true });
+      }
+      console.log(`[Analytics] Persistent disk not available, using ${tmpLogs} (logs will not persist across deploys)`);
+      return tmpLogs;
+    }
+  }
+  // Local development
+  if (!fs.existsSync(LOCAL_LOGS_DIR)) {
+    fs.mkdirSync(LOCAL_LOGS_DIR, { recursive: true });
+  }
+  return LOCAL_LOGS_DIR;
 }
 
-console.log(`[Analytics] Logs directory: ${LOGS_DIR} (persistent: ${!!process.env.RENDER})`);
+const LOGS_DIR = getLogsDir();
+console.log(`[Analytics] Logs directory: ${LOGS_DIR}`);
 
 type AnalyticsEvent = {
   timestamp: string;
