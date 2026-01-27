@@ -615,26 +615,15 @@ function createTravelSafetyServer(): Server {
         console.log("[MCP] Returning outputTemplate:", (metaForReturn as any)["openai/outputTemplate"]);
         console.log("[MCP] Returning structuredContent:", structured);
 
-        // Log success analytics
+        // Log empty result if no location inputs provided
         try {
-          // Check for "empty" result - when no location inputs are provided
           const hasMainInputs = args.location || args.country || args.city;
-          
           if (!hasMainInputs) {
              logAnalytics("tool_call_empty", {
                toolName: request.params.name,
                params: request.params.arguments || {},
                reason: "No location provided"
              });
-          } else {
-          logAnalytics("tool_call_success", {
-            responseTime,
-            params: request.params.arguments || {},
-            inferredQuery: inferredQuery.join(", "),
-            userLocation,
-            userLocale,
-            device: deviceCategory,
-          });
           }
         } catch {}
 
