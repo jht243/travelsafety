@@ -76,10 +76,12 @@ function getLogsDir(): string {
     try {
       // Check if persistent disk is mounted (directory exists)
       if (fs.existsSync(PERSISTENT_LOGS_DIR)) {
+        console.log(`[Analytics] ✅ PERSISTENT DISK FOUND at ${PERSISTENT_LOGS_DIR} - logs will survive deploys`);
         return PERSISTENT_LOGS_DIR;
       }
       // Try to create it (will fail if disk not attached, which is fine)
       fs.mkdirSync(PERSISTENT_LOGS_DIR, { recursive: true });
+      console.log(`[Analytics] ✅ PERSISTENT DISK CREATED at ${PERSISTENT_LOGS_DIR} - logs will survive deploys`);
       return PERSISTENT_LOGS_DIR;
     } catch (e) {
       // Persistent disk not available, fall back to /tmp which is always writable
@@ -87,7 +89,7 @@ function getLogsDir(): string {
       if (!fs.existsSync(tmpLogs)) {
         fs.mkdirSync(tmpLogs, { recursive: true });
       }
-      console.log(`[Analytics] Persistent disk not available, using ${tmpLogs} (logs will not persist across deploys)`);
+      console.log(`[Analytics] ⚠️ WARNING: Persistent disk NOT available, using ${tmpLogs} - LOGS WILL BE LOST ON REDEPLOY`);
       return tmpLogs;
     }
   }
@@ -99,7 +101,7 @@ function getLogsDir(): string {
 }
 
 const LOGS_DIR = getLogsDir();
-console.log(`[Analytics] Logs directory: ${LOGS_DIR}`);
+console.log(`[Analytics] Using logs directory: ${LOGS_DIR}`);
 
 type AnalyticsEvent = {
   timestamp: string;
