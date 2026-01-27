@@ -2233,7 +2233,9 @@ const httpServer = createServer(
         url.pathname === gdeltProxyPath ||
         url.pathname === acledProxyPath ||
         url.pathname === ukProxyPath ||
-        url.pathname === sentimentPath)
+        url.pathname === sentimentPath ||
+        url.pathname === trackEventPath ||
+        url.pathname === subscribePath)
     ) {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
