@@ -3113,14 +3113,6 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
         (await fetchGDELTData(locationQuery)) ||
         undefined;
 
-      const missing: string[] = [];
-      if (!ukAdvisory) missing.push('UK Foreign Office');
-      if (!acled) missing.push('ACLED');
-      if (!gdelt) missing.push('GDELT');
-
-      if (missing.length > 0) {
-        setError(`Incomplete assessment for "${rawQuery}" — missing: ${missing.join(', ')}.`);
-      }
 
       setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: normalizedQuery });
       setLoading(false);

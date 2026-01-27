@@ -27406,13 +27406,6 @@ function TravelSafety({ initialData: initialData2 }) {
       const locationQuery = cityInfo ? `${cityInfo.name}, ${countryFromCity}` : `${normalizedQuery}, ${countryFromCity}`;
       const acled2 = acledData[normalizedQuery] || acledData[countryKey] || FALLBACK_ACLED_DATA[normalizedQuery] || FALLBACK_ACLED_DATA[countryKey] || await fetchACLEDData(countryFromCity) || void 0;
       const gdelt2 = gdeltData[normalizedQuery] || gdeltData[countryKey] || FALLBACK_GDELT_DATA[normalizedQuery] || FALLBACK_GDELT_DATA[countryKey] || await fetchGDELTData(locationQuery) || void 0;
-      const missing = [];
-      if (!ukAdvisory2) missing.push("UK Foreign Office");
-      if (!acled2) missing.push("ACLED");
-      if (!gdelt2) missing.push("GDELT");
-      if (missing.length > 0) {
-        setError(`Incomplete assessment for "${rawQuery}" \u2014 missing: ${missing.join(", ")}.`);
-      }
       setSearchResult({ advisory: advisory2, ukAdvisory: ukAdvisory2, acledData: acled2, gdeltData: gdelt2, isCity: true, searchTerm: normalizedQuery });
       setLoading(false);
       return;
