@@ -461,6 +461,10 @@ function createTravelSafetyServer(): Server {
     async (_request: ListToolsRequest) => ({ tools })
   );
 
+  // Request deduplication to prevent duplicate logging from ChatGPT retries
+  const recentRequests = new Map<string, number>();
+  const DEDUP_WINDOW_MS = 5000; // 5 second window
+  
   server.setRequestHandler(
     CallToolRequestSchema,
     async (request: CallToolRequest) => {
@@ -468,8 +472,30 @@ function createTravelSafetyServer(): Server {
       let userAgentString: string | null = null;
       let deviceCategory = "Unknown";
       
+      // Create a dedup key from request params
+      const dedupKey = JSON.stringify({
+        tool: request.params.name,
+        args: request.params.arguments,
+      });
+      
+      // Check for duplicate request within window
+      const lastRequestTime = recentRequests.get(dedupKey);
+      const isDuplicate = lastRequestTime && (startTime - lastRequestTime) < DEDUP_WINDOW_MS;
+      recentRequests.set(dedupKey, startTime);
+      
+      // Clean old entries periodically
+      if (recentRequests.size > 100) {
+        const cutoff = startTime - DEDUP_WINDOW_MS;
+        for (const [key, time] of recentRequests) {
+          if (time < cutoff) recentRequests.delete(key);
+        }
+      }
+      
       // Log the full request to debug _meta location
       console.log("Full request object:", JSON.stringify(request, null, 2));
+      if (isDuplicate) {
+        console.log("[MCP] Duplicate request detected, skipping analytics logging");
+      }
       
       try {
         const widget = widgetsById.get(request.params.name);
@@ -560,24 +586,27 @@ function createTravelSafetyServer(): Server {
         if (args.country) inferredQuery.push(`Country: ${args.country}`);
         if (args.city) inferredQuery.push(`City: ${args.city}`);
 
-        logAnalytics("tool_call_success", {
-          toolName: request.params.name,
-          params: args,
-          inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
-          responseTime,
+        // Only log if not a duplicate request
+        if (!isDuplicate) {
+          logAnalytics("tool_call_success", {
+            toolName: request.params.name,
+            params: args,
+            inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
+            responseTime,
 
-          device: deviceCategory,
-          userLocation: userLocation
-            ? {
-                city: userLocation.city,
-                region: userLocation.region,
-                country: userLocation.country,
-                timezone: userLocation.timezone,
-              }
-            : null,
-          userLocale,
-          userAgent,
-        });
+            device: deviceCategory,
+            userLocation: userLocation
+              ? {
+                  city: userLocation.city,
+                  region: userLocation.region,
+                  country: userLocation.country,
+                  timezone: userLocation.timezone,
+                }
+              : null,
+            userLocale,
+            userAgent,
+          });
+        }
 
         // Use a stable template URI so toolOutput reliably hydrates the component
         const widgetMetadata = widgetMeta(widget, false);
