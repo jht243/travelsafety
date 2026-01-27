@@ -1115,10 +1115,6 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   const actionCounts: Record<string, number> = {
     "Search Location": 0,
     "Subscribe": 0,
-    "View Advisory": 0, 
-    "View News": 0,
-    "View Conflict Data": 0,
-    "Share": 0,
     "Safety Vote": 0
   };
 
@@ -1138,10 +1134,6 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   widgetEvents.forEach(log => {
       if (isSearchEvent(log.event)) actionCounts["Search Location"]++;
       if (log.event === "widget_notify_me_subscribe") actionCounts["Subscribe"]++;
-      if (log.event === "widget_view_advisory") actionCounts["View Advisory"]++;
-      if (log.event === "widget_view_news") actionCounts["View News"]++;
-      if (log.event === "widget_view_conflict") actionCounts["View Conflict Data"]++;
-      if (log.event === "widget_share") actionCounts["Share"]++;
       if (isVoteEvent(log.event)) actionCounts["Safety Vote"]++;
       
       // Track button clicks
@@ -1335,27 +1327,6 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     </div>
 
     <div class="grid" style="margin-bottom: 20px;">
-      <div class="card">
-        <h2>Top Countries</h2>
-        <table>
-          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(countryDist).length > 0 ? Object.entries(countryDist)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([country, count]) => `
-              <tr>
-                <td>${country}</td>
-                <td>${count}</td>
-              </tr>
-            `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      
        <div class="card">
         <h2>User Actions</h2>
         <table>
