@@ -3204,7 +3204,25 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     setLoading(true);
     setError(null);
 
-    const query = rawQuery.trim().toLowerCase();
+    let query = rawQuery.trim().toLowerCase();
+    
+    // Handle "City, Country" format from ChatGPT (e.g., "Bali, Indonesia" -> "bali")
+    if (query.includes(',')) {
+      const parts = query.split(',').map(p => p.trim());
+      const cityPart = parts[0];
+      // Try the city part first with aliases
+      const aliasedCity = CITY_ALIASES[cityPart] || cityPart;
+      if (CITY_TO_COUNTRY[aliasedCity] || CITY_COORDINATES[aliasedCity]) {
+        query = cityPart;
+      } else if (parts.length > 1) {
+        // Try the country part (in case format is "Country, Region")
+        const countryPart = parts[1];
+        if (advisories[countryPart] || FALLBACK_ADVISORIES[countryPart]) {
+          query = countryPart;
+        }
+      }
+    }
+    
     const normalizedQuery = CITY_ALIASES[query] || query;
     
     // Track the search
