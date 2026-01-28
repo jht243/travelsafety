@@ -588,14 +588,14 @@ const CITY_COORDINATES: Record<string, { lat: number; lng: number; name: string;
   'ndjamena': { lat: 12.1348, lng: 15.0557, name: "N'Djamena", country: 'Chad' },
   
   // Ethiopia (conflict areas)
-  'addis ababa': { lat: 9.0320, lng: 38.7469, name: 'Addis Ababa', country: 'Ethiopia' },
-  
+  // 'addis ababa' is already defined above
+
   // Eritrea
   'asmara': { lat: 15.3229, lng: 38.9251, name: 'Asmara', country: 'Eritrea' },
-  
+
   // Lebanon (high risk)
-  'beirut': { lat: 33.8938, lng: 35.5018, name: 'Beirut', country: 'Lebanon' },
-  
+  // 'beirut' is already defined above
+
   // Gaza/Palestinian Territories
   'gaza': { lat: 31.5017, lng: 34.4668, name: 'Gaza City', country: 'Palestinian Territories' },
   'gaza city': { lat: 31.5017, lng: 34.4668, name: 'Gaza City', country: 'Palestinian Territories' },

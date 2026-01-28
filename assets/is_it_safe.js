@@ -24946,16 +24946,44 @@ var CITY_COORDINATES = {
   "castries": { lat: 14.0101, lng: -60.9875, name: "Castries", country: "Saint Lucia" },
   "soufriere": { lat: 13.85, lng: -61.0667, name: "Soufri\xE8re", country: "Saint Lucia" },
   "rodney bay": { lat: 14.0833, lng: -60.95, name: "Rodney Bay", country: "Saint Lucia" },
-  // Mexico
+  // Mexico - Top 30 cities
   "mexico city": { lat: 19.4326, lng: -99.1332, name: "Mexico City", country: "Mexico" },
   "cancun": { lat: 21.1619, lng: -86.8515, name: "Canc\xFAn", country: "Mexico" },
   "cabo": { lat: 22.8905, lng: -109.9167, name: "Los Cabos", country: "Mexico" },
+  "los cabos": { lat: 22.8905, lng: -109.9167, name: "Los Cabos", country: "Mexico" },
   "guadalajara": { lat: 20.6597, lng: -103.3496, name: "Guadalajara", country: "Mexico" },
   "monterrey": { lat: 25.6866, lng: -100.3161, name: "Monterrey", country: "Mexico" },
   "tulum": { lat: 20.2114, lng: -87.4654, name: "Tulum", country: "Mexico" },
   "playa del carmen": { lat: 20.6296, lng: -87.0739, name: "Playa del Carmen", country: "Mexico" },
   "oaxaca": { lat: 17.0732, lng: -96.7266, name: "Oaxaca", country: "Mexico" },
   "puerto vallarta": { lat: 20.6534, lng: -105.2253, name: "Puerto Vallarta", country: "Mexico" },
+  "tijuana": { lat: 32.5149, lng: -117.0382, name: "Tijuana", country: "Mexico" },
+  "puebla": { lat: 19.0414, lng: -98.2063, name: "Puebla", country: "Mexico" },
+  "leon guanajuato": { lat: 21.1221, lng: -101.686, name: "Le\xF3n", country: "Mexico" },
+  "leon mexico": { lat: 21.1221, lng: -101.686, name: "Le\xF3n", country: "Mexico" },
+  "ciudad juarez": { lat: 31.6904, lng: -106.4245, name: "Ciudad Ju\xE1rez", country: "Mexico" },
+  "juarez": { lat: 31.6904, lng: -106.4245, name: "Ciudad Ju\xE1rez", country: "Mexico" },
+  "merida": { lat: 20.9674, lng: -89.5926, name: "M\xE9rida", country: "Mexico" },
+  "san luis potosi": { lat: 22.1565, lng: -100.9855, name: "San Luis Potos\xED", country: "Mexico" },
+  "aguascalientes": { lat: 21.8853, lng: -102.2916, name: "Aguascalientes", country: "Mexico" },
+  "hermosillo": { lat: 29.0729, lng: -110.9559, name: "Hermosillo", country: "Mexico" },
+  "saltillo": { lat: 25.4267, lng: -100.9924, name: "Saltillo", country: "Mexico" },
+  "mexicali": { lat: 32.6245, lng: -115.4523, name: "Mexicali", country: "Mexico" },
+  "culiacan": { lat: 24.8091, lng: -107.394, name: "Culiac\xE1n", country: "Mexico" },
+  "queretaro": { lat: 20.5888, lng: -100.3899, name: "Quer\xE9taro", country: "Mexico" },
+  "morelia": { lat: 19.706, lng: -101.195, name: "Morelia", country: "Mexico" },
+  "chihuahua": { lat: 28.6353, lng: -106.0889, name: "Chihuahua", country: "Mexico" },
+  "acapulco": { lat: 16.8531, lng: -99.8237, name: "Acapulco", country: "Mexico" },
+  "veracruz": { lat: 19.1738, lng: -96.1342, name: "Veracruz", country: "Mexico" },
+  "mazatlan": { lat: 23.2494, lng: -106.4111, name: "Mazatl\xE1n", country: "Mexico" },
+  "san miguel de allende": { lat: 20.9144, lng: -100.7452, name: "San Miguel de Allende", country: "Mexico" },
+  "guanajuato": { lat: 21.019, lng: -101.2574, name: "Guanajuato", country: "Mexico" },
+  "cozumel": { lat: 20.423, lng: -86.9223, name: "Cozumel", country: "Mexico" },
+  "ixtapa": { lat: 17.6667, lng: -101.6167, name: "Ixtapa", country: "Mexico" },
+  "zihuatanejo": { lat: 17.6417, lng: -101.5514, name: "Zihuatanejo", country: "Mexico" },
+  "ensenada": { lat: 31.8667, lng: -116.5964, name: "Ensenada", country: "Mexico" },
+  "campeche": { lat: 19.8301, lng: -90.5349, name: "Campeche", country: "Mexico" },
+  "villahermosa": { lat: 17.9892, lng: -92.9475, name: "Villahermosa", country: "Mexico" },
   "paris": { lat: 48.8566, lng: 2.3522, name: "Paris", country: "France" },
   "london": { lat: 51.5074, lng: -0.1278, name: "London", country: "United Kingdom" },
   "dublin": { lat: 53.3498, lng: -6.2603, name: "Dublin", country: "Ireland" },
@@ -25143,7 +25171,85 @@ var CITY_COORDINATES = {
   "bruges": { lat: 51.2093, lng: 3.2247, name: "Bruges", country: "Belgium" },
   "rotterdam": { lat: 51.9244, lng: 4.4777, name: "Rotterdam", country: "Netherlands" },
   "salzburg": { lat: 47.8095, lng: 13.055, name: "Salzburg", country: "Austria" },
-  "innsbruck": { lat: 47.2692, lng: 11.4041, name: "Innsbruck", country: "Austria" }
+  "innsbruck": { lat: 47.2692, lng: 11.4041, name: "Innsbruck", country: "Austria" },
+  // ========== DO NOT TRAVEL / CONFLICT ZONES (Level 4) ==========
+  // North Korea
+  "pyongyang": { lat: 39.0392, lng: 125.7625, name: "Pyongyang", country: "North Korea" },
+  "north korea": { lat: 39.0392, lng: 125.7625, name: "Pyongyang", country: "North Korea" },
+  // Afghanistan
+  "kabul": { lat: 34.5553, lng: 69.2075, name: "Kabul", country: "Afghanistan" },
+  "kandahar": { lat: 31.6289, lng: 65.7372, name: "Kandahar", country: "Afghanistan" },
+  "herat": { lat: 34.3529, lng: 62.204, name: "Herat", country: "Afghanistan" },
+  "mazar-i-sharif": { lat: 36.7069, lng: 67.1147, name: "Mazar-i-Sharif", country: "Afghanistan" },
+  // Syria
+  "damascus": { lat: 33.5138, lng: 36.2765, name: "Damascus", country: "Syria" },
+  "aleppo": { lat: 36.2021, lng: 37.1343, name: "Aleppo", country: "Syria" },
+  "homs": { lat: 34.7324, lng: 36.7137, name: "Homs", country: "Syria" },
+  // Yemen
+  "sanaa": { lat: 15.3694, lng: 44.191, name: "Sana'a", country: "Yemen" },
+  "aden": { lat: 12.7855, lng: 45.0187, name: "Aden", country: "Yemen" },
+  // Somalia
+  "mogadishu": { lat: 2.0469, lng: 45.3182, name: "Mogadishu", country: "Somalia" },
+  "hargeisa": { lat: 9.56, lng: 44.065, name: "Hargeisa", country: "Somalia" },
+  // Libya
+  "tripoli libya": { lat: 32.8872, lng: 13.1913, name: "Tripoli", country: "Libya" },
+  "benghazi": { lat: 32.1194, lng: 20.0868, name: "Benghazi", country: "Libya" },
+  // South Sudan
+  "juba": { lat: 4.8594, lng: 31.5713, name: "Juba", country: "South Sudan" },
+  // Sudan
+  "khartoum": { lat: 15.5007, lng: 32.5599, name: "Khartoum", country: "Sudan" },
+  "omdurman": { lat: 15.6445, lng: 32.4777, name: "Omdurman", country: "Sudan" },
+  // Iraq
+  "baghdad": { lat: 33.3152, lng: 44.3661, name: "Baghdad", country: "Iraq" },
+  "basra": { lat: 30.5085, lng: 47.7804, name: "Basra", country: "Iraq" },
+  "mosul": { lat: 36.335, lng: 43.1189, name: "Mosul", country: "Iraq" },
+  "erbil": { lat: 36.1901, lng: 44.0091, name: "Erbil", country: "Iraq" },
+  // Iran
+  "tehran": { lat: 35.6892, lng: 51.389, name: "Tehran", country: "Iran" },
+  "isfahan": { lat: 32.6546, lng: 51.668, name: "Isfahan", country: "Iran" },
+  "shiraz": { lat: 29.5918, lng: 52.5837, name: "Shiraz", country: "Iran" },
+  "mashhad": { lat: 36.2605, lng: 59.6168, name: "Mashhad", country: "Iran" },
+  // Russia (additional cities)
+  "sochi": { lat: 43.6028, lng: 39.7342, name: "Sochi", country: "Russia" },
+  "kazan": { lat: 55.8304, lng: 49.0661, name: "Kazan", country: "Russia" },
+  // Ukraine (additional conflict cities)
+  "kharkiv": { lat: 49.9935, lng: 36.2304, name: "Kharkiv", country: "Ukraine" },
+  "odesa": { lat: 46.4825, lng: 30.7233, name: "Odesa", country: "Ukraine" },
+  "dnipro": { lat: 48.4647, lng: 35.0462, name: "Dnipro", country: "Ukraine" },
+  // Belarus
+  "minsk": { lat: 53.9006, lng: 27.559, name: "Minsk", country: "Belarus" },
+  // Myanmar (additional cities)
+  "mandalay": { lat: 21.9588, lng: 96.0891, name: "Mandalay", country: "Myanmar" },
+  "naypyidaw": { lat: 19.7633, lng: 96.0785, name: "Naypyidaw", country: "Myanmar" },
+  // Central African Republic
+  "bangui": { lat: 4.3947, lng: 18.5582, name: "Bangui", country: "Central African Republic" },
+  // Mali
+  "bamako": { lat: 12.6392, lng: -8.0029, name: "Bamako", country: "Mali" },
+  "timbuktu": { lat: 16.7666, lng: -3.0026, name: "Timbuktu", country: "Mali" },
+  // Burkina Faso
+  "ouagadougou": { lat: 12.3714, lng: -1.5197, name: "Ouagadougou", country: "Burkina Faso" },
+  // Niger
+  "niamey": { lat: 13.5137, lng: 2.1098, name: "Niamey", country: "Niger" },
+  // Chad
+  "ndjamena": { lat: 12.1348, lng: 15.0557, name: "N'Djamena", country: "Chad" },
+  // Ethiopia (conflict areas)
+  // 'addis ababa' is already defined above
+  // Eritrea
+  "asmara": { lat: 15.3229, lng: 38.9251, name: "Asmara", country: "Eritrea" },
+  // Lebanon (high risk)
+  // 'beirut' is already defined above
+  // Gaza/Palestinian Territories
+  "gaza": { lat: 31.5017, lng: 34.4668, name: "Gaza City", country: "Palestinian Territories" },
+  "gaza city": { lat: 31.5017, lng: 34.4668, name: "Gaza City", country: "Palestinian Territories" },
+  // Pakistan (high-risk areas)
+  "karachi": { lat: 24.8607, lng: 67.0011, name: "Karachi", country: "Pakistan" },
+  "lahore": { lat: 31.5497, lng: 74.3436, name: "Lahore", country: "Pakistan" },
+  "islamabad": { lat: 33.6844, lng: 73.0479, name: "Islamabad", country: "Pakistan" },
+  "peshawar": { lat: 34.0151, lng: 71.5249, name: "Peshawar", country: "Pakistan" },
+  // Democratic Republic of Congo
+  "kinshasa": { lat: -4.4419, lng: 15.2663, name: "Kinshasa", country: "Democratic Republic of Congo" },
+  "goma": { lat: -1.6771, lng: 29.2386, name: "Goma", country: "Democratic Republic of Congo" },
+  "lubumbashi": { lat: -11.6647, lng: 27.4794, name: "Lubumbashi", country: "Democratic Republic of Congo" }
 };
 var CITY_ALIASES = {
   "nyc": "new york",
@@ -27379,6 +27485,27 @@ function TravelSafety({ initialData: initialData2 }) {
   const [subscribeStatus, setSubscribeStatus] = (0, import_react3.useState)("idle");
   const [subscribeMessage, setSubscribeMessage] = (0, import_react3.useState)("");
   const [feedbackStatus, setFeedbackStatus] = (0, import_react3.useState)("idle");
+  const [enjoyVote, setEnjoyVote] = (0, import_react3.useState)(null);
+  (0, import_react3.useEffect)(() => {
+    try {
+      const v = localStorage.getItem("enjoyVote");
+      if (v === "up" || v === "down") setEnjoyVote(v);
+    } catch {
+    }
+  }, []);
+  const handleEnjoyVote = (vote) => {
+    if (enjoyVote) return;
+    setEnjoyVote(vote);
+    try {
+      localStorage.setItem("enjoyVote", vote);
+    } catch {
+    }
+    trackEvent("app_enjoyment_vote", {
+      vote,
+      location: searchResult?.searchTerm || null,
+      isCity: searchResult?.isCity ?? null
+    });
+  };
   const handleSubscribe = async () => {
     if (!email || !email.includes("@")) {
       setSubscribeMessage("Please enter a valid email.");
@@ -27507,7 +27634,20 @@ function TravelSafety({ initialData: initialData2 }) {
     if (!rawQuery.trim()) return;
     setLoading(true);
     setError(null);
-    const query = rawQuery.trim().toLowerCase();
+    let query = rawQuery.trim().toLowerCase();
+    if (query.includes(",")) {
+      const parts = query.split(",").map((p) => p.trim());
+      const cityPart = parts[0];
+      const aliasedCity = CITY_ALIASES[cityPart] || cityPart;
+      if (CITY_TO_COUNTRY[aliasedCity] || CITY_COORDINATES[aliasedCity]) {
+        query = cityPart;
+      } else if (parts.length > 1) {
+        const countryPart = parts[1];
+        if (advisories[countryPart] || FALLBACK_ADVISORIES[countryPart]) {
+          query = countryPart;
+        }
+      }
+    }
     const normalizedQuery = CITY_ALIASES[query] || query;
     const isCity = !!CITY_TO_COUNTRY[normalizedQuery];
     trackEvent("search_location", {
@@ -27641,6 +27781,69 @@ function TravelSafety({ initialData: initialData2 }) {
     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
     color: COLORS.navy
   }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "no-print", style: {
+      position: "fixed",
+      right: 16,
+      bottom: 16,
+      zIndex: 900
+    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      backgroundColor: COLORS.white,
+      border: `1px solid ${COLORS.slate[200]}`,
+      borderRadius: UI.radius.pill,
+      boxShadow: "0 14px 34px rgba(17, 24, 39, 0.14)",
+      padding: "10px 12px",
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, fontWeight: 800, color: COLORS.slate[700], whiteSpace: "nowrap" }, children: "Enjoying This App?" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: () => handleEnjoyVote("up"),
+            disabled: !!enjoyVote,
+            title: "Thumbs up",
+            style: {
+              width: 36,
+              height: 32,
+              borderRadius: 10,
+              border: `1px solid ${COLORS.slate[200]}`,
+              backgroundColor: enjoyVote === "up" ? COLORS.safe.bg : COLORS.white,
+              cursor: enjoyVote ? "not-allowed" : "pointer",
+              opacity: enjoyVote && enjoyVote !== "up" ? 0.6 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s"
+            },
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsUp, { size: 18, style: { color: enjoyVote === "up" ? COLORS.safe.text : COLORS.slate[500] } })
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: () => handleEnjoyVote("down"),
+            disabled: !!enjoyVote,
+            title: "Thumbs down",
+            style: {
+              width: 36,
+              height: 32,
+              borderRadius: 10,
+              border: `1px solid ${COLORS.slate[200]}`,
+              backgroundColor: enjoyVote === "down" ? COLORS.danger.bg : COLORS.white,
+              cursor: enjoyVote ? "not-allowed" : "pointer",
+              opacity: enjoyVote && enjoyVote !== "down" ? 0.6 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s"
+            },
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsDown, { size: 18, style: { color: enjoyVote === "down" ? COLORS.danger.text : COLORS.slate[500] } })
+          }
+        )
+      ] })
+    ] }) }),
     !searchResult && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
       background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
       padding: "44px 24px 32px",
