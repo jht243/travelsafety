@@ -1532,6 +1532,27 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
+        <h2>Top Countries (MCP)</h2>
+        <table>
+          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
+          <tbody>
+            ${Object.entries(countryDist).length > 0 ? Object.entries(countryDist)
+              .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
+              .map(
+                ([country, count]) => `
+              <tr>
+                <td>${country}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
         <h2>Top Cities (MCP)</h2>
         <table>
           <thead><tr><th>City</th><th>Searches</th></tr></thead>
@@ -1569,6 +1590,50 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
             `
               )
               .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="grid" style="margin-bottom: 20px;">
+      <div class="card">
+        <h2>Top Countries (Widget)</h2>
+        <table>
+          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
+          <tbody>
+            ${Object.entries(widgetSearchCountries).length > 0 ? Object.entries(widgetSearchCountries)
+              .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
+              .map(
+                ([country, count]) => `
+              <tr>
+                <td>${country}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No widget searches yet</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <h2>Top Cities (Widget)</h2>
+        <table>
+          <thead><tr><th>City</th><th>Searches</th></tr></thead>
+          <tbody>
+            ${Object.entries(widgetSearchCities).length > 0 ? Object.entries(widgetSearchCities)
+              .sort((a, b) => (b[1] as number) - (a[1] as number))
+              .slice(0, 10)
+              .map(
+                ([city, count]) => `
+              <tr>
+                <td>${city}</td>
+                <td>${count}</td>
+              </tr>
+            `
+              )
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No widget searches yet</td></tr>'}
           </tbody>
         </table>
       </div>
