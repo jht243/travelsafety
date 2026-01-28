@@ -979,6 +979,7 @@ function humanizeEventName(event: string): string {
     widget_crash: "Widget Crash",
     widget_search_location: "Search Location",
     widget_safety_vote: "Safety Vote",
+    widget_app_enjoyment_vote: "App Enjoyment Vote",
     sentiment_vote: "Sentiment Vote",
     widget_notify_me_subscribe: "Email Subscribe",
     widget_app_open: "App Open",

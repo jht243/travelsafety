@@ -3187,6 +3187,29 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
   const [subscribeStatus, setSubscribeStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [subscribeMessage, setSubscribeMessage] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  
+  // App enjoyment vote state
+  const [enjoyVote, setEnjoyVote] = useState<'up' | 'down' | null>(null);
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem('enjoyVote');
+      if (v === 'up' || v === 'down') setEnjoyVote(v);
+    } catch {}
+  }, []);
+
+  const handleEnjoyVote = (vote: 'up' | 'down') => {
+    if (enjoyVote) return;
+
+    setEnjoyVote(vote);
+    try { localStorage.setItem('enjoyVote', vote); } catch {}
+
+    trackEvent('app_enjoyment_vote', {
+      vote,
+      location: searchResult?.searchTerm || null,
+      isCity: searchResult?.isCity ?? null,
+    });
+  };
 
   // Footer handlers
   const handleSubscribe = async () => {
@@ -3548,6 +3571,73 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
       color: COLORS.navy,
     }}>
+      {/* Floating App Enjoyment Pill */}
+      <div className="no-print" style={{
+        position: 'fixed',
+        right: 16,
+        bottom: 16,
+        zIndex: 900,
+      }}>
+        <div style={{
+          backgroundColor: COLORS.white,
+          border: `1px solid ${COLORS.slate[200]}`,
+          borderRadius: UI.radius.pill,
+          boxShadow: '0 14px 34px rgba(17, 24, 39, 0.14)',
+          padding: '10px 12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: COLORS.slate[700], whiteSpace: 'nowrap' }}>
+            Enjoying This App?
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => handleEnjoyVote('up')}
+              disabled={!!enjoyVote}
+              title="Thumbs up"
+              style={{
+                width: 36,
+                height: 32,
+                borderRadius: 10,
+                border: `1px solid ${COLORS.slate[200]}`,
+                backgroundColor: enjoyVote === 'up' ? COLORS.safe.bg : COLORS.white,
+                cursor: enjoyVote ? 'not-allowed' : 'pointer',
+                opacity: enjoyVote && enjoyVote !== 'up' ? 0.6 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+            >
+              <ThumbsUp size={18} style={{ color: enjoyVote === 'up' ? COLORS.safe.text : COLORS.slate[500] }} />
+            </button>
+
+            <button
+              onClick={() => handleEnjoyVote('down')}
+              disabled={!!enjoyVote}
+              title="Thumbs down"
+              style={{
+                width: 36,
+                height: 32,
+                borderRadius: 10,
+                border: `1px solid ${COLORS.slate[200]}`,
+                backgroundColor: enjoyVote === 'down' ? COLORS.danger.bg : COLORS.white,
+                cursor: enjoyVote ? 'not-allowed' : 'pointer',
+                opacity: enjoyVote && enjoyVote !== 'down' ? 0.6 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+            >
+              <ThumbsDown size={18} style={{ color: enjoyVote === 'down' ? COLORS.danger.text : COLORS.slate[500] }} />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section - Only show when no search result */}
       {!searchResult && (
       <div style={{
