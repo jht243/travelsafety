@@ -526,11 +526,14 @@ function createTravelSafetyServer(): Server {
         const userLocation = meta["openai/userLocation"];
         const userLocale = meta["openai/locale"];
         const userAgent = meta["openai/userAgent"];
+        const userSubject = meta["openai/subject"]; // User's query subject/topic
+        const userSession = meta["openai/session"]; // Session info
         userAgentString = typeof userAgent === "string" ? userAgent : null;
         deviceCategory = classifyDevice(userAgentString);
         
-        // Debug log
-        console.log("Captured meta:", { userLocation, userLocale, userAgent });
+        // Debug log - include subject to see what users are asking
+        console.log("Captured meta:", { userLocation, userLocale, userAgent, userSubject, userSession });
+        console.log("Full _meta object:", JSON.stringify(meta, null, 2));
 
         // If ChatGPT didn't pass structured arguments, try to infer travel details from freeform text in meta
         try {
@@ -593,7 +596,7 @@ function createTravelSafetyServer(): Server {
             params: args,
             inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
             responseTime,
-
+            userSubject: userSubject || null, // The user's query subject/topic from ChatGPT
             device: deviceCategory,
             userLocation: userLocation
               ? {
@@ -1577,21 +1580,22 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     <div class="card" style="margin-bottom: 20px;">
       <h2>User Queries (Inferred from Tool Calls)</h2>
       <table>
-        <thead><tr><th>Date</th><th>Query</th><th>Location</th><th>Locale</th></tr></thead>
+        <thead><tr><th>Date</th><th>Query</th><th>Subject (from ChatGPT)</th><th>User Location</th><th>Locale</th></tr></thead>
         <tbody>
           ${successLogs.length > 0 ? successLogs
-            .slice(0, 20)
+            .slice(0, 30)
             .map(
               (log) => `
             <tr>
               <td class="timestamp" style="white-space: nowrap;">${new Date(log.timestamp).toLocaleString()}</td>
-              <td style="max-width: 400px;">${log.inferredQuery || "general search"}</td>
+              <td style="max-width: 300px;">${log.inferredQuery || "general search"}</td>
+              <td style="max-width: 400px; font-style: italic; color: #4b5563;">${log.userSubject || '—'}</td>
               <td style="font-size: 12px; color: #6b7280;">${log.userLocation ? `${log.userLocation.city || ''}, ${log.userLocation.region || ''}, ${log.userLocation.country || ''}`.replace(/^, |, $/g, '') : '—'}</td>
               <td style="font-size: 12px; color: #6b7280;">${log.userLocale || '—'}</td>
             </tr>
           `
             )
-            .join("") : '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
+            .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
         </tbody>
       </table>
     </div>
