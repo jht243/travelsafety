@@ -1212,15 +1212,15 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       }
   });
 
-  // Widget search distribution (countries and cities from widget searches)
-  const widgetSearchCountries: Record<string, number> = {};
-  const widgetSearchCities: Record<string, number> = {};
-  widgetEvents.filter(l => isSearchEvent(l.event)).forEach(log => {
+  // Internal widget search distribution (from server-side tracking of API proxy calls)
+  const internalSearchCountries: Record<string, number> = {};
+  const internalSearchLocations: Record<string, number> = {};
+  logs.filter(l => l.event === "widget_internal_search").forEach(log => {
     if (log.country) {
-      widgetSearchCountries[log.country] = (widgetSearchCountries[log.country] || 0) + 1;
+      internalSearchCountries[log.country] = (internalSearchCountries[log.country] || 0) + 1;
     }
-    if (log.city) {
-      widgetSearchCities[log.city] = (widgetSearchCities[log.city] || 0) + 1;
+    if (log.location) {
+      internalSearchLocations[log.location] = (internalSearchLocations[log.location] || 0) + 1;
     }
   });
 
@@ -1357,12 +1357,12 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <div style="font-size: 12px; color: #64748b;">Email Subscribers</div>
         </div>
         <div style="text-align: center; padding: 12px;">
-          <div style="font-size: 28px; font-weight: bold; color: #ea580c;">${Object.keys(widgetSearchCountries).length}</div>
+          <div style="font-size: 28px; font-weight: bold; color: #ea580c;">${Object.keys(internalSearchCountries).length}</div>
           <div style="font-size: 12px; color: #64748b;">Unique Countries</div>
         </div>
         <div style="text-align: center; padding: 12px;">
-          <div style="font-size: 28px; font-weight: bold; color: #db2777;">${Object.keys(widgetSearchCities).length}</div>
-          <div style="font-size: 12px; color: #64748b;">Unique Cities</div>
+          <div style="font-size: 28px; font-weight: bold; color: #db2777;">${Object.keys(internalSearchLocations).length}</div>
+          <div style="font-size: 12px; color: #64748b;">Unique Locations</div>
         </div>
         <div style="text-align: center; padding: 12px;">
           <div style="font-size: 28px; font-weight: bold; color: #059669;">${Object.keys(safetyVotes).length}</div>
@@ -1458,50 +1458,6 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       </div>
     </div>
 
-    <div class="grid" style="margin-bottom: 20px;">
-      <div class="card">
-        <h2>🌍 Widget Searches - Countries</h2>
-        <table>
-          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(widgetSearchCountries).length > 0 ? Object.entries(widgetSearchCountries)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([country, count]) => `
-              <tr>
-                <td>${country}</td>
-                <td>${count}</td>
-              </tr>
-            `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No widget searches yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="card">
-        <h2>🏙️ Widget Searches - Cities</h2>
-        <table>
-          <thead><tr><th>City</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(widgetSearchCities).length > 0 ? Object.entries(widgetSearchCities)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([city, count]) => `
-              <tr>
-                <td>${city}</td>
-                <td>${count}</td>
-              </tr>
-            `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No city searches yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <div class="card" style="margin-bottom: 20px;">
       <h2>👍👎 Safety Votes by Location</h2>
       <table>
@@ -1572,36 +1528,15 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           </tbody>
         </table>
       </div>
-      
-      <div class="card">
-        <h2>Top Locations (MCP)</h2>
-        <table>
-          <thead><tr><th>Location</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(locationDist).length > 0 ? Object.entries(locationDist)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([loc, count]) => `
-              <tr>
-                <td>${loc}</td>
-                <td>${count}</td>
-              </tr>
-            `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
     </div>
     
     <div class="grid" style="margin-bottom: 20px;">
       <div class="card">
-        <h2>Top Countries (Widget)</h2>
+        <h2>Top Countries (Internal)</h2>
         <table>
           <thead><tr><th>Country</th><th>Searches</th></tr></thead>
           <tbody>
-            ${Object.entries(widgetSearchCountries).length > 0 ? Object.entries(widgetSearchCountries)
+            ${Object.entries(internalSearchCountries).length > 0 ? Object.entries(internalSearchCountries)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
               .slice(0, 10)
               .map(
@@ -1612,28 +1547,28 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
               </tr>
             `
               )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No widget searches yet</td></tr>'}
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
           </tbody>
         </table>
       </div>
       
       <div class="card">
-        <h2>Top Cities (Widget)</h2>
+        <h2>Top Locations (Internal)</h2>
         <table>
-          <thead><tr><th>City</th><th>Searches</th></tr></thead>
+          <thead><tr><th>Location</th><th>Searches</th></tr></thead>
           <tbody>
-            ${Object.entries(widgetSearchCities).length > 0 ? Object.entries(widgetSearchCities)
+            ${Object.entries(internalSearchLocations).length > 0 ? Object.entries(internalSearchLocations)
               .sort((a, b) => (b[1] as number) - (a[1] as number))
               .slice(0, 10)
               .map(
-                ([city, count]) => `
+                ([loc, count]) => `
               <tr>
-                <td>${city}</td>
+                <td>${loc}</td>
                 <td>${count}</td>
               </tr>
             `
               )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No widget searches yet</td></tr>'}
+              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1812,6 +1747,12 @@ async function handleGdeltProxy(req: IncomingMessage, res: ServerResponse, url: 
     return;
   }
 
+  // Track internal widget search
+  logAnalytics("widget_internal_search", {
+    source: "gdelt",
+    location,
+  });
+
   // GDELT query syntax is picky; strip punctuation (e.g. commas) that can trigger "illegal character".
   const sanitizedLocation = location
     .replace(/[|]/g, " ")
@@ -1895,6 +1836,12 @@ async function handleAcledProxy(req: IncomingMessage, res: ServerResponse, url: 
     return;
   }
 
+  // Track internal widget search
+  logAnalytics("widget_internal_search", {
+    source: "acled",
+    country,
+  });
+
   try {
     const accessToken = await getAcledAccessToken();
     console.log(`[ACLED] Got access token (first 20 chars): ${accessToken.substring(0, 20)}...`);
@@ -1970,6 +1917,12 @@ async function handleUkProxy(req: IncomingMessage, res: ServerResponse, url: URL
     sendJson(res, 400, { error: "Missing country" });
     return;
   }
+
+  // Track internal widget search
+  logAnalytics("widget_internal_search", {
+    source: "uk",
+    country,
+  });
 
   try {
     const upstream = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(country)}`);
