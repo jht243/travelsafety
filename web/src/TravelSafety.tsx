@@ -507,6 +507,109 @@ const CITY_COORDINATES: Record<string, { lat: number; lng: number; name: string;
   'rotterdam': { lat: 51.9244, lng: 4.4777, name: 'Rotterdam', country: 'Netherlands' },
   'salzburg': { lat: 47.8095, lng: 13.0550, name: 'Salzburg', country: 'Austria' },
   'innsbruck': { lat: 47.2692, lng: 11.4041, name: 'Innsbruck', country: 'Austria' },
+
+  // ========== DO NOT TRAVEL / CONFLICT ZONES (Level 4) ==========
+  // North Korea
+  'pyongyang': { lat: 39.0392, lng: 125.7625, name: 'Pyongyang', country: 'North Korea' },
+  'north korea': { lat: 39.0392, lng: 125.7625, name: 'Pyongyang', country: 'North Korea' },
+  
+  // Afghanistan
+  'kabul': { lat: 34.5553, lng: 69.2075, name: 'Kabul', country: 'Afghanistan' },
+  'kandahar': { lat: 31.6289, lng: 65.7372, name: 'Kandahar', country: 'Afghanistan' },
+  'herat': { lat: 34.3529, lng: 62.2040, name: 'Herat', country: 'Afghanistan' },
+  'mazar-i-sharif': { lat: 36.7069, lng: 67.1147, name: 'Mazar-i-Sharif', country: 'Afghanistan' },
+  
+  // Syria
+  'damascus': { lat: 33.5138, lng: 36.2765, name: 'Damascus', country: 'Syria' },
+  'aleppo': { lat: 36.2021, lng: 37.1343, name: 'Aleppo', country: 'Syria' },
+  'homs': { lat: 34.7324, lng: 36.7137, name: 'Homs', country: 'Syria' },
+  
+  // Yemen
+  'sanaa': { lat: 15.3694, lng: 44.1910, name: "Sana'a", country: 'Yemen' },
+  'aden': { lat: 12.7855, lng: 45.0187, name: 'Aden', country: 'Yemen' },
+  
+  // Somalia
+  'mogadishu': { lat: 2.0469, lng: 45.3182, name: 'Mogadishu', country: 'Somalia' },
+  'hargeisa': { lat: 9.5600, lng: 44.0650, name: 'Hargeisa', country: 'Somalia' },
+  
+  // Libya
+  'tripoli libya': { lat: 32.8872, lng: 13.1913, name: 'Tripoli', country: 'Libya' },
+  'benghazi': { lat: 32.1194, lng: 20.0868, name: 'Benghazi', country: 'Libya' },
+  
+  // South Sudan
+  'juba': { lat: 4.8594, lng: 31.5713, name: 'Juba', country: 'South Sudan' },
+  
+  // Sudan
+  'khartoum': { lat: 15.5007, lng: 32.5599, name: 'Khartoum', country: 'Sudan' },
+  'omdurman': { lat: 15.6445, lng: 32.4777, name: 'Omdurman', country: 'Sudan' },
+  
+  // Iraq
+  'baghdad': { lat: 33.3152, lng: 44.3661, name: 'Baghdad', country: 'Iraq' },
+  'basra': { lat: 30.5085, lng: 47.7804, name: 'Basra', country: 'Iraq' },
+  'mosul': { lat: 36.3350, lng: 43.1189, name: 'Mosul', country: 'Iraq' },
+  'erbil': { lat: 36.1901, lng: 44.0091, name: 'Erbil', country: 'Iraq' },
+  
+  // Iran
+  'tehran': { lat: 35.6892, lng: 51.3890, name: 'Tehran', country: 'Iran' },
+  'isfahan': { lat: 32.6546, lng: 51.6680, name: 'Isfahan', country: 'Iran' },
+  'shiraz': { lat: 29.5918, lng: 52.5837, name: 'Shiraz', country: 'Iran' },
+  'mashhad': { lat: 36.2605, lng: 59.6168, name: 'Mashhad', country: 'Iran' },
+  
+  // Russia (additional cities)
+  'sochi': { lat: 43.6028, lng: 39.7342, name: 'Sochi', country: 'Russia' },
+  'kazan': { lat: 55.8304, lng: 49.0661, name: 'Kazan', country: 'Russia' },
+  
+  // Ukraine (additional conflict cities)
+  'kharkiv': { lat: 49.9935, lng: 36.2304, name: 'Kharkiv', country: 'Ukraine' },
+  'odesa': { lat: 46.4825, lng: 30.7233, name: 'Odesa', country: 'Ukraine' },
+  'dnipro': { lat: 48.4647, lng: 35.0462, name: 'Dnipro', country: 'Ukraine' },
+  
+  // Belarus
+  'minsk': { lat: 53.9006, lng: 27.5590, name: 'Minsk', country: 'Belarus' },
+  
+  // Myanmar (additional cities)
+  'mandalay': { lat: 21.9588, lng: 96.0891, name: 'Mandalay', country: 'Myanmar' },
+  'naypyidaw': { lat: 19.7633, lng: 96.0785, name: 'Naypyidaw', country: 'Myanmar' },
+  
+  // Central African Republic
+  'bangui': { lat: 4.3947, lng: 18.5582, name: 'Bangui', country: 'Central African Republic' },
+  
+  // Mali
+  'bamako': { lat: 12.6392, lng: -8.0029, name: 'Bamako', country: 'Mali' },
+  'timbuktu': { lat: 16.7666, lng: -3.0026, name: 'Timbuktu', country: 'Mali' },
+  
+  // Burkina Faso
+  'ouagadougou': { lat: 12.3714, lng: -1.5197, name: 'Ouagadougou', country: 'Burkina Faso' },
+  
+  // Niger
+  'niamey': { lat: 13.5137, lng: 2.1098, name: 'Niamey', country: 'Niger' },
+  
+  // Chad
+  'ndjamena': { lat: 12.1348, lng: 15.0557, name: "N'Djamena", country: 'Chad' },
+  
+  // Ethiopia (conflict areas)
+  'addis ababa': { lat: 9.0320, lng: 38.7469, name: 'Addis Ababa', country: 'Ethiopia' },
+  
+  // Eritrea
+  'asmara': { lat: 15.3229, lng: 38.9251, name: 'Asmara', country: 'Eritrea' },
+  
+  // Lebanon (high risk)
+  'beirut': { lat: 33.8938, lng: 35.5018, name: 'Beirut', country: 'Lebanon' },
+  
+  // Gaza/Palestinian Territories
+  'gaza': { lat: 31.5017, lng: 34.4668, name: 'Gaza City', country: 'Palestinian Territories' },
+  'gaza city': { lat: 31.5017, lng: 34.4668, name: 'Gaza City', country: 'Palestinian Territories' },
+  
+  // Pakistan (high-risk areas)
+  'karachi': { lat: 24.8607, lng: 67.0011, name: 'Karachi', country: 'Pakistan' },
+  'lahore': { lat: 31.5497, lng: 74.3436, name: 'Lahore', country: 'Pakistan' },
+  'islamabad': { lat: 33.6844, lng: 73.0479, name: 'Islamabad', country: 'Pakistan' },
+  'peshawar': { lat: 34.0151, lng: 71.5249, name: 'Peshawar', country: 'Pakistan' },
+  
+  // Democratic Republic of Congo
+  'kinshasa': { lat: -4.4419, lng: 15.2663, name: 'Kinshasa', country: 'Democratic Republic of Congo' },
+  'goma': { lat: -1.6771, lng: 29.2386, name: 'Goma', country: 'Democratic Republic of Congo' },
+  'lubumbashi': { lat: -11.6647, lng: 27.4794, name: 'Lubumbashi', country: 'Democratic Republic of Congo' },
 };
 
 const CITY_ALIASES: Record<string, string> = {
