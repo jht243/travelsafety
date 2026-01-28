@@ -372,6 +372,8 @@ const tools: Tool[] = widgets.map((widget) => ({
   _meta: {
     ...widgetMeta(widget),
     securitySchemes: [{ type: "noauth" }],
+    "openai/toolInvocation/invoking": "Checking travel safety data…",
+    "openai/toolInvocation/invoked": "Safety report ready",
   },
   annotations: {
     readOnlyHint: true,
