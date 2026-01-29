@@ -27505,6 +27505,7 @@ function TravelSafety({ initialData: initialData2 }) {
       location: searchResult?.searchTerm || null,
       isCity: searchResult?.isCity ?? null
     });
+    setShowFeedbackModal(true);
   };
   const handleSubscribe = async () => {
     if (!email || !email.includes("@")) {
@@ -27552,7 +27553,12 @@ function TravelSafety({ initialData: initialData2 }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           event: "user_feedback",
-          data: { feedback: feedbackText, location: searchResult?.searchTerm || "none" }
+          data: {
+            feedback: feedbackText,
+            location: searchResult?.searchTerm || "none",
+            enjoymentVote: enjoyVote || null
+            // Include the thumbs up/down vote if present
+          }
         })
       });
       if (response.ok) {
@@ -27779,71 +27785,11 @@ function TravelSafety({ initialData: initialData2 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
     backgroundColor: COLORS.cream,
     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
-    color: COLORS.navy
+    color: COLORS.navy,
+    position: "relative",
+    // Container for sticky pill
+    minHeight: "100vh"
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "no-print", style: {
-      position: "fixed",
-      right: 16,
-      bottom: 16,
-      zIndex: 900
-    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-      backgroundColor: COLORS.white,
-      border: `1px solid ${COLORS.slate[200]}`,
-      borderRadius: UI.radius.pill,
-      boxShadow: "0 14px 34px rgba(17, 24, 39, 0.14)",
-      padding: "10px 12px",
-      display: "flex",
-      alignItems: "center",
-      gap: 10
-    }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 12, fontWeight: 800, color: COLORS.slate[700], whiteSpace: "nowrap" }, children: "Enjoying This App?" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 8 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "button",
-          {
-            onClick: () => handleEnjoyVote("up"),
-            disabled: !!enjoyVote,
-            title: "Thumbs up",
-            style: {
-              width: 36,
-              height: 32,
-              borderRadius: 10,
-              border: `1px solid ${COLORS.slate[200]}`,
-              backgroundColor: enjoyVote === "up" ? COLORS.safe.bg : COLORS.white,
-              cursor: enjoyVote ? "not-allowed" : "pointer",
-              opacity: enjoyVote && enjoyVote !== "up" ? 0.6 : 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s"
-            },
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsUp, { size: 18, style: { color: enjoyVote === "up" ? COLORS.safe.text : COLORS.slate[500] } })
-          }
-        ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "button",
-          {
-            onClick: () => handleEnjoyVote("down"),
-            disabled: !!enjoyVote,
-            title: "Thumbs down",
-            style: {
-              width: 36,
-              height: 32,
-              borderRadius: 10,
-              border: `1px solid ${COLORS.slate[200]}`,
-              backgroundColor: enjoyVote === "down" ? COLORS.danger.bg : COLORS.white,
-              cursor: enjoyVote ? "not-allowed" : "pointer",
-              opacity: enjoyVote && enjoyVote !== "down" ? 0.6 : 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s"
-            },
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsDown, { size: 18, style: { color: enjoyVote === "down" ? COLORS.danger.text : COLORS.slate[500] } })
-          }
-        )
-      ] })
-    ] }) }),
     !searchResult && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
       background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
       padding: "44px 24px 32px",
@@ -28370,6 +28316,77 @@ function TravelSafety({ initialData: initialData2 }) {
         }
       )
     ] }),
+    !enjoyVote && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "no-print", style: {
+      position: "sticky",
+      bottom: 12,
+      display: "flex",
+      justifyContent: "flex-end",
+      padding: "0 12px 12px 0",
+      pointerEvents: "none",
+      // Allow clicks to pass through container
+      zIndex: 900
+    }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+      backgroundColor: COLORS.white,
+      border: `1px solid ${COLORS.slate[200]}`,
+      borderRadius: UI.radius.pill,
+      boxShadow: "0 8px 24px rgba(17, 24, 39, 0.12)",
+      padding: "6px 10px",
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      pointerEvents: "auto"
+      // Re-enable clicks on the pill itself
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: 11, fontWeight: 700, color: COLORS.slate[700], whiteSpace: "nowrap" }, children: "Enjoying This App?" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 6 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: () => handleEnjoyVote("up"),
+            disabled: !!enjoyVote,
+            title: "Thumbs up",
+            style: {
+              width: 30,
+              height: 28,
+              borderRadius: 8,
+              border: `1px solid ${COLORS.slate[200]}`,
+              backgroundColor: enjoyVote === "up" ? COLORS.safe.bg : COLORS.white,
+              cursor: enjoyVote ? "not-allowed" : "pointer",
+              opacity: enjoyVote && enjoyVote !== "up" ? 0.6 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s",
+              padding: 0
+            },
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsUp, { size: 14, style: { color: enjoyVote === "up" ? COLORS.safe.text : COLORS.slate[500] } })
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            onClick: () => handleEnjoyVote("down"),
+            disabled: !!enjoyVote,
+            title: "Thumbs down",
+            style: {
+              width: 30,
+              height: 28,
+              borderRadius: 8,
+              border: `1px solid ${COLORS.slate[200]}`,
+              backgroundColor: enjoyVote === "down" ? COLORS.danger.bg : COLORS.white,
+              cursor: enjoyVote ? "not-allowed" : "pointer",
+              opacity: enjoyVote && enjoyVote !== "down" ? 0.6 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s",
+              padding: 0
+            },
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsDown, { size: 14, style: { color: enjoyVote === "down" ? COLORS.danger.text : COLORS.slate[500] } })
+          }
+        )
+      ] })
+    ] }) }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
       padding: "24px",
       textAlign: "center",
@@ -28578,13 +28595,26 @@ function TravelSafety({ initialData: initialData2 }) {
                   children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { size: 24 })
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, marginBottom: "8px", color: COLORS.textMain }, children: "Feedback" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.textSecondary, marginBottom: "24px" }, children: "Help us improve the travel safety tool." }),
+              enjoyVote && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                marginBottom: "16px",
+                padding: "12px 16px",
+                backgroundColor: enjoyVote === "up" ? COLORS.safe.bg : COLORS.danger.bg,
+                borderRadius: "12px",
+                border: `1px solid ${enjoyVote === "up" ? COLORS.safe.border : COLORS.danger.border}`
+              }, children: [
+                enjoyVote === "up" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsUp, { size: 24, style: { color: COLORS.safe.text } }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsDown, { size: 24, style: { color: COLORS.danger.text } }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", fontWeight: 600, color: enjoyVote === "up" ? COLORS.safe.text : COLORS.danger.text }, children: "Thank you for rating the app!" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, marginBottom: "8px", color: COLORS.textMain }, children: enjoyVote ? "Share Your Thoughts" : "Feedback" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.textSecondary, marginBottom: "24px" }, children: enjoyVote ? "Please provide your feedback below to help us improve." : "Help us improve the travel safety tool." }),
               feedbackStatus === "success" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", padding: "20px", color: COLORS.primary, fontWeight: 600 }, children: "Thanks for your feedback!" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                   "textarea",
                   {
-                    placeholder: "Tell us what you think...",
+                    placeholder: enjoyVote === "up" ? "What do you love about this app?" : enjoyVote === "down" ? "What can we improve?" : "Tell us what you think...",
                     value: feedbackText,
                     onChange: (e) => setFeedbackText(e.target.value),
                     style: {
