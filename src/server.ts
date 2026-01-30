@@ -1583,7 +1583,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     <div class="card" style="margin-bottom: 20px;">
       <h2>User Queries (Inferred from Tool Calls)</h2>
       <table>
-        <thead><tr><th>Date</th><th>Query</th><th>Subject (from ChatGPT)</th><th>User Location</th><th>Locale</th></tr></thead>
+        <thead><tr><th>Date</th><th>Query</th><th>User Location</th><th>Locale</th></tr></thead>
         <tbody>
           ${successLogs.length > 0 ? successLogs
             .slice(0, 30)
@@ -1592,13 +1592,12 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
             <tr>
               <td class="timestamp" style="white-space: nowrap;">${new Date(log.timestamp).toLocaleString()}</td>
               <td style="max-width: 300px;">${log.inferredQuery || "general search"}</td>
-              <td style="max-width: 400px; font-style: italic; color: #4b5563;">${log.userSubject || '—'}</td>
               <td style="font-size: 12px; color: #6b7280;">${log.userLocation ? `${log.userLocation.city || ''}, ${log.userLocation.region || ''}, ${log.userLocation.country || ''}`.replace(/^, |, $/g, '') : '—'}</td>
               <td style="font-size: 12px; color: #6b7280;">${log.userLocale || '—'}</td>
             </tr>
           `
             )
-            .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
+            .join("") : '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
         </tbody>
       </table>
     </div>
