@@ -1126,11 +1126,31 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   
   successLogs.forEach((log) => {
     if (log.params) {
-      Object.keys(log.params).forEach((key) => {
+      // Skip include_news and include_conflict, and convert location to country/city
+      const keysToTrack = Object.keys(log.params).filter(
+        (key) => key !== 'include_news' && key !== 'include_conflict' && key !== 'location'
+      );
+      
+      keysToTrack.forEach((key) => {
         if (log.params[key] !== undefined) {
           paramUsage[key] = (paramUsage[key] || 0) + 1;
         }
       });
+      
+      // Handle 'location' param - classify as country or city
+      if (log.params.location && !log.params.country && !log.params.city) {
+        const loc = log.params.location.toLowerCase().trim();
+        // Check if it's a known city (contains comma like "Paris, France" or is multi-word)
+        const isLikelyCity = loc.includes(',') || /\s/.test(loc);
+        if (isLikelyCity) {
+          paramUsage['city'] = (paramUsage['city'] || 0) + 1;
+          cityDist[log.params.location] = (cityDist[log.params.location] || 0) + 1;
+        } else {
+          paramUsage['country'] = (paramUsage['country'] || 0) + 1;
+          countryDist[log.params.location] = (countryDist[log.params.location] || 0) + 1;
+        }
+      }
+      
       // Track country distribution
       if (log.params.country) {
         const country = log.params.country;
