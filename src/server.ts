@@ -125,24 +125,43 @@ function logAnalytics(event: string, data: Record<string, any> = {}) {
   fs.appendFileSync(logFile, logLine + "\n");
 }
 
-function getRecentLogs(days: number = 7): AnalyticsEvent[] {
+function getRecentLogs(days: number | "all" = 7): AnalyticsEvent[] {
   const logs: AnalyticsEvent[] = [];
   const now = new Date();
 
-  for (let i = 0; i < days; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split("T")[0];
-    const logFile = path.join(LOGS_DIR, `${dateStr}.log`);
-
-    if (fs.existsSync(logFile)) {
-      const content = fs.readFileSync(logFile, "utf8");
-      const lines = content.trim().split("\n");
-      lines.forEach((line) => {
+  if (days === "all") {
+    // Get all log files from the logs directory
+    try {
+      const files = fs.readdirSync(LOGS_DIR).filter(f => f.endsWith(".log") && /^\d{4}-\d{2}-\d{2}\.log$/.test(f));
+      files.forEach(file => {
+        const logFile = path.join(LOGS_DIR, file);
         try {
-          logs.push(JSON.parse(line));
-        } catch (e) {}
+          const content = fs.readFileSync(logFile, "utf8");
+          const lines = content.trim().split("\n");
+          lines.forEach((line) => {
+            try {
+              logs.push(JSON.parse(line));
+            } catch (e) { }
+          });
+        } catch (e) { }
       });
+    } catch (e) { }
+  } else {
+    for (let i = 0; i < days; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split("T")[0];
+      const logFile = path.join(LOGS_DIR, `${dateStr}.log`);
+
+      if (fs.existsSync(logFile)) {
+        const content = fs.readFileSync(logFile, "utf8");
+        const lines = content.trim().split("\n");
+        lines.forEach((line) => {
+          try {
+            logs.push(JSON.parse(line));
+          } catch (e) { }
+        });
+      }
     }
   }
 
@@ -166,13 +185,13 @@ function computeSummary(args: any) {
   const location = args.location || args.city || args.country || "Not specified";
   const country = args.country || "";
   const city = args.city || "";
-  
+
   // Determine query type
   let queryType = "general";
   if (city && country) queryType = "city";
   else if (city) queryType = "city";
   else if (country) queryType = "country";
-  
+
   return {
     location,
     country,
@@ -466,25 +485,25 @@ function createTravelSafetyServer(): Server {
   // Request deduplication to prevent duplicate logging from ChatGPT retries
   const recentRequests = new Map<string, number>();
   const DEDUP_WINDOW_MS = 5000; // 5 second window
-  
+
   server.setRequestHandler(
     CallToolRequestSchema,
     async (request: CallToolRequest) => {
       const startTime = Date.now();
       let userAgentString: string | null = null;
       let deviceCategory = "Unknown";
-      
+
       // Create a dedup key from request params
       const dedupKey = JSON.stringify({
         tool: request.params.name,
         args: request.params.arguments,
       });
-      
+
       // Check for duplicate request within window
       const lastRequestTime = recentRequests.get(dedupKey);
       const isDuplicate = lastRequestTime && (startTime - lastRequestTime) < DEDUP_WINDOW_MS;
       recentRequests.set(dedupKey, startTime);
-      
+
       // Clean old entries periodically
       if (recentRequests.size > 100) {
         const cutoff = startTime - DEDUP_WINDOW_MS;
@@ -492,13 +511,13 @@ function createTravelSafetyServer(): Server {
           if (time < cutoff) recentRequests.delete(key);
         }
       }
-      
+
       // Log the full request to debug _meta location
       console.log("Full request object:", JSON.stringify(request, null, 2));
       if (isDuplicate) {
         console.log("[MCP] Duplicate request detected, skipping analytics logging");
       }
-      
+
       try {
         const widget = widgetsById.get(request.params.name);
 
@@ -532,7 +551,7 @@ function createTravelSafetyServer(): Server {
         const userSession = meta["openai/session"]; // Session info
         userAgentString = typeof userAgent === "string" ? userAgent : null;
         deviceCategory = classifyDevice(userAgentString);
-        
+
         // Debug log - include subject to see what users are asking
         console.log("Captured meta:", { userLocation, userLocale, userAgent, userSubject, userSession });
         console.log("Full _meta object:", JSON.stringify(meta, null, 2));
@@ -557,7 +576,7 @@ function createTravelSafetyServer(): Server {
               /(?:is|how)\s+([A-Za-z\s,]+?)\s+(?:safe|dangerous|risky)/i,
               /(?:travel\s+)?(?:advisory|warning)\s+(?:for|in)\s+([A-Za-z\s,]+?)(?:\?|\.|,|\s*$)/i,
             ];
-            
+
             for (const pattern of locationPatterns) {
               const match = userText.match(pattern);
               if (match) {
@@ -602,11 +621,11 @@ function createTravelSafetyServer(): Server {
             device: deviceCategory,
             userLocation: userLocation
               ? {
-                  city: userLocation.city,
-                  region: userLocation.region,
-                  country: userLocation.country,
-                  timezone: userLocation.timezone,
-                }
+                city: userLocation.city,
+                region: userLocation.region,
+                country: userLocation.country,
+                timezone: userLocation.timezone,
+              }
               : null,
             userLocale,
             userAgent,
@@ -655,13 +674,13 @@ function createTravelSafetyServer(): Server {
         try {
           const hasMainInputs = args.location || args.country || args.city;
           if (!hasMainInputs) {
-             logAnalytics("tool_call_empty", {
-               toolName: request.params.name,
-               params: request.params.arguments || {},
-               reason: "No location provided"
-             });
+            logAnalytics("tool_call_empty", {
+              toolName: request.params.name,
+              params: request.params.arguments || {},
+              reason: "No location provided"
+            });
           }
-        } catch {}
+        } catch { }
 
         return {
           content: [],
@@ -711,6 +730,95 @@ type LocationSentiment = {
 };
 
 type SentimentData = Record<string, LocationSentiment>;
+
+// ============ LOCATION NORMALIZATION & FUZZY MATCHING ============
+
+/**
+ * Normalize location names by removing diacritics (accents, macrons, tildes, etc.)
+ * Examples: "Medellīn" → "medellin", "São Paulo" → "sao paulo", "Cancún" → "cancun"
+ */
+function normalizeLocationName(name: string): string {
+  return name
+    .normalize("NFD") // Decompose characters (e.g., "ī" → "i" + combining macron)
+    .replace(/[\u0300-\u036f]/g, "") // Remove combining diacritical marks
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Calculate Levenshtein distance between two strings (edit distance)
+ */
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = [];
+
+  // Initialize first column
+  for (let i = 0; i <= a.length; i++) {
+    matrix[i] = [i];
+  }
+
+  // Initialize first row
+  for (let j = 0; j <= b.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill in the rest of the matrix
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,      // deletion
+        matrix[i][j - 1] + 1,      // insertion
+        matrix[i - 1][j - 1] + cost // substitution
+      );
+    }
+  }
+
+  return matrix[a.length][b.length];
+}
+
+// Pre-compute normalized keys for CITY_SAFETY_SCORES for fast lookup
+let normalizedCityKeys: Map<string, string> | null = null;
+
+/**
+ * Find the best matching city key in CITY_SAFETY_SCORES
+ * Returns the original key (for use with the scores map) or null if no good match
+ */
+function findBestCityMatch(input: string, cityScores: Record<string, number>): string | null {
+  const normalizedInput = normalizeLocationName(input);
+
+  // Build normalized key map on first call
+  if (!normalizedCityKeys) {
+    normalizedCityKeys = new Map();
+    for (const key of Object.keys(cityScores)) {
+      normalizedCityKeys.set(normalizeLocationName(key), key);
+    }
+  }
+
+  // 1. Try exact match on normalized name
+  if (normalizedCityKeys.has(normalizedInput)) {
+    return normalizedCityKeys.get(normalizedInput)!;
+  }
+
+  // 2. Try fuzzy match with Levenshtein distance (max 2 edits for short names, 3 for longer)
+  let bestMatch: string | null = null;
+  let bestDistance = Infinity;
+  const maxDistance = normalizedInput.length <= 5 ? 1 : normalizedInput.length <= 8 ? 2 : 3;
+
+  for (const [normalizedKey, originalKey] of normalizedCityKeys.entries()) {
+    // Skip if length difference is too large (optimization)
+    if (Math.abs(normalizedKey.length - normalizedInput.length) > maxDistance) continue;
+
+    const distance = levenshteinDistance(normalizedInput, normalizedKey);
+    if (distance < bestDistance && distance <= maxDistance) {
+      bestDistance = distance;
+      bestMatch = originalKey;
+    }
+  }
+
+  return bestMatch;
+}
+
+// ============ END NORMALIZATION UTILITIES ============
 
 // City safety scores for seeding (approximate scores based on advisory levels)
 const CITY_SAFETY_SCORES: Record<string, number> = {
@@ -777,25 +885,25 @@ const CITY_SAFETY_SCORES: Record<string, number> = {
 
 function generateSeedData(): SentimentData {
   const data: SentimentData = {};
-  
+
   for (const [city, score] of Object.entries(CITY_SAFETY_SCORES)) {
     // Random total votes between 500 and 1000
     const totalVotes = Math.floor(Math.random() * 501) + 500;
-    
+
     // Safe percentage should roughly match the safety score
     // Add some variance (+/- 5%)
     const variance = (Math.random() * 10 - 5);
     const safePercent = Math.max(5, Math.min(95, score + variance));
-    
+
     const safeVotes = Math.round(totalVotes * (safePercent / 100));
     const unsafeVotes = totalVotes - safeVotes;
-    
+
     data[city] = {
       seeded: { safe: safeVotes, unsafe: unsafeVotes },
       real: { safe: 0, unsafe: 0 },
     };
   }
-  
+
   return data;
 }
 
@@ -832,7 +940,7 @@ function loadSentiment(): SentimentData {
   } catch (e) {
     console.error("Failed to load sentiment data:", e);
   }
-  
+
   // No file exists - generate seed data
   console.log("[Sentiment] Generating initial seed data for all cities");
   const seedData = generateSeedData();
@@ -853,11 +961,30 @@ function saveSentiment(data: SentimentData): void {
   }
 }
 
-function getSentiment(location: string): { safe: number; unsafe: number; seededSafe: number; seededUnsafe: number; realSafe: number; realUnsafe: number } {
+function getSentiment(location: string): { safe: number; unsafe: number; seededSafe: number; seededUnsafe: number; realSafe: number; realUnsafe: number; matchedCity?: string } {
   const data = loadSentiment();
-  const key = location.toLowerCase().trim();
-  const loc = data[key] || { seeded: { safe: 0, unsafe: 0 }, real: { safe: 0, unsafe: 0 } };
-  
+  const normalizedKey = normalizeLocationName(location);
+
+  // Try exact normalized match first
+  let loc = data[normalizedKey];
+  let matchedCity: string | undefined = normalizedKey;
+
+  // If no match, try fuzzy matching against known cities
+  if (!loc) {
+    const bestMatch = findBestCityMatch(location, CITY_SAFETY_SCORES);
+    if (bestMatch) {
+      matchedCity = bestMatch;
+      loc = data[bestMatch];
+      console.log(`[Sentiment] Fuzzy matched "${location}" → "${bestMatch}"`);
+    }
+  }
+
+  // Default to empty if still no match
+  if (!loc) {
+    loc = { seeded: { safe: 0, unsafe: 0 }, real: { safe: 0, unsafe: 0 } };
+    matchedCity = undefined;
+  }
+
   // Return combined totals plus breakdown
   return {
     safe: loc.seeded.safe + loc.real.safe,
@@ -866,17 +993,30 @@ function getSentiment(location: string): { safe: number; unsafe: number; seededS
     seededUnsafe: loc.seeded.unsafe,
     realSafe: loc.real.safe,
     realUnsafe: loc.real.unsafe,
+    matchedCity,
   };
 }
 
-function voteSentiment(location: string, isSafe: boolean): { safe: number; unsafe: number } {
+function voteSentiment(location: string, isSafe: boolean): { safe: number; unsafe: number; matchedCity?: string } {
   const data = loadSentiment();
-  const key = location.toLowerCase().trim();
+  const normalizedKey = normalizeLocationName(location);
+
+  // Try to find existing key via fuzzy match
+  let key = normalizedKey;
+  if (!data[key]) {
+    const bestMatch = findBestCityMatch(location, CITY_SAFETY_SCORES);
+    if (bestMatch) {
+      key = bestMatch;
+      console.log(`[Sentiment] Fuzzy matched vote for "${location}" → "${bestMatch}"`);
+    }
+  }
+
   if (!data[key]) {
     // Check if we have seed data for this city
     const seedData = generateSeedData();
     data[key] = seedData[key] || { seeded: { safe: 0, unsafe: 0 }, real: { safe: 0, unsafe: 0 } };
   }
+
   // Real votes go to the 'real' bucket
   if (isSafe) {
     data[key].real.safe++;
@@ -884,11 +1024,12 @@ function voteSentiment(location: string, isSafe: boolean): { safe: number; unsaf
     data[key].real.unsafe++;
   }
   saveSentiment(data);
-  
+
   // Return combined totals
   return {
     safe: data[key].seeded.safe + data[key].real.safe,
     unsafe: data[key].seeded.unsafe + data[key].real.unsafe,
+    matchedCity: key !== normalizedKey ? key : undefined,
   };
 }
 
@@ -994,17 +1135,17 @@ function humanizeEventName(event: string): string {
 function formatEventDetails(log: AnalyticsEvent): string {
   const excludeKeys = ["timestamp", "event"];
   const details: Record<string, any> = {};
-  
+
   Object.keys(log).forEach((key) => {
     if (!excludeKeys.includes(key)) {
       details[key] = log[key];
     }
   });
-  
+
   if (Object.keys(details).length === 0) {
     return "—";
   }
-  
+
   return JSON.stringify(details, null, 0);
 }
 
@@ -1108,7 +1249,7 @@ function evaluateAlerts(logs: AnalyticsEvent[]): AlertEntry[] {
   return alerts;
 }
 
-function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]): string {
+function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[], timeRange: number | "all" = 7): string {
   const errorLogs = logs.filter((l) => l.event.includes("error"));
   const successLogs = logs.filter((l) => l.event === "tool_call_success");
   const parseLogs = logs.filter((l) => l.event === "parameter_parse_error");
@@ -1117,26 +1258,26 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   const avgResponseTime =
     successLogs.length > 0
       ? (successLogs.reduce((sum, l) => sum + (l.responseTime || 0), 0) /
-          successLogs.length).toFixed(0)
+        successLogs.length).toFixed(0)
       : "N/A";
 
   const paramUsage: Record<string, number> = {};
   const countryDist: Record<string, number> = {};
   const cityDist: Record<string, number> = {};
-  
+
   successLogs.forEach((log) => {
     if (log.params) {
       // Skip include_news and include_conflict, and convert location to country/city
       const keysToTrack = Object.keys(log.params).filter(
         (key) => key !== 'include_news' && key !== 'include_conflict' && key !== 'location'
       );
-      
+
       keysToTrack.forEach((key) => {
         if (log.params[key] !== undefined) {
           paramUsage[key] = (paramUsage[key] || 0) + 1;
         }
       });
-      
+
       // Handle 'location' param - classify as country or city
       if (log.params.location && !log.params.country && !log.params.city) {
         const loc = log.params.location.toLowerCase().trim();
@@ -1150,7 +1291,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           countryDist[log.params.location] = (countryDist[log.params.location] || 0) + 1;
         }
       }
-      
+
       // Track country distribution
       if (log.params.country) {
         const country = log.params.country;
@@ -1163,7 +1304,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       }
     }
   });
-  
+
   const widgetInteractions: Record<string, number> = {};
   widgetEvents.forEach((log) => {
     const humanName = humanizeEventName(log.event);
@@ -1183,11 +1324,11 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     ? Math.round(sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length)
     : 0;
   const totalSessionTime = sessionDurations.reduce((a, b) => a + b, 0);
-  
+
   // Unique sessions (by sessionId for widget events, or count MCP calls as unique sessions)
   const widgetSessions = new Set(widgetAppOpenEvents.map((l) => l.sessionId).filter(Boolean)).size;
   const uniqueSessions = widgetSessions + mcpToolCalls.length; // Each MCP call is a unique session
-  
+
   // Location distribution (top searched locations)
   const locationDist: Record<string, number> = {};
   successLogs.forEach((log) => {
@@ -1225,17 +1366,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   });
 
   widgetEvents.forEach(log => {
-      if (isSearchEvent(log.event)) actionCounts["Search Location"]++;
-      if (log.event === "widget_notify_me_subscribe") actionCounts["Subscribe"]++;
-      if (isVoteEvent(log.event)) actionCounts["Safety Vote"]++;
-      
-      // Track button clicks
-      if (isButtonClick(log.event) && log.button) {
-        const btn = log.button.charAt(0).toUpperCase() + log.button.slice(1);
-        if (buttonClicks[btn] !== undefined) {
-          buttonClicks[btn]++;
-        }
+    if (isSearchEvent(log.event)) actionCounts["Search Location"]++;
+    if (log.event === "widget_notify_me_subscribe") actionCounts["Subscribe"]++;
+    if (isVoteEvent(log.event)) actionCounts["Safety Vote"]++;
+
+    // Track button clicks
+    if (isButtonClick(log.event) && log.button) {
+      const btn = log.button.charAt(0).toUpperCase() + log.button.slice(1);
+      if (buttonClicks[btn] !== undefined) {
+        buttonClicks[btn]++;
       }
+    }
   });
 
   // Internal widget search distribution (from server-side tracking of API proxy calls)
@@ -1276,6 +1417,8 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     safetyVotes[loc].unsafe += votes.unsafe;
   });
 
+  const timeRangeLabel = timeRange === "all" ? "All Time" : `Last ${timeRange} days`;
+  
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -1287,7 +1430,25 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
     .container { max-width: 1200px; margin: 0 auto; }
     h1 { color: #1a1a1a; margin-bottom: 10px; }
-    .subtitle { color: #666; margin-bottom: 30px; }
+    .subtitle { color: #666; margin-bottom: 10px; }
+    .time-range-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .time-range-tabs a { 
+      padding: 8px 16px; 
+      border-radius: 6px; 
+      text-decoration: none; 
+      font-size: 14px; 
+      font-weight: 500;
+      background: white; 
+      color: #374151; 
+      border: 1px solid #e5e5e5;
+      transition: all 0.2s;
+    }
+    .time-range-tabs a:hover { background: #f3f4f6; }
+    .time-range-tabs a.active { 
+      background: #1a1a1a; 
+      color: white; 
+      border-color: #1a1a1a;
+    }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .card h2 { font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 10px; }
@@ -1309,21 +1470,26 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 <body>
   <div class="container">
     <h1>📊 Is It Safe Analytics</h1>
-    <p class="subtitle">Last 7 days • Auto-refresh every 60s</p>
+    <p class="subtitle">${timeRangeLabel}</p>
+    
+    <div class="time-range-tabs">
+      <a href="?range=7" class="${timeRange === 7 ? 'active' : ''}">7 Days</a>
+      <a href="?range=30" class="${timeRange === 30 ? 'active' : ''}">30 Days</a>
+      <a href="?range=all" class="${timeRange === 'all' ? 'active' : ''}">All Time</a>
+    </div>
     
     <div class="grid">
       <div class="card ${alerts.length ? "warning" : ""}">
         <h2>Alerts</h2>
-        ${
-          alerts.length
-            ? `<ul style="padding-left:16px;margin:0;">${alerts
-                .map(
-                  (a) =>
-                    `<li><strong>${a.level.toUpperCase()}</strong> — ${a.message}</li>`
-                )
-                .join("")}</ul>`
-            : '<p style="color:#16a34a;">No active alerts</p>'
-        }
+        ${alerts.length
+      ? `<ul style="padding-left:16px;margin:0;">${alerts
+        .map(
+          (a) =>
+            `<li><strong>${a.level.toUpperCase()}</strong> — ${a.message}</li>`
+        )
+        .join("")}</ul>`
+      : '<p style="color:#16a34a;">No active alerts</p>'
+    }
       </div>
       <div class="card success">
         <h2>Total Calls</h2>
@@ -1404,17 +1570,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
         <thead><tr><th>Parameter</th><th>Times Used</th><th>Usage %</th></tr></thead>
         <tbody>
           ${Object.entries(paramUsage)
-            .sort((a, b) => b[1] - a[1])
-            .map(
-              ([param, count]) => `
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([param, count]) => `
             <tr>
               <td><code>${param}</code></td>
               <td>${count}</td>
               <td>${((count / successLogs.length) * 100).toFixed(1)}%</td>
             </tr>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </tbody>
       </table>
     </div>
@@ -1426,16 +1592,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>Action</th><th>Count</th></tr></thead>
           <tbody>
             ${Object.entries(actionCounts)
-              .sort((a, b) => b[1] - a[1])
-              .map(
-                ([action, count]) => `
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([action, count]) => `
               <tr>
                 <td>${action}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -1449,16 +1615,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>Action</th><th>Count</th></tr></thead>
           <tbody>
             ${Object.entries(widgetInteractions).length > 0 ? Object.entries(widgetInteractions)
-              .sort((a, b) => b[1] - a[1])
-              .map(
-                ([action, count]) => `
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([action, count]) => `
               <tr>
                 <td>${action}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1469,16 +1635,16 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>Button</th><th>Clicks</th></tr></thead>
           <tbody>
             ${Object.entries(buttonClicks).length > 0 ? Object.entries(buttonClicks)
-              .sort((a, b) => b[1] - a[1])
-              .map(
-                ([button, count]) => `
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([button, count]) => `
               <tr>
                 <td>${button}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No clicks yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No clicks yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1490,13 +1656,13 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
         <thead><tr><th>Location</th><th>Safe 👍</th><th>Unsafe 👎</th><th>Total</th><th>Safe %</th></tr></thead>
         <tbody>
           ${Object.entries(safetyVotes).length > 0 ? Object.entries(safetyVotes)
-            .sort((a, b) => (b[1].safe + b[1].unsafe) - (a[1].safe + a[1].unsafe))
-            .slice(0, 15)
-            .map(
-              ([loc, votes]) => {
-                const total = votes.safe + votes.unsafe;
-                const safePercent = total > 0 ? Math.round((votes.safe / total) * 100) : 0;
-                return `
+      .sort((a, b) => (b[1].safe + b[1].unsafe) - (a[1].safe + a[1].unsafe))
+      .slice(0, 15)
+      .map(
+        ([loc, votes]) => {
+          const total = votes.safe + votes.unsafe;
+          const safePercent = total > 0 ? Math.round((votes.safe / total) * 100) : 0;
+          return `
               <tr>
                 <td>${loc}</td>
                 <td style="color: #16a34a; font-weight: 600;">${votes.safe}</td>
@@ -1505,9 +1671,9 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
                 <td style="font-weight: 600; color: ${safePercent >= 50 ? '#16a34a' : '#dc2626'};">${safePercent}%</td>
               </tr>
             `;
-              }
-            )
-            .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No votes yet</td></tr>'}
+        }
+      )
+      .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No votes yet</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -1519,17 +1685,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>Country</th><th>Searches</th></tr></thead>
           <tbody>
             ${Object.entries(countryDist).length > 0 ? Object.entries(countryDist)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([country, count]) => `
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
+      .slice(0, 10)
+      .map(
+        ([country, count]) => `
               <tr>
                 <td>${country}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1540,17 +1706,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>City</th><th>Searches</th></tr></thead>
           <tbody>
             ${Object.entries(cityDist).length > 0 ? Object.entries(cityDist)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([city, count]) => `
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
+      .slice(0, 10)
+      .map(
+        ([city, count]) => `
               <tr>
                 <td>${city}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1563,17 +1729,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>Country</th><th>Searches</th></tr></thead>
           <tbody>
             ${Object.entries(internalSearchCountries).length > 0 ? Object.entries(internalSearchCountries)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([country, count]) => `
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
+      .slice(0, 10)
+      .map(
+        ([country, count]) => `
               <tr>
                 <td>${country}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1584,17 +1750,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           <thead><tr><th>Location</th><th>Searches</th></tr></thead>
           <tbody>
             ${Object.entries(internalSearchLocations).length > 0 ? Object.entries(internalSearchLocations)
-              .sort((a, b) => (b[1] as number) - (a[1] as number))
-              .slice(0, 10)
-              .map(
-                ([loc, count]) => `
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
+      .slice(0, 10)
+      .map(
+        ([loc, count]) => `
               <tr>
                 <td>${loc}</td>
                 <td>${count}</td>
               </tr>
             `
-              )
-              .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1606,9 +1772,9 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
         <thead><tr><th>Date</th><th>Query</th><th>User Location</th><th>Locale</th></tr></thead>
         <tbody>
           ${successLogs.length > 0 ? successLogs
-            .slice(0, 30)
-            .map(
-              (log) => `
+      .slice(0, 30)
+      .map(
+        (log) => `
             <tr>
               <td class="timestamp" style="white-space: nowrap;">${new Date(log.timestamp).toLocaleString()}</td>
               <td style="max-width: 300px;">${log.inferredQuery || "general search"}</td>
@@ -1616,8 +1782,8 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
               <td style="font-size: 12px; color: #6b7280;">${log.userLocale || '—'}</td>
             </tr>
           `
-            )
-            .join("") : '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -1628,17 +1794,17 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
         <thead><tr><th>Date</th><th>Feedback</th></tr></thead>
         <tbody>
           ${logs.filter(l => l.event === "widget_user_feedback").length > 0 ? logs
-            .filter(l => l.event === "widget_user_feedback")
-            .slice(0, 20)
-            .map(
-              (log) => `
+      .filter(l => l.event === "widget_user_feedback")
+      .slice(0, 20)
+      .map(
+        (log) => `
             <tr>
               <td class="timestamp" style="white-space: nowrap;">${new Date(log.timestamp).toLocaleString()}</td>
               <td style="max-width: 600px;">${log.feedback || "—"}</td>
             </tr>
           `
-            )
-            .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No feedback yet</td></tr>'}
+      )
+      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No feedback yet</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -1649,22 +1815,21 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
         <thead><tr><th>Time</th><th>Event</th><th>Details</th></tr></thead>
         <tbody>
           ${logs
-            .slice(0, 50)
-            .map(
-              (log) => `
+      .slice(0, 50)
+      .map(
+        (log) => `
             <tr class="${log.event.includes("error") ? "error-row" : ""}">
               <td class="timestamp">${new Date(log.timestamp).toLocaleString()}</td>
               <td><strong>${humanizeEventName(log.event)}</strong></td>
               <td style="font-size: 12px; max-width: 600px; overflow: hidden; text-overflow: ellipsis;">${formatEventDetails(log)}</td>
             </tr>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </tbody>
       </table>
     </div>
   </div>
-  <script>setTimeout(() => location.reload(), 60000);</script>
 </body>
 </html>`;
 }
@@ -1680,12 +1845,17 @@ async function handleAnalytics(req: IncomingMessage, res: ServerResponse) {
   }
 
   try {
-    const logs = getRecentLogs(7);
+    // Parse time range from query parameter
+    const url = new URL(req.url || "/", `http://${req.headers.host}`);
+    const rangeParam = url.searchParams.get("range") || "7";
+    const timeRange: number | "all" = rangeParam === "all" ? "all" : parseInt(rangeParam, 10) || 7;
+    
+    const logs = getRecentLogs(timeRange);
     const alerts = evaluateAlerts(logs);
     alerts.forEach((alert) =>
       console.warn("[ALERT]", alert.id, alert.message)
     );
-    const html = generateAnalyticsDashboard(logs, alerts);
+    const html = generateAnalyticsDashboard(logs, alerts, timeRange);
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(html);
   } catch (error) {
@@ -2027,7 +2197,7 @@ async function handleTrackEvent(req: IncomingMessage, res: ServerResponse) {
 // Buttondown API integration
 async function subscribeToButtondown(email: string, topicId: string, topicName: string) {
   const BUTTONDOWN_API_KEY = process.env.BUTTONDOWN_API_KEY;
-  
+
   console.log("[Buttondown] subscribeToButtondown called", { email, topicId, topicName });
   console.log("[Buttondown] API key present:", !!BUTTONDOWN_API_KEY, "length:", BUTTONDOWN_API_KEY?.length ?? 0);
 
@@ -2063,7 +2233,7 @@ async function subscribeToButtondown(email: string, topicId: string, topicName: 
   if (!response.ok) {
     const errorText = await response.text();
     let errorMessage = "Failed to subscribe";
-    
+
     try {
       const errorData = JSON.parse(errorText);
       if (errorData.detail) {
@@ -2074,7 +2244,7 @@ async function subscribeToButtondown(email: string, topicId: string, topicName: 
     } catch {
       errorMessage = errorText;
     }
-    
+
     throw new Error(errorMessage);
   }
 
@@ -2084,7 +2254,7 @@ async function subscribeToButtondown(email: string, topicId: string, topicName: 
 // Update existing subscriber with new topic
 async function updateButtondownSubscriber(email: string, topicId: string, topicName: string) {
   const BUTTONDOWN_API_KEY = process.env.BUTTONDOWN_API_KEY;
-  
+
   if (!BUTTONDOWN_API_KEY) {
     throw new Error("BUTTONDOWN_API_KEY not set in environment variables");
   }
@@ -2123,7 +2293,7 @@ async function updateButtondownSubscriber(email: string, topicId: string, topicN
     name: topicName,
     subscribedAt: new Date().toISOString(),
   });
-  
+
   const updatedMetadata = {
     ...existingMetadata,
     [topicKey]: topicData,
@@ -2202,9 +2372,9 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
         topicId,
         topicName,
       });
-      res.writeHead(200).end(JSON.stringify({ 
-        success: true, 
-        message: "Successfully subscribed! You'll receive travel safety updates and alerts." 
+      res.writeHead(200).end(JSON.stringify({
+        success: true,
+        message: "Successfully subscribed! You'll receive travel safety updates and alerts."
       }));
     } catch (subscribeError: any) {
       const rawMessage = String(subscribeError?.message ?? "").trim();
@@ -2221,9 +2391,9 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
             topicName,
             updated: true,
           });
-          res.writeHead(200).end(JSON.stringify({ 
-            success: true, 
-            message: "You're now subscribed to this topic!" 
+          res.writeHead(200).end(JSON.stringify({
+            success: true,
+            message: "You're now subscribed to this topic!"
           }));
         } catch (updateError: any) {
           console.warn("Update subscriber failed, returning graceful success", {
@@ -2260,8 +2430,8 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
       email: undefined,
       error: error.message || "unknown_error",
     });
-    res.writeHead(500).end(JSON.stringify({ 
-      error: error.message || "Failed to subscribe. Please try again." 
+    res.writeHead(500).end(JSON.stringify({
+      error: error.message || "Failed to subscribe. Please try again."
     }));
   }
 }
@@ -2450,7 +2620,7 @@ const httpServer = createServer(
           ".svg": "image/svg+xml"
         };
         const contentType = contentTypeMap[ext] || "application/octet-stream";
-        res.writeHead(200, { 
+        res.writeHead(200, {
           "Content-Type": contentType,
           "Access-Control-Allow-Origin": "*",
           "Cache-Control": "no-cache"
@@ -2476,7 +2646,7 @@ function startMonitoring() {
     try {
       const logs = getRecentLogs(7);
       const alerts = evaluateAlerts(logs);
-      
+
       if (alerts.length > 0) {
         console.log("\n=== 🚨 ACTIVE ALERTS 🚨 ===");
         alerts.forEach(alert => {
