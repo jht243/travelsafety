@@ -3932,6 +3932,48 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     return query;
   };
 
+  // Background enrichment: fire live API calls after initial render, update result if better data arrives
+  const enrichResultInBackground = (
+    searchTerm: string,
+    countryName: string,
+    locationQuery: string,
+    isCity: boolean,
+    currentResult: { acledData?: ACLEDData; gdeltData?: GDELTData; ukAdvisory?: UKTravelAdvice },
+  ) => {
+    const promises: Promise<void>[] = [];
+
+    if (!currentResult.acledData) {
+      promises.push(
+        fetchACLEDData(countryName).then((acled) => {
+          if (acled) {
+            setSearchResult((prev) => prev ? { ...prev, acledData: acled } : prev);
+          }
+        }).catch(() => {})
+      );
+    }
+
+    if (!currentResult.gdeltData) {
+      promises.push(
+        fetchGDELTData(locationQuery).then((gdelt) => {
+          if (gdelt) {
+            setSearchResult((prev) => prev ? { ...prev, gdeltData: gdelt } : prev);
+          }
+        }).catch(() => {})
+      );
+    }
+
+    if (!currentResult.ukAdvisory) {
+      promises.push(
+        fetchUKAdvice(searchTerm).then((uk) => {
+          if (uk) {
+            setUkAdvisories((prev) => ({ ...prev, [searchTerm]: uk }));
+            setSearchResult((prev) => prev ? { ...prev, ukAdvisory: uk } : prev);
+          }
+        }).catch(() => {})
+      );
+    }
+  };
+
   const searchFor = async (rawQuery: string) => {
     if (!rawQuery.trim()) return;
 
@@ -3944,12 +3986,10 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     if (query.includes(',')) {
       const parts = query.split(',').map(p => p.trim());
       const cityPart = parts[0];
-      // Try the city part first with aliases
       const aliasedCity = CITY_ALIASES[cityPart] || cityPart;
       if (CITY_TO_COUNTRY[aliasedCity] || CITY_COORDINATES[aliasedCity]) {
         query = cityPart;
       } else if (parts.length > 1) {
-        // Try the country part (in case format is "Country, Region")
         const countryPart = parts[1];
         if (advisories[countryPart] || FALLBACK_ADVISORIES[countryPart]) {
           query = countryPart;
@@ -3969,57 +4009,51 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       city: isCity ? normalizedQuery : undefined,
     });
     
+    // --- PHASE 1: Instant render from cached/fallback data (no awaits) ---
+    
     // Check if it's a city
     const countryFromCity = CITY_TO_COUNTRY[normalizedQuery];
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
       const advisory = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
-      let ukAdvisory = ukAdvisories[countryKey];
-      if (!ukAdvisory) {
-        const fetchedUk = await fetchUKAdvice(countryKey);
-        if (fetchedUk) {
-          ukAdvisory = fetchedUk;
-          setUkAdvisories((prev) => ({ ...prev, [countryKey]: fetchedUk }));
-        }
-      }
-      // Use city-specific ACLED and GDELT data if available, otherwise fall back to country
+      const ukAdvisory = ukAdvisories[countryKey] || FALLBACK_UK_ADVISORIES[countryKey] || undefined;
       const cityInfo = CITY_COORDINATES[normalizedQuery];
       const locationQuery = cityInfo ? `${cityInfo.name}, ${countryFromCity}` : `${normalizedQuery}, ${countryFromCity}`;
 
       const acled =
-        acledData[normalizedQuery] ||
-        acledData[countryKey] ||
-        FALLBACK_ACLED_DATA[normalizedQuery] ||
-        FALLBACK_ACLED_DATA[countryKey] ||
-        (await fetchACLEDData(countryFromCity)) ||
+        acledData[normalizedQuery] || acledData[countryKey] ||
+        FALLBACK_ACLED_DATA[normalizedQuery] || FALLBACK_ACLED_DATA[countryKey] ||
         undefined;
 
       const gdelt =
-        gdeltData[normalizedQuery] ||
-        gdeltData[countryKey] ||
-        FALLBACK_GDELT_DATA[normalizedQuery] ||
-        FALLBACK_GDELT_DATA[countryKey] ||
-        (await fetchGDELTData(locationQuery)) ||
+        gdeltData[normalizedQuery] || gdeltData[countryKey] ||
+        FALLBACK_GDELT_DATA[normalizedQuery] || FALLBACK_GDELT_DATA[countryKey] ||
         undefined;
 
-
+      // Render immediately with whatever data we have
       setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: normalizedQuery });
       setLoading(false);
+
+      // --- PHASE 2: Background enrichment for missing data ---
+      enrichResultInBackground(countryKey, countryFromCity, locationQuery, true, { acledData: acled, gdeltData: gdelt, ukAdvisory });
       return;
     }
     
-    // Check if it's a country (live advisories, then fallback, then placeholder)
+    // Check if it's a country
     const advisory = advisories[normalizedQuery] || FALLBACK_ADVISORIES[normalizedQuery];
     if (advisory) {
-      const ukAdvisory = ukAdvisories[normalizedQuery];
-      const acled = acledData[normalizedQuery] || FALLBACK_ACLED_DATA[normalizedQuery] || (await fetchACLEDData(advisory.country)) || undefined;
-      const gdelt = gdeltData[normalizedQuery] || FALLBACK_GDELT_DATA[normalizedQuery] || (await fetchGDELTData(advisory.country)) || undefined;
+      const ukAdvisory = ukAdvisories[normalizedQuery] || FALLBACK_UK_ADVISORIES[normalizedQuery] || undefined;
+      const acled = acledData[normalizedQuery] || FALLBACK_ACLED_DATA[normalizedQuery] || undefined;
+      const gdelt = gdeltData[normalizedQuery] || FALLBACK_GDELT_DATA[normalizedQuery] || undefined;
+
       setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: normalizedQuery });
       setLoading(false);
+
+      enrichResultInBackground(normalizedQuery, advisory.country, advisory.country, false, { acledData: acled, gdeltData: gdelt, ukAdvisory });
       return;
     }
     
-    // Fuzzy match - find countries that contain the search term (search both live and fallback)
+    // Fuzzy match (search both live and fallback)
     const allAdvisories = { ...FALLBACK_ADVISORIES, ...advisories };
     const partialMatch = Object.entries(allAdvisories).find(([key, value]) => 
       key.includes(query) || value.country.toLowerCase().includes(query)
@@ -4027,28 +4061,25 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     
     if (partialMatch) {
       const matchKey = partialMatch[0];
-      const ukAdvisory = ukAdvisories[matchKey];
-      const acled = acledData[matchKey] || FALLBACK_ACLED_DATA[matchKey] || (await fetchACLEDData(partialMatch[1].country)) || undefined;
-      const gdelt = gdeltData[matchKey] || FALLBACK_GDELT_DATA[matchKey] || (await fetchGDELTData(partialMatch[1].country)) || undefined;
+      const ukAdvisory = ukAdvisories[matchKey] || FALLBACK_UK_ADVISORIES[matchKey] || undefined;
+      const acled = acledData[matchKey] || FALLBACK_ACLED_DATA[matchKey] || undefined;
+      const gdelt = gdeltData[matchKey] || FALLBACK_GDELT_DATA[matchKey] || undefined;
+
       setSearchResult({ advisory: partialMatch[1], ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
       setLoading(false);
+
+      enrichResultInBackground(matchKey, partialMatch[1].country, partialMatch[1].country, false, { acledData: acled, gdeltData: gdelt, ukAdvisory });
       return;
     }
     
-    // Last resort: if query looks like a country name (capitalized word), create a placeholder
+    // Last resort: create a placeholder and try live APIs in background
     const titleCaseName = query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     const placeholderAdvisory = createPlaceholderAdvisory(normalizedQuery, titleCaseName);
-    const placeholderAcled = (await fetchACLEDData(titleCaseName)) || undefined;
-    const placeholderGdelt = (await fetchGDELTData(titleCaseName)) || undefined;
-    if (placeholderAcled || placeholderGdelt) {
-      setSearchResult({ advisory: placeholderAdvisory, acledData: placeholderAcled, gdeltData: placeholderGdelt, isCity: false, searchTerm: normalizedQuery });
-      setLoading(false);
-      return;
-    }
-    
-    setError(`No travel advisory found for "${rawQuery}". Try searching for a country name like "Colombia" or a major city like "Medellin".`);
-    setSearchResult(null);
+
+    setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery });
     setLoading(false);
+
+    enrichResultInBackground(normalizedQuery, titleCaseName, titleCaseName, false, {});
   };
 
   const handleSearch = () => searchFor(searchQuery);

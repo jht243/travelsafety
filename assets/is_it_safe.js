@@ -28184,6 +28184,40 @@ function TravelSafety({ initialData: initialData2 }) {
     query = query.replace(/^is it safe(?:\s+to)?(?:\s+travel)?(?:\s+to)?\s+/, "").replace(/^is it safe\s+in\s+/, "").replace(/^can i(?:\s+safely)?(?:\s+travel)?(?:\s+to)?\s+/, "").replace(/^should i(?:\s+travel)?(?:\s+to)?\s+/, "").replace(/^how safe is(?:\s+it(?:\s+to)?(?:\s+travel)?(?:\s+to)?)?\s+/, "").replace(/^how safe is\s+/, "").replace(/^travel safety(?:\s+in|\s+for)?\s+/, "").replace(/^safety(?:\s+in|\s+of|\s+for)?\s+/, "").replace(/^travel(?:\s+to|\s+in)\s+/, "").replace(/^visit(?:ing)?\s+/, "").replace(/^go(?:ing)?(?:\s+to)?\s+/, "").replace(/^fly(?:ing)?(?:\s+to)?\s+/, "").replace(/^trip to\s+/, "").replace(/^vacation(?:\s+in|\s+to)?\s+/, "").replace(/^holiday(?:\s+in|\s+to)?\s+/, "").trim();
     return query;
   };
+  const enrichResultInBackground = (searchTerm, countryName, locationQuery, isCity, currentResult) => {
+    const promises = [];
+    if (!currentResult.acledData) {
+      promises.push(
+        fetchACLEDData(countryName).then((acled) => {
+          if (acled) {
+            setSearchResult((prev) => prev ? { ...prev, acledData: acled } : prev);
+          }
+        }).catch(() => {
+        })
+      );
+    }
+    if (!currentResult.gdeltData) {
+      promises.push(
+        fetchGDELTData(locationQuery).then((gdelt) => {
+          if (gdelt) {
+            setSearchResult((prev) => prev ? { ...prev, gdeltData: gdelt } : prev);
+          }
+        }).catch(() => {
+        })
+      );
+    }
+    if (!currentResult.ukAdvisory) {
+      promises.push(
+        fetchUKAdvice(searchTerm).then((uk) => {
+          if (uk) {
+            setUkAdvisories((prev) => ({ ...prev, [searchTerm]: uk }));
+            setSearchResult((prev) => prev ? { ...prev, ukAdvisory: uk } : prev);
+          }
+        }).catch(() => {
+        })
+      );
+    }
+  };
   const searchFor = async (rawQuery) => {
     if (!rawQuery.trim()) return;
     setLoading(true);
@@ -28215,29 +28249,24 @@ function TravelSafety({ initialData: initialData2 }) {
     if (countryFromCity) {
       const countryKey = countryFromCity.toLowerCase();
       const advisory2 = advisories[countryKey] || FALLBACK_ADVISORIES[countryKey] || createPlaceholderAdvisory(countryKey, countryFromCity);
-      let ukAdvisory = ukAdvisories[countryKey];
-      if (!ukAdvisory) {
-        const fetchedUk = await fetchUKAdvice(countryKey);
-        if (fetchedUk) {
-          ukAdvisory = fetchedUk;
-          setUkAdvisories((prev) => ({ ...prev, [countryKey]: fetchedUk }));
-        }
-      }
+      const ukAdvisory = ukAdvisories[countryKey] || FALLBACK_UK_ADVISORIES[countryKey] || void 0;
       const cityInfo = CITY_COORDINATES[normalizedQuery];
       const locationQuery = cityInfo ? `${cityInfo.name}, ${countryFromCity}` : `${normalizedQuery}, ${countryFromCity}`;
-      const acled = acledData[normalizedQuery] || acledData[countryKey] || FALLBACK_ACLED_DATA[normalizedQuery] || FALLBACK_ACLED_DATA[countryKey] || await fetchACLEDData(countryFromCity) || void 0;
-      const gdelt = gdeltData[normalizedQuery] || gdeltData[countryKey] || FALLBACK_GDELT_DATA[normalizedQuery] || FALLBACK_GDELT_DATA[countryKey] || await fetchGDELTData(locationQuery) || void 0;
+      const acled = acledData[normalizedQuery] || acledData[countryKey] || FALLBACK_ACLED_DATA[normalizedQuery] || FALLBACK_ACLED_DATA[countryKey] || void 0;
+      const gdelt = gdeltData[normalizedQuery] || gdeltData[countryKey] || FALLBACK_GDELT_DATA[normalizedQuery] || FALLBACK_GDELT_DATA[countryKey] || void 0;
       setSearchResult({ advisory: advisory2, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: true, searchTerm: normalizedQuery });
       setLoading(false);
+      enrichResultInBackground(countryKey, countryFromCity, locationQuery, true, { acledData: acled, gdeltData: gdelt, ukAdvisory });
       return;
     }
     const advisory = advisories[normalizedQuery] || FALLBACK_ADVISORIES[normalizedQuery];
     if (advisory) {
-      const ukAdvisory = ukAdvisories[normalizedQuery];
-      const acled = acledData[normalizedQuery] || FALLBACK_ACLED_DATA[normalizedQuery] || await fetchACLEDData(advisory.country) || void 0;
-      const gdelt = gdeltData[normalizedQuery] || FALLBACK_GDELT_DATA[normalizedQuery] || await fetchGDELTData(advisory.country) || void 0;
+      const ukAdvisory = ukAdvisories[normalizedQuery] || FALLBACK_UK_ADVISORIES[normalizedQuery] || void 0;
+      const acled = acledData[normalizedQuery] || FALLBACK_ACLED_DATA[normalizedQuery] || void 0;
+      const gdelt = gdeltData[normalizedQuery] || FALLBACK_GDELT_DATA[normalizedQuery] || void 0;
       setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: normalizedQuery });
       setLoading(false);
+      enrichResultInBackground(normalizedQuery, advisory.country, advisory.country, false, { acledData: acled, gdeltData: gdelt, ukAdvisory });
       return;
     }
     const allAdvisories = { ...FALLBACK_ADVISORIES, ...advisories };
@@ -28246,25 +28275,19 @@ function TravelSafety({ initialData: initialData2 }) {
     );
     if (partialMatch) {
       const matchKey = partialMatch[0];
-      const ukAdvisory = ukAdvisories[matchKey];
-      const acled = acledData[matchKey] || FALLBACK_ACLED_DATA[matchKey] || await fetchACLEDData(partialMatch[1].country) || void 0;
-      const gdelt = gdeltData[matchKey] || FALLBACK_GDELT_DATA[matchKey] || await fetchGDELTData(partialMatch[1].country) || void 0;
+      const ukAdvisory = ukAdvisories[matchKey] || FALLBACK_UK_ADVISORIES[matchKey] || void 0;
+      const acled = acledData[matchKey] || FALLBACK_ACLED_DATA[matchKey] || void 0;
+      const gdelt = gdeltData[matchKey] || FALLBACK_GDELT_DATA[matchKey] || void 0;
       setSearchResult({ advisory: partialMatch[1], ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
       setLoading(false);
+      enrichResultInBackground(matchKey, partialMatch[1].country, partialMatch[1].country, false, { acledData: acled, gdeltData: gdelt, ukAdvisory });
       return;
     }
     const titleCaseName = query.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
     const placeholderAdvisory = createPlaceholderAdvisory(normalizedQuery, titleCaseName);
-    const placeholderAcled = await fetchACLEDData(titleCaseName) || void 0;
-    const placeholderGdelt = await fetchGDELTData(titleCaseName) || void 0;
-    if (placeholderAcled || placeholderGdelt) {
-      setSearchResult({ advisory: placeholderAdvisory, acledData: placeholderAcled, gdeltData: placeholderGdelt, isCity: false, searchTerm: normalizedQuery });
-      setLoading(false);
-      return;
-    }
-    setError(`No travel advisory found for "${rawQuery}". Try searching for a country name like "Colombia" or a major city like "Medellin".`);
-    setSearchResult(null);
+    setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery });
     setLoading(false);
+    enrichResultInBackground(normalizedQuery, titleCaseName, titleCaseName, false, {});
   };
   const handleSearch = () => searchFor(searchQuery);
   const geoInsights = (0, import_react3.useMemo)(() => {
