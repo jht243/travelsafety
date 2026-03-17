@@ -1924,6 +1924,549 @@ const FALLBACK_ADVISORIES: AdvisoryData = {
     date_updated: '2024-12-01',
     url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/saint-lucia-travel-advisory.html',
   },
+  // Asia
+  'india': {
+    country: 'India',
+    country_code: 'IN',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime and terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/india-travel-advisory.html',
+  },
+  'china': {
+    country: 'China',
+    country_code: 'CN',
+    advisory_level: 3,
+    advisory_text: 'Reconsider travel due to arbitrary enforcement of local laws and exit bans.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/china-travel-advisory.html',
+  },
+  'south korea': {
+    country: 'South Korea',
+    country_code: 'KR',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/south-korea-travel-advisory.html',
+  },
+  'vietnam': {
+    country: 'Vietnam',
+    country_code: 'VN',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/vietnam-travel-advisory.html',
+  },
+  'philippines': {
+    country: 'Philippines',
+    country_code: 'PH',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime, terrorism, and civil unrest.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/philippines-travel-advisory.html',
+  },
+  'indonesia': {
+    country: 'Indonesia',
+    country_code: 'ID',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism and natural disasters.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/indonesia-travel-advisory.html',
+  },
+  'malaysia': {
+    country: 'Malaysia',
+    country_code: 'MY',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/malaysia-travel-advisory.html',
+  },
+  'singapore': {
+    country: 'Singapore',
+    country_code: 'SG',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/singapore-travel-advisory.html',
+  },
+  'cambodia': {
+    country: 'Cambodia',
+    country_code: 'KH',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/cambodia-travel-advisory.html',
+  },
+  'nepal': {
+    country: 'Nepal',
+    country_code: 'NP',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime and civil unrest.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/nepal-travel-advisory.html',
+  },
+  'sri lanka': {
+    country: 'Sri Lanka',
+    country_code: 'LK',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to civil unrest and terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/sri-lanka-travel-advisory.html',
+  },
+  'taiwan': {
+    country: 'Taiwan',
+    country_code: 'TW',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/taiwan-travel-advisory.html',
+  },
+  // Europe
+  'germany': {
+    country: 'Germany',
+    country_code: 'DE',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/germany-travel-advisory.html',
+  },
+  'portugal': {
+    country: 'Portugal',
+    country_code: 'PT',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/portugal-travel-advisory.html',
+  },
+  'greece': {
+    country: 'Greece',
+    country_code: 'GR',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/greece-travel-advisory.html',
+  },
+  'netherlands': {
+    country: 'Netherlands',
+    country_code: 'NL',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/netherlands-travel-advisory.html',
+  },
+  'switzerland': {
+    country: 'Switzerland',
+    country_code: 'CH',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/switzerland-travel-advisory.html',
+  },
+  'austria': {
+    country: 'Austria',
+    country_code: 'AT',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/austria-travel-advisory.html',
+  },
+  'belgium': {
+    country: 'Belgium',
+    country_code: 'BE',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/belgium-travel-advisory.html',
+  },
+  'ireland': {
+    country: 'Ireland',
+    country_code: 'IE',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ireland-travel-advisory.html',
+  },
+  'sweden': {
+    country: 'Sweden',
+    country_code: 'SE',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/sweden-travel-advisory.html',
+  },
+  'norway': {
+    country: 'Norway',
+    country_code: 'NO',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/norway-travel-advisory.html',
+  },
+  'denmark': {
+    country: 'Denmark',
+    country_code: 'DK',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/denmark-travel-advisory.html',
+  },
+  'finland': {
+    country: 'Finland',
+    country_code: 'FI',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/finland-travel-advisory.html',
+  },
+  'iceland': {
+    country: 'Iceland',
+    country_code: 'IS',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/iceland-travel-advisory.html',
+  },
+  'poland': {
+    country: 'Poland',
+    country_code: 'PL',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/poland-travel-advisory.html',
+  },
+  'czech republic': {
+    country: 'Czech Republic',
+    country_code: 'CZ',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/czech-republic-travel-advisory.html',
+  },
+  'hungary': {
+    country: 'Hungary',
+    country_code: 'HU',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/hungary-travel-advisory.html',
+  },
+  'croatia': {
+    country: 'Croatia',
+    country_code: 'HR',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/croatia-travel-advisory.html',
+  },
+  'romania': {
+    country: 'Romania',
+    country_code: 'RO',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/romania-travel-advisory.html',
+  },
+  'turkey': {
+    country: 'Turkey',
+    country_code: 'TR',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism and arbitrary detentions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/turkey-travel-advisory.html',
+  },
+  'russia': {
+    country: 'Russia',
+    country_code: 'RU',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to the unprovoked and unjustified invasion of Ukraine by Russian military forces.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/russia-travel-advisory.html',
+  },
+  'ukraine': {
+    country: 'Ukraine',
+    country_code: 'UA',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to the ongoing armed conflict.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ukraine-travel-advisory.html',
+  },
+  // Middle East
+  'israel': {
+    country: 'Israel',
+    country_code: 'IL',
+    advisory_level: 3,
+    advisory_text: 'Reconsider travel due to terrorism and civil unrest. Some areas have increased risk.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/israel-travel-advisory.html',
+  },
+  'jordan': {
+    country: 'Jordan',
+    country_code: 'JO',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/jordan-travel-advisory.html',
+  },
+  'united arab emirates': {
+    country: 'United Arab Emirates',
+    country_code: 'AE',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to the threat of missile or drone attacks.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/united-arab-emirates-travel-advisory.html',
+  },
+  'saudi arabia': {
+    country: 'Saudi Arabia',
+    country_code: 'SA',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to the threat of missile and drone attacks.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/saudi-arabia-travel-advisory.html',
+  },
+  'egypt': {
+    country: 'Egypt',
+    country_code: 'EG',
+    advisory_level: 3,
+    advisory_text: 'Reconsider travel due to terrorism. Some areas have increased risk.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/egypt-travel-advisory.html',
+  },
+  'iran': {
+    country: 'Iran',
+    country_code: 'IR',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to the risk of kidnapping and the arbitrary arrest and detention of U.S. citizens.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/iran-travel-advisory.html',
+  },
+  'iraq': {
+    country: 'Iraq',
+    country_code: 'IQ',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to terrorism, kidnapping, armed conflict, and limited capacity to provide support.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/iraq-travel-advisory.html',
+  },
+  'lebanon': {
+    country: 'Lebanon',
+    country_code: 'LB',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to crime, terrorism, armed conflict, civil unrest, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/lebanon-travel-advisory.html',
+  },
+  'qatar': {
+    country: 'Qatar',
+    country_code: 'QA',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/qatar-travel-advisory.html',
+  },
+  'oman': {
+    country: 'Oman',
+    country_code: 'OM',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/oman-travel-advisory.html',
+  },
+  // Africa
+  'morocco': {
+    country: 'Morocco',
+    country_code: 'MA',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/morocco-travel-advisory.html',
+  },
+  'south africa': {
+    country: 'South Africa',
+    country_code: 'ZA',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime and civil unrest.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/south-africa-travel-advisory.html',
+  },
+  'kenya': {
+    country: 'Kenya',
+    country_code: 'KE',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime and terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/kenya-travel-advisory.html',
+  },
+  'tanzania': {
+    country: 'Tanzania',
+    country_code: 'TZ',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime and terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/tanzania-travel-advisory.html',
+  },
+  'ethiopia': {
+    country: 'Ethiopia',
+    country_code: 'ET',
+    advisory_level: 3,
+    advisory_text: 'Reconsider travel due to armed conflict, civil unrest, and crime.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ethiopia-travel-advisory.html',
+  },
+  'nigeria': {
+    country: 'Nigeria',
+    country_code: 'NG',
+    advisory_level: 3,
+    advisory_text: 'Reconsider travel due to crime, terrorism, civil unrest, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/nigeria-travel-advisory.html',
+  },
+  'ghana': {
+    country: 'Ghana',
+    country_code: 'GH',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/ghana-travel-advisory.html',
+  },
+  'rwanda': {
+    country: 'Rwanda',
+    country_code: 'RW',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/rwanda-travel-advisory.html',
+  },
+  'uganda': {
+    country: 'Uganda',
+    country_code: 'UG',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to crime and terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/uganda-travel-advisory.html',
+  },
+  'tunisia': {
+    country: 'Tunisia',
+    country_code: 'TN',
+    advisory_level: 2,
+    advisory_text: 'Exercise increased caution due to terrorism.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/tunisia-travel-advisory.html',
+  },
+  // Oceania
+  'australia': {
+    country: 'Australia',
+    country_code: 'AU',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/australia-travel-advisory.html',
+  },
+  'new zealand': {
+    country: 'New Zealand',
+    country_code: 'NZ',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/new-zealand-travel-advisory.html',
+  },
+  'fiji': {
+    country: 'Fiji',
+    country_code: 'FJ',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/fiji-travel-advisory.html',
+  },
+  // North America
+  'canada': {
+    country: 'Canada',
+    country_code: 'CA',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/canada-travel-advisory.html',
+  },
+  // Additional conflict/high-interest
+  'afghanistan': {
+    country: 'Afghanistan',
+    country_code: 'AF',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, terrorism, civil unrest, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/afghanistan-travel-advisory.html',
+  },
+  'syria': {
+    country: 'Syria',
+    country_code: 'SY',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, terrorism, and civil unrest.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/syria-travel-advisory.html',
+  },
+  'yemen': {
+    country: 'Yemen',
+    country_code: 'YE',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, terrorism, civil unrest, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/yemen-travel-advisory.html',
+  },
+  'somalia': {
+    country: 'Somalia',
+    country_code: 'SO',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, terrorism, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/somalia-travel-advisory.html',
+  },
+  'north korea': {
+    country: 'North Korea',
+    country_code: 'KP',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to the serious risk of arrest and long-term detention.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/north-korea-travel-advisory.html',
+  },
+  'myanmar': {
+    country: 'Myanmar',
+    country_code: 'MM',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict and civil unrest.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/burma-travel-advisory.html',
+  },
+  'pakistan': {
+    country: 'Pakistan',
+    country_code: 'PK',
+    advisory_level: 3,
+    advisory_text: 'Reconsider travel due to terrorism and sectarian violence.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/pakistan-travel-advisory.html',
+  },
+  'libya': {
+    country: 'Libya',
+    country_code: 'LY',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, terrorism, civil unrest, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/libya-travel-advisory.html',
+  },
+  'sudan': {
+    country: 'Sudan',
+    country_code: 'SD',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, civil unrest, and crime.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/sudan-travel-advisory.html',
+  },
+  'south sudan': {
+    country: 'South Sudan',
+    country_code: 'SS',
+    advisory_level: 4,
+    advisory_text: 'Do not travel due to armed conflict, crime, and kidnapping.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/south-sudan-travel-advisory.html',
+  },
 };
 
 function AdvisoryLevelBadge({ level }: { level: number }) {
@@ -3371,11 +3914,19 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     query = query
       .replace(/^is it safe(?:\s+to)?(?:\s+travel)?(?:\s+to)?\s+/, '')
       .replace(/^is it safe\s+in\s+/, '')
+      .replace(/^can i(?:\s+safely)?(?:\s+travel)?(?:\s+to)?\s+/, '')
+      .replace(/^should i(?:\s+travel)?(?:\s+to)?\s+/, '')
+      .replace(/^how safe is(?:\s+it(?:\s+to)?(?:\s+travel)?(?:\s+to)?)?\s+/, '')
+      .replace(/^how safe is\s+/, '')
       .replace(/^travel safety(?:\s+in|\s+for)?\s+/, '')
-      .replace(/^safety(?:\s+in|\s+for)?\s+/, '')
-      .replace(/^travel to\s+/, '')
-      .replace(/^visit\s+/, '')
-      .replace(/^go to\s+/, '')
+      .replace(/^safety(?:\s+in|\s+of|\s+for)?\s+/, '')
+      .replace(/^travel(?:\s+to|\s+in)\s+/, '')
+      .replace(/^visit(?:ing)?\s+/, '')
+      .replace(/^go(?:ing)?(?:\s+to)?\s+/, '')
+      .replace(/^fly(?:ing)?(?:\s+to)?\s+/, '')
+      .replace(/^trip to\s+/, '')
+      .replace(/^vacation(?:\s+in|\s+to)?\s+/, '')
+      .replace(/^holiday(?:\s+in|\s+to)?\s+/, '')
       .trim();
 
     return query;
@@ -3457,27 +4008,40 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       return;
     }
     
-    // Check if it's a country
-    const advisory = advisories[normalizedQuery];
-    const ukAdvisory = ukAdvisories[normalizedQuery];
-    const acled = acledData[normalizedQuery];
-    const gdelt = gdeltData[normalizedQuery];
+    // Check if it's a country (live advisories, then fallback, then placeholder)
+    const advisory = advisories[normalizedQuery] || FALLBACK_ADVISORIES[normalizedQuery];
     if (advisory) {
+      const ukAdvisory = ukAdvisories[normalizedQuery];
+      const acled = acledData[normalizedQuery] || FALLBACK_ACLED_DATA[normalizedQuery] || (await fetchACLEDData(advisory.country)) || undefined;
+      const gdelt = gdeltData[normalizedQuery] || FALLBACK_GDELT_DATA[normalizedQuery] || (await fetchGDELTData(advisory.country)) || undefined;
       setSearchResult({ advisory, ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: normalizedQuery });
       setLoading(false);
       return;
     }
     
-    // Fuzzy match - find countries that contain the search term
-    const partialMatch = Object.entries(advisories).find(([key, value]) => 
+    // Fuzzy match - find countries that contain the search term (search both live and fallback)
+    const allAdvisories = { ...FALLBACK_ADVISORIES, ...advisories };
+    const partialMatch = Object.entries(allAdvisories).find(([key, value]) => 
       key.includes(query) || value.country.toLowerCase().includes(query)
     );
     
     if (partialMatch) {
-      const ukAdvisory = ukAdvisories[partialMatch[0]];
-      const acled = acledData[partialMatch[0]];
-      const gdelt = gdeltData[partialMatch[0]];
+      const matchKey = partialMatch[0];
+      const ukAdvisory = ukAdvisories[matchKey];
+      const acled = acledData[matchKey] || FALLBACK_ACLED_DATA[matchKey] || (await fetchACLEDData(partialMatch[1].country)) || undefined;
+      const gdelt = gdeltData[matchKey] || FALLBACK_GDELT_DATA[matchKey] || (await fetchGDELTData(partialMatch[1].country)) || undefined;
       setSearchResult({ advisory: partialMatch[1], ukAdvisory, acledData: acled, gdeltData: gdelt, isCity: false, searchTerm: partialMatch[1].country.toLowerCase() });
+      setLoading(false);
+      return;
+    }
+    
+    // Last resort: if query looks like a country name (capitalized word), create a placeholder
+    const titleCaseName = query.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const placeholderAdvisory = createPlaceholderAdvisory(normalizedQuery, titleCaseName);
+    const placeholderAcled = (await fetchACLEDData(titleCaseName)) || undefined;
+    const placeholderGdelt = (await fetchGDELTData(titleCaseName)) || undefined;
+    if (placeholderAcled || placeholderGdelt) {
+      setSearchResult({ advisory: placeholderAdvisory, acledData: placeholderAcled, gdeltData: placeholderGdelt, isCity: false, searchTerm: normalizedQuery });
       setLoading(false);
       return;
     }
