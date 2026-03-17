@@ -102,6 +102,10 @@ function getLogsDir(): string {
 
 const LOGS_DIR = getLogsDir();
 console.log(`[Analytics] Using logs directory: ${LOGS_DIR}`);
+const IS_PERSISTENT_LOG_STORAGE = !process.env.RENDER || LOGS_DIR === PERSISTENT_LOGS_DIR;
+if (!IS_PERSISTENT_LOG_STORAGE) {
+  console.warn("[Sentiment] WARNING: Votes are being stored on non-persistent disk; data may reset on redeploy.");
+}
 
 type AnalyticsEvent = {
   timestamp: string;
@@ -954,7 +958,13 @@ function saveSentiment(data: SentimentData): void {
     if (!fs.existsSync(LOGS_DIR)) {
       fs.mkdirSync(LOGS_DIR, { recursive: true });
     }
-    fs.writeFileSync(SENTIMENT_FILE, JSON.stringify(data, null, 2));
+
+    // Atomic write: write to temp file first, then rename.
+    // This avoids partial/corrupt sentiment files if process exits mid-write.
+    const tmpFile = `${SENTIMENT_FILE}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2));
+    fs.renameSync(tmpFile, SENTIMENT_FILE);
+
     console.log(`[Sentiment] Saved ${Object.keys(data).length} locations to ${SENTIMENT_FILE}`);
   } catch (e) {
     console.error("Failed to save sentiment data:", e);

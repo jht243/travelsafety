@@ -410,7 +410,7 @@ const saveData = (data: any) => {
 // Analytics tracking helper
 const trackEvent = (event: string, data: Record<string, any> = {}) => {
   try {
-    const serverUrl = window.location.hostname === "localhost" ? "" : "https://travel-checklist-q79n.onrender.com";
+    const serverUrl = window.location.hostname === "localhost" ? "" : "https://travelsafety-un15.onrender.com";
     fetch(`${serverUrl}/api/track`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1998,7 +1998,7 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
     }
     setSubscribeStatus("loading");
     try {
-      const serverUrl = window.location.hostname === "localhost" ? "" : "https://travel-checklist-q79n.onrender.com";
+      const serverUrl = window.location.hostname === "localhost" ? "" : "https://travelsafety-un15.onrender.com";
       const response = await fetch(`${serverUrl}/api/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2034,7 +2034,7 @@ export default function TravelChecklist({ initialData }: { initialData?: any }) 
     if (!feedbackText.trim()) return;
     setFeedbackStatus("submitting");
     try {
-      const serverUrl = window.location.hostname === "localhost" ? "" : "https://travel-checklist-q79n.onrender.com";
+      const serverUrl = window.location.hostname === "localhost" ? "" : "https://travelsafety-un15.onrender.com";
       const response = await fetch(`${serverUrl}/api/track`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

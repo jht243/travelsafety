@@ -61,10 +61,10 @@ const UI = {
   },
 };
 
-// API base URL for tracking
+// API base URL for backend calls
 const API_BASE = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
   ? '' 
-  : 'https://travel-checklist-q79n.onrender.com';
+  : 'https://travelsafety-un15.onrender.com';
 
 // Analytics tracking helper
 const trackEvent = (event: string, data: Record<string, any> = {}) => {
@@ -1852,6 +1852,14 @@ const FALLBACK_ADVISORIES: AdvisoryData = {
     date_updated: '2024-12-01',
     url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/curacao-travel-advisory.html',
   },
+  'curacao': {
+    country: 'Curaçao',
+    country_code: 'CW',
+    advisory_level: 1,
+    advisory_text: 'Exercise normal precautions.',
+    date_updated: '2024-12-01',
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/curacao-travel-advisory.html',
+  },
   'dominican republic': {
     country: 'Dominican Republic',
     country_code: 'DO',
@@ -2969,10 +2977,6 @@ function CommunitySentiment({ location }: { location: string }) {
   const [hasVoted, setHasVoted] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const API_BASE = window.location.hostname === 'localhost' 
-    ? `http://localhost:${window.location.port || '8000'}`
-    : '';
-
   React.useEffect(() => {
     const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
     if (votedLocations[location.toLowerCase()]) {
@@ -2982,7 +2986,12 @@ function CommunitySentiment({ location }: { location: string }) {
     }
     
     fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Sentiment GET failed (${res.status})`);
+        }
+        return res.json();
+      })
       .then(data => setSentiment(data))
       .catch(err => console.error('Failed to load sentiment:', err));
   }, [location]);
@@ -3005,6 +3014,9 @@ function CommunitySentiment({ location }: { location: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vote }),
       });
+      if (!res.ok) {
+        throw new Error(`Sentiment vote failed (${res.status})`);
+      }
       const data = await res.json();
       setSentiment(data);
       setHasVoted(true);
