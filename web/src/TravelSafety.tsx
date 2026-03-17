@@ -3578,7 +3578,6 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
       color: COLORS.navy,
       position: 'relative', // Container for sticky pill
-      minHeight: '100vh',
     }}>
       {/* Hero Section - Only show when no search result */}
       {!searchResult && (
