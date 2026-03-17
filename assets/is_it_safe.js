@@ -27786,9 +27786,8 @@ function TravelSafety({ initialData: initialData2 }) {
     backgroundColor: COLORS.cream,
     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif',
     color: COLORS.navy,
-    position: "relative",
+    position: "relative"
     // Container for sticky pill
-    minHeight: "100vh"
   }, children: [
     !searchResult && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
       background: `linear-gradient(135deg, ${COLORS.lavender} 0%, ${COLORS.cream} 45%, ${COLORS.white} 100%)`,
