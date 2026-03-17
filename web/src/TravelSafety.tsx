@@ -3359,13 +3359,35 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     }
   }, [initialLocation, apiLoaded]);
 
+  const normalizeSearchQuery = (input: string) => {
+    let query = input
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[?!.]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    query = query
+      .replace(/^is it safe(?:\s+to)?(?:\s+travel)?(?:\s+to)?\s+/, '')
+      .replace(/^is it safe\s+in\s+/, '')
+      .replace(/^travel safety(?:\s+in|\s+for)?\s+/, '')
+      .replace(/^safety(?:\s+in|\s+for)?\s+/, '')
+      .replace(/^travel to\s+/, '')
+      .replace(/^visit\s+/, '')
+      .replace(/^go to\s+/, '')
+      .trim();
+
+    return query;
+  };
+
   const searchFor = async (rawQuery: string) => {
     if (!rawQuery.trim()) return;
 
     setLoading(true);
     setError(null);
 
-    let query = rawQuery.trim().toLowerCase();
+    let query = normalizeSearchQuery(rawQuery.trim());
     
     // Handle "City, Country" format from ChatGPT (e.g., "Bali, Indonesia" -> "bali")
     if (query.includes(',')) {
