@@ -125,6 +125,312 @@ type MissingLocationRecord = {
 
 type MissingLocationMap = Record<string, MissingLocationRecord>;
 
+type LocationSourceStatus = "ok" | "missing" | "error";
+
+type LocationSourcePayload = {
+  status: LocationSourceStatus;
+  fetchedAt: string;
+  data?: any;
+  error?: string;
+};
+
+type EnrichedLocationRecord = {
+  key: string;
+  query: string;
+  normalizedQuery: string;
+  country: string | null;
+  status: "processing" | "ready" | "partial" | "error";
+  createdAt: string;
+  updatedAt: string;
+  sources: {
+    stateDept: LocationSourcePayload;
+    uk: LocationSourcePayload;
+    acled: LocationSourcePayload;
+    gdelt: LocationSourcePayload;
+  };
+};
+
+type EnrichedLocationMap = Record<string, EnrichedLocationRecord>;
+
+function normalizeCountryKey(value?: string): string {
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[.,]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function loadLocationDatabase(filePath: string): EnrichedLocationMap {
+  try {
+    if (!fs.existsSync(filePath)) return {};
+    const raw = fs.readFileSync(filePath, "utf8");
+    if (!raw.trim()) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    return parsed as EnrichedLocationMap;
+  } catch (e) {
+    console.error("[Location DB] Failed to load:", e);
+    return {};
+  }
+}
+
+function saveLocationDatabase(filePath: string, data: EnrichedLocationMap): void {
+  try {
+    const tmpFile = `${filePath}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2));
+    fs.renameSync(tmpFile, filePath);
+  } catch (e) {
+    console.error("[Location DB] Failed to save:", e);
+  }
+}
+
+function getLocationDatabaseList(filePath: string): EnrichedLocationRecord[] {
+  return Object.values(loadLocationDatabase(filePath)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+const ENRICHMENT_IN_FLIGHT = new Set<string>();
+
+function toUkCountrySlug(country: string): string {
+  const key = normalizeCountryKey(country);
+  if (key === "united states" || key === "usa" || key === "us") return "usa";
+  if (key === "korea south" || key === "south korea") return "south-korea";
+  return key.replace(/\s+/g, "-");
+}
+
+async function resolveCountryFromQuery(query: string): Promise<string | null> {
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "is-it-safe/0.1 (+https://travelsafety-un15.onrender.com)",
+      },
+    });
+    if (!res.ok) return null;
+    const data: any = await res.json();
+    const first = Array.isArray(data) ? data[0] : null;
+    const country = first?.address?.country;
+    return country ? String(country) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchStateDeptByCountry(country: string): Promise<any | null> {
+  const response = await fetch("https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/_jcr_content/traveladvisories.json");
+  if (!response.ok) return null;
+  const data: any = await response.json();
+  if (!Array.isArray(data)) return null;
+
+  const target = normalizeCountryKey(country);
+  const match = data.find((item: any) => {
+    const name = normalizeCountryKey(item?.title || item?.country || "");
+    return name === target;
+  });
+  if (!match) return null;
+
+  const levelRaw = Number(match?.travel_advisory?.level || match?.level || 2);
+  return {
+    country: match?.title || country,
+    country_code: match?.country_code || match?.iso_code || "",
+    advisory_level: Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : 2,
+    advisory_text: match?.travel_advisory?.advisory || match?.advisory || "",
+    date_updated: match?.date_updated || match?.last_updated || new Date().toISOString().split("T")[0],
+    url: match?.url || "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html",
+  };
+}
+
+async function fetchUkByCountry(country: string): Promise<any | null> {
+  const slug = toUkCountrySlug(country);
+  const response = await fetch(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(slug)}`);
+  if (!response.ok) return null;
+  const data: any = await response.json();
+  if (!data?.details) return null;
+  return {
+    country: data?.title || country,
+    alert_status: data?.details?.alert_status || [],
+    change_description: data?.details?.change_description || "",
+    last_updated: data?.public_updated_at || new Date().toISOString(),
+    url: data?.web_url || `https://www.gov.uk/foreign-travel-advice/${slug}`,
+  };
+}
+
+async function fetchAcledByCountry(country: string): Promise<any | null> {
+  const token = await getAcledAccessToken();
+  const currentYear = new Date().getFullYear();
+  const response = await fetch(
+    `https://acleddata.com/api/acled/read?_format=json&country=${encodeURIComponent(country)}&year=${currentYear}&fields=event_type|fatalities|event_date&limit=500`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  if (!response.ok) return null;
+
+  const data: any = await response.json();
+  const events: any[] = Array.isArray(data?.data) ? data.data : Array.isArray(data?.data?.data) ? data.data.data : [];
+
+  const eventTypes: Record<string, number> = {};
+  let totalFatalities = 0;
+  for (const ev of events) {
+    const type = ev?.event_type || "Unknown";
+    eventTypes[type] = (eventTypes[type] || 0) + 1;
+    const f = parseInt(ev?.fatalities ?? "0", 10);
+    totalFatalities += Number.isFinite(f) ? f : 0;
+  }
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recentEvents = events.filter((e) => {
+    const d = new Date(e?.event_date);
+    return !Number.isNaN(d.getTime()) && d >= thirtyDaysAgo;
+  }).length;
+
+  return {
+    country,
+    total_events: events.length,
+    fatalities: totalFatalities,
+    events_last_30_days: recentEvents,
+    event_types: eventTypes,
+    last_updated: new Date().toISOString(),
+    trend: recentEvents > events.length / 12 ? "increasing" : "stable",
+  };
+}
+
+async function fetchGdeltByLocation(location: string): Promise<any | null> {
+  const sanitizedLocation = location
+    .replace(/[|]/g, " ")
+    .replace(/[^\p{L}\p{N}\s-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const gdeltQuery = sanitizedLocation ? `"${sanitizedLocation}"` : "";
+
+  const response = await fetch(
+    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(gdeltQuery)}&mode=artlist&maxrecords=50&format=json&timespan=7d`
+  );
+  if (!response.ok) return null;
+
+  const data: any = await response.json();
+  const articles: any[] = Array.isArray(data?.articles) ? data.articles : [];
+  const tones = articles.map((a) => Number(a?.tone ?? 0)).filter((t) => Number.isFinite(t));
+  const avgTone = tones.length ? tones.reduce((a, b) => a + b, 0) / tones.length : 0;
+  const headlines = articles.slice(0, 5).map((a) => ({
+    title: a?.title || "Untitled",
+    url: a?.url || "",
+    source: a?.domain || "Unknown",
+    date: a?.seendate || new Date().toISOString(),
+    tone: Number(a?.tone ?? 0),
+  }));
+  const volumeLevel = articles.length > 50 ? "spike" : articles.length > 20 ? "elevated" : "normal";
+  const trend7d = avgTone > 0 ? "improving" : avgTone < -5 ? "worsening" : "stable";
+
+  return {
+    location,
+    country: "",
+    tone_score: Math.round(avgTone * 10) / 10,
+    volume_level: volumeLevel,
+    article_count_24h: articles.length,
+    themes: {},
+    headlines,
+    trend_7day: trend7d,
+    last_updated: new Date().toISOString(),
+  };
+}
+
+async function wrapSourceFetch(fetcher: () => Promise<any | null>): Promise<LocationSourcePayload> {
+  const fetchedAt = new Date().toISOString();
+  try {
+    const data = await fetcher();
+    if (data == null) {
+      return { status: "missing", fetchedAt };
+    }
+    return { status: "ok", fetchedAt, data };
+  } catch (e) {
+    return { status: "error", fetchedAt, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+async function enrichMissingLocationToDatabase(query: string, normalizedQuery?: string): Promise<void> {
+  const key = normalizeMissingLocationKey(normalizedQuery || query);
+  if (!key) return;
+  if (ENRICHMENT_IN_FLIGHT.has(key)) return;
+
+  ENRICHMENT_IN_FLIGHT.add(key);
+  try {
+    const now = new Date().toISOString();
+    const db = loadLocationDatabase(LOCATION_DATABASE_FILE);
+    const existing = db[key];
+
+    db[key] = {
+      key,
+      query: query || existing?.query || key,
+      normalizedQuery: normalizedQuery || existing?.normalizedQuery || key,
+      country: existing?.country || null,
+      status: "processing",
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      sources: existing?.sources || {
+        stateDept: { status: "missing", fetchedAt: now },
+        uk: { status: "missing", fetchedAt: now },
+        acled: { status: "missing", fetchedAt: now },
+        gdelt: { status: "missing", fetchedAt: now },
+      },
+    };
+    saveLocationDatabase(LOCATION_DATABASE_FILE, db);
+
+    const country = await resolveCountryFromQuery(query || key);
+
+    const stateDept = await wrapSourceFetch(async () => {
+      if (!country) return null;
+      return await fetchStateDeptByCountry(country);
+    });
+    const uk = await wrapSourceFetch(async () => {
+      if (!country) return null;
+      return await fetchUkByCountry(country);
+    });
+    const acled = await wrapSourceFetch(async () => {
+      if (!country) return null;
+      return await fetchAcledByCountry(country);
+    });
+    const gdelt = await wrapSourceFetch(async () => await fetchGdeltByLocation(query || key));
+
+    const sourceStatuses = [stateDept.status, uk.status, acled.status, gdelt.status];
+    const okCount = sourceStatuses.filter((s) => s === "ok").length;
+    const finalStatus: EnrichedLocationRecord["status"] =
+      okCount === 4 ? "ready" : okCount > 0 ? "partial" : "error";
+
+    const nextDb = loadLocationDatabase(LOCATION_DATABASE_FILE);
+    nextDb[key] = {
+      ...(nextDb[key] || db[key]),
+      key,
+      query: query || nextDb[key]?.query || key,
+      normalizedQuery: normalizedQuery || nextDb[key]?.normalizedQuery || key,
+      country,
+      status: finalStatus,
+      updatedAt: new Date().toISOString(),
+      sources: { stateDept, uk, acled, gdelt },
+    };
+    saveLocationDatabase(LOCATION_DATABASE_FILE, nextDb);
+
+    logAnalytics("location_auto_enriched", {
+      key,
+      query: query || key,
+      normalizedQuery: normalizedQuery || key,
+      country,
+      status: finalStatus,
+      sourceStatuses: {
+        stateDept: stateDept.status,
+        uk: uk.status,
+        acled: acled.status,
+        gdelt: gdelt.status,
+      },
+    });
+  } finally {
+    ENRICHMENT_IN_FLIGHT.delete(key);
+  }
+}
+
 function logAnalytics(event: string, data: Record<string, any> = {}) {
   const entry: AnalyticsEvent = {
     timestamp: new Date().toISOString(),
@@ -246,6 +552,7 @@ function recordMissingLocation(filePath: string, query: string, normalizedQuery?
   }
 
   saveMissingLocations(filePath, store);
+  void enrichMissingLocationToDatabase(query || key, normalizedQuery || key);
 }
 
 function getMissingLocationsList(filePath: string): MissingLocationRecord[] {
@@ -821,10 +1128,12 @@ const sentimentVotePixelPath = "/api/sentiment/vote";
 const sentimentJsonpPath = "/api/sentiment/jsonp";
 const debugBeaconPath = "/api/debug";
 const missingLocationsPath = "/api/missing-locations";
+const locationDatabasePath = "/api/location-database";
 
 // Community sentiment storage
 const SENTIMENT_FILE = path.join(LOGS_DIR, "sentiment.json");
 const MISSING_LOCATIONS_FILE = path.join(LOGS_DIR, "missing_locations.json");
+const LOCATION_DATABASE_FILE = path.join(LOGS_DIR, "location_database.json");
 
 type LocationSentiment = {
   seeded: { safe: number; unsafe: number };
@@ -1599,6 +1908,7 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
   const timeRangeLabel = timeRange === "all" ? "All Time" : `Last ${timeRange} days`;
   
   const missingLocations = getMissingLocationsList(MISSING_LOCATIONS_FILE);
+  const locationDatabase = getLocationDatabaseList(LOCATION_DATABASE_FILE);
 
   return `<!DOCTYPE html>
 <html>
@@ -1762,6 +2072,32 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
           `
       )
       .join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #3b82f6;">
+      <h2 style="color: #1d4ed8;">🗄️ Auto-Enriched Location Database</h2>
+      <p style="font-size: 12px; color: #1e40af; margin: 6px 0 12px 0;">Each missing location is automatically enriched via State Dept, UK, ACLED, and GDELT and saved to <code>location_database.json</code>. Pull JSON: <code>/api/location-database</code>.</p>
+      <table>
+        <thead><tr><th>Query</th><th>Country</th><th>Status</th><th>Sources OK</th><th>Updated</th></tr></thead>
+        <tbody>
+          ${locationDatabase.length > 0 ? locationDatabase
+      .slice(0, 50)
+      .map((item: EnrichedLocationRecord) => {
+        const statuses = [item.sources.stateDept.status, item.sources.uk.status, item.sources.acled.status, item.sources.gdelt.status];
+        const okCount = statuses.filter((s) => s === "ok").length;
+        return `
+            <tr>
+              <td>${item.query || "—"}</td>
+              <td>${item.country || "—"}</td>
+              <td><code>${item.status}</code></td>
+              <td>${okCount}/4</td>
+              <td class="timestamp">${new Date(item.updatedAt).toLocaleString()}</td>
+            </tr>
+          `;
+      })
+      .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No enriched records yet</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -2301,6 +2637,30 @@ async function handleMissingLocations(req: IncomingMessage, res: ServerResponse)
   res.end(JSON.stringify({ total: items.length, items }, null, 2));
 }
 
+async function handleLocationDatabase(req: IncomingMessage, res: ServerResponse) {
+  if (!checkAnalyticsAuth(req)) {
+    res.writeHead(401, {
+      "WWW-Authenticate": 'Basic realm="Analytics Dashboard"',
+      "Content-Type": "application/json",
+    });
+    res.end(JSON.stringify({ error: "Authentication required" }));
+    return;
+  }
+
+  if (req.method !== "GET") {
+    res.writeHead(405, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Method not allowed" }));
+    return;
+  }
+
+  const items = getLocationDatabaseList(LOCATION_DATABASE_FILE);
+  res.writeHead(200, {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+  });
+  res.end(JSON.stringify({ total: items.length, items }, null, 2));
+}
+
 // Buttondown API integration
 async function subscribeToButtondown(email: string, topicId: string, topicName: string) {
   const BUTTONDOWN_API_KEY = process.env.BUTTONDOWN_API_KEY;
@@ -2626,6 +2986,7 @@ const httpServer = createServer(
         url.pathname === sentimentJsonpPath ||
         url.pathname === debugBeaconPath ||
         url.pathname === missingLocationsPath ||
+        url.pathname === locationDatabasePath ||
         url.pathname === trackEventPath ||
         url.pathname === subscribePath)
     ) {
@@ -2677,6 +3038,11 @@ const httpServer = createServer(
 
     if (url.pathname === missingLocationsPath) {
       await handleMissingLocations(req, res);
+      return;
+    }
+
+    if (url.pathname === locationDatabasePath) {
+      await handleLocationDatabase(req, res);
       return;
     }
 
