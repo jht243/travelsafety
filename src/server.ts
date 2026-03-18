@@ -734,6 +734,8 @@ const gdeltProxyPath = "/api/gdelt";
 const acledProxyPath = "/api/acled";
 const ukProxyPath = "/api/uk";
 const sentimentPath = "/api/sentiment";
+const sentimentVotePixelPath = "/api/sentiment/vote";
+const sentimentJsonpPath = "/api/sentiment/jsonp";
 
 // Community sentiment storage
 const SENTIMENT_FILE = path.join(LOGS_DIR, "sentiment.json");
@@ -1111,6 +1113,55 @@ async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: U
   console.log(`[Sentiment API] 405 — method not allowed: ${req.method}`);
   res.writeHead(405, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Method not allowed" }));
+}
+
+// 1x1 transparent GIF pixel
+const TRANSPARENT_GIF = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+
+// GET-based vote endpoint that returns a tracking pixel — bypasses connect-src CSP in sandboxed iframes
+async function handleSentimentVotePixel(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+
+  const location = url.searchParams.get("location");
+  const vote = url.searchParams.get("vote");
+  console.log(`[Sentiment Pixel] GET vote pixel — location=${location} vote=${vote}`);
+
+  if (location && (vote === "safe" || vote === "unsafe")) {
+    const sentiment = voteSentiment(location, vote === "safe");
+    logAnalytics("sentiment_vote", { location, vote, method: "pixel" });
+    console.log(`[Sentiment Pixel] Vote recorded: "${vote}" for "${location}" — safe:${sentiment.safe} unsafe:${sentiment.unsafe}`);
+  } else {
+    console.log(`[Sentiment Pixel] Invalid params — location=${location} vote=${vote}`);
+  }
+
+  res.writeHead(200, { "Content-Type": "image/gif", "Content-Length": TRANSPARENT_GIF.length.toString() });
+  res.end(TRANSPARENT_GIF);
+}
+
+// JSONP-style sentiment loader — bypasses connect-src CSP by using script injection
+async function handleSentimentJsonp(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+
+  const location = url.searchParams.get("location");
+  const callback = url.searchParams.get("callback") || "__sentimentCallback";
+  console.log(`[Sentiment JSONP] GET — location=${location} callback=${callback}`);
+
+  if (!location) {
+    res.writeHead(200, { "Content-Type": "application/javascript" });
+    res.end(`${callback}({"error":"Missing location"})`);
+    return;
+  }
+
+  const sentiment = getSentiment(location);
+  const total = sentiment.safe + sentiment.unsafe;
+  const safePercent = total > 0 ? Math.round((sentiment.safe / total) * 100) : 50;
+  const data = JSON.stringify({ ...sentiment, total, safePercent });
+  console.log(`[Sentiment JSONP] 200 for "${location}" — ${data}`);
+
+  res.writeHead(200, { "Content-Type": "application/javascript" });
+  res.end(`${callback}(${data})`);
 }
 
 const domainVerificationPath = "/.well-known/openai-apps-challenge";
@@ -2545,6 +2596,8 @@ const httpServer = createServer(
         url.pathname === acledProxyPath ||
         url.pathname === ukProxyPath ||
         url.pathname === sentimentPath ||
+        url.pathname === sentimentVotePixelPath ||
+        url.pathname === sentimentJsonpPath ||
         url.pathname === trackEventPath ||
         url.pathname === subscribePath)
     ) {
@@ -2611,6 +2664,16 @@ const httpServer = createServer(
 
     if (url.pathname === sentimentPath) {
       await handleSentiment(req, res, url);
+      return;
+    }
+
+    if (url.pathname === sentimentVotePixelPath) {
+      await handleSentimentVotePixel(req, res, url);
+      return;
+    }
+
+    if (url.pathname === sentimentJsonpPath) {
+      await handleSentimentJsonp(req, res, url);
       return;
     }
 

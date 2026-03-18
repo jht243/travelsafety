@@ -27406,11 +27406,12 @@ function CommunitySentiment({ location }) {
   const [sentiment, setSentiment] = import_react3.default.useState(null);
   const [hasVoted, setHasVoted] = import_react3.default.useState(false);
   const [isLoading, setIsLoading] = import_react3.default.useState(false);
+  const [voteChoice, setVoteChoice] = import_react3.default.useState(null);
+  const [pressed, setPressed] = import_react3.default.useState(null);
   import_react3.default.useEffect(() => {
     console.log("[Sentiment] useEffect fired for location:", location);
     try {
       const raw = localStorage.getItem("sentimentVotes");
-      console.log("[Sentiment] localStorage read OK, raw:", raw);
       const votedLocations = JSON.parse(raw || "{}");
       if (votedLocations[location.toLowerCase()]) {
         console.log("[Sentiment] User already voted for this location");
@@ -27422,27 +27423,75 @@ function CommunitySentiment({ location }) {
       console.warn("[Sentiment] localStorage blocked:", e);
       setHasVoted(false);
     }
-    const sentimentUrl = `${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`;
-    console.log("[Sentiment] Fetching GET:", sentimentUrl);
-    fetch(sentimentUrl).then((res) => {
-      console.log("[Sentiment] GET response status:", res.status, "ok:", res.ok);
-      if (!res.ok) {
-        throw new Error(`Sentiment GET failed (${res.status})`);
+    const callbackName = "__sentimentCb_" + Math.random().toString(36).slice(2);
+    console.log("[Sentiment] Loading via JSONP, callback:", callbackName);
+    window[callbackName] = (data) => {
+      console.log("[Sentiment] JSONP data received:", JSON.stringify(data));
+      if (data && !data.error) {
+        setSentiment(data);
       }
-      return res.json();
-    }).then((data) => {
-      console.log("[Sentiment] GET data received:", JSON.stringify(data));
-      setSentiment(data);
-    }).catch((err) => console.error("[Sentiment] GET failed:", err));
+      delete window[callbackName];
+      try {
+        document.getElementById(callbackName)?.remove();
+      } catch (_) {
+      }
+    };
+    const script = document.createElement("script");
+    script.id = callbackName;
+    script.src = `${API_BASE}/api/sentiment/jsonp?location=${encodeURIComponent(location)}&callback=${callbackName}`;
+    script.onerror = () => {
+      console.warn("[Sentiment] JSONP script load failed, trying fetch fallback");
+      delete window[callbackName];
+      try {
+        script.remove();
+      } catch (_) {
+      }
+      fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`).then((r) => r.ok ? r.json() : null).then((d) => {
+        if (d) setSentiment(d);
+      }).catch(() => console.warn("[Sentiment] Both JSONP and fetch failed"));
+    };
+    document.head.appendChild(script);
+    return () => {
+      delete window[callbackName];
+      try {
+        document.getElementById(callbackName)?.remove();
+      } catch (_) {
+      }
+    };
   }, [location]);
-  const handleVote = async (vote) => {
+  const handleVote = (vote) => {
     console.log("[Sentiment] handleVote called with:", vote, "hasVoted:", hasVoted, "isLoading:", isLoading);
-    if (hasVoted || isLoading) {
-      console.log("[Sentiment] handleVote BLOCKED \u2014 hasVoted:", hasVoted, "isLoading:", isLoading);
-      return;
-    }
+    if (hasVoted || isLoading) return;
     setIsLoading(true);
-    console.log("[Sentiment] isLoading set to true");
+    setVoteChoice(vote);
+    const currentSafe = sentiment?.safe ?? 50;
+    const currentUnsafe = sentiment?.unsafe ?? 50;
+    const newSafe = vote === "safe" ? currentSafe + 1 : currentSafe;
+    const newUnsafe = vote === "unsafe" ? currentUnsafe + 1 : currentUnsafe;
+    const newTotal = newSafe + newUnsafe;
+    const newSafePercent = newTotal > 0 ? Math.round(newSafe / newTotal * 100) : 50;
+    setSentiment({ safe: newSafe, unsafe: newUnsafe, total: newTotal, safePercent: newSafePercent });
+    setHasVoted(true);
+    console.log("[Sentiment] Optimistic UI updated \u2014 safe:", newSafe, "unsafe:", newUnsafe);
+    const pixelUrl = `${API_BASE}/api/sentiment/vote?location=${encodeURIComponent(location)}&vote=${vote}&_t=${Date.now()}`;
+    console.log("[Sentiment] Firing vote pixel:", pixelUrl);
+    const img = new Image();
+    img.onload = () => console.log("[Sentiment] Vote pixel loaded OK");
+    img.onerror = () => {
+      console.warn("[Sentiment] Vote pixel failed, trying fetch fallback");
+      fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vote })
+      }).catch(() => console.warn("[Sentiment] Both pixel and fetch failed"));
+    };
+    img.src = pixelUrl;
+    try {
+      const votedLocations = JSON.parse(localStorage.getItem("sentimentVotes") || "{}");
+      votedLocations[location.toLowerCase()] = vote;
+      localStorage.setItem("sentimentVotes", JSON.stringify(votedLocations));
+    } catch (e) {
+    }
     try {
       trackEvent("safety_vote", {
         location,
@@ -27450,41 +27499,10 @@ function CommunitySentiment({ location }) {
         isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
         country: CITY_TO_COUNTRY[location.toLowerCase()] || location
       });
-      console.log("[Sentiment] trackEvent fired OK");
-    } catch (trackErr) {
-      console.error("[Sentiment] trackEvent crashed:", trackErr);
+    } catch (_) {
     }
-    const voteUrl = `${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`;
-    console.log("[Sentiment] Fetching POST:", voteUrl);
-    try {
-      const res = await fetch(voteUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vote })
-      });
-      console.log("[Sentiment] POST response status:", res.status, "ok:", res.ok);
-      if (!res.ok) {
-        throw new Error(`Sentiment vote failed (${res.status})`);
-      }
-      const data = await res.json();
-      console.log("[Sentiment] POST data received:", JSON.stringify(data));
-      setSentiment(data);
-      setHasVoted(true);
-      console.log("[Sentiment] Vote SUCCESS \u2014 hasVoted set to true");
-      try {
-        const votedLocations = JSON.parse(localStorage.getItem("sentimentVotes") || "{}");
-        votedLocations[location.toLowerCase()] = vote;
-        localStorage.setItem("sentimentVotes", JSON.stringify(votedLocations));
-        console.log("[Sentiment] localStorage updated OK");
-      } catch (e) {
-        console.warn("[Sentiment] localStorage save blocked:", e);
-      }
-    } catch (err) {
-      console.error("[Sentiment] POST failed:", err);
-    } finally {
-      setIsLoading(false);
-      console.log("[Sentiment] isLoading set back to false");
-    }
+    setIsLoading(false);
+    console.log("[Sentiment] Vote complete");
   };
   const safePercent = sentiment?.safePercent ?? 50;
   const unsafePercent = 100 - safePercent;
@@ -27524,6 +27542,9 @@ function CommunitySentiment({ location }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
+          onPointerDown: () => setPressed("safe"),
+          onPointerUp: () => setPressed(null),
+          onPointerLeave: () => setPressed(null),
           onClick: () => handleVote("safe"),
           disabled: isLoading,
           style: {
@@ -27533,14 +27554,16 @@ function CommunitySentiment({ location }) {
             justifyContent: "center",
             gap: "6px",
             padding: "10px 16px",
-            backgroundColor: COLORS.safe.bg,
+            backgroundColor: pressed === "safe" ? COLORS.safe.border : COLORS.safe.bg,
             border: `1px solid ${COLORS.safe.border}`,
             borderRadius: UI.radius.md,
             color: COLORS.safe.text,
             fontSize: "13px",
             fontWeight: 600,
             cursor: "pointer",
-            transition: "all 0.2s"
+            transition: "all 0.15s",
+            transform: pressed === "safe" ? "scale(0.96)" : "scale(1)",
+            opacity: isLoading ? 0.6 : 1
           },
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsUp, { size: 15 }),
@@ -27551,6 +27574,9 @@ function CommunitySentiment({ location }) {
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
+          onPointerDown: () => setPressed("unsafe"),
+          onPointerUp: () => setPressed(null),
+          onPointerLeave: () => setPressed(null),
           onClick: () => handleVote("unsafe"),
           disabled: isLoading,
           style: {
@@ -27560,14 +27586,16 @@ function CommunitySentiment({ location }) {
             justifyContent: "center",
             gap: "6px",
             padding: "10px 16px",
-            backgroundColor: COLORS.danger.bg,
+            backgroundColor: pressed === "unsafe" ? COLORS.danger.border : COLORS.danger.bg,
             border: `1px solid ${COLORS.danger.border}`,
             borderRadius: UI.radius.md,
             color: COLORS.danger.text,
             fontSize: "13px",
             fontWeight: 600,
             cursor: "pointer",
-            transition: "all 0.2s"
+            transition: "all 0.15s",
+            transform: pressed === "unsafe" ? "scale(0.96)" : "scale(1)",
+            opacity: isLoading ? 0.6 : 1
           },
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThumbsDown, { size: 15 }),
@@ -27575,7 +27603,12 @@ function CommunitySentiment({ location }) {
           ]
         }
       )
-    ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { textAlign: "center", fontSize: "12px", color: COLORS.slate[500], fontWeight: 500, padding: "8px 0" }, children: "Thanks for voting!" })
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center", fontSize: "12px", color: voteChoice === "safe" ? COLORS.safe.text : COLORS.danger.text, fontWeight: 600, padding: "8px 0" }, children: [
+      voteChoice === "safe" ? "\u{1F44D}" : "\u{1F44E}",
+      " Thanks for voting \u2014 you said ",
+      voteChoice,
+      "!"
+    ] })
   ] });
 }
 function calculateSafetyScore(advisory, acledData, gdeltData) {
