@@ -305,7 +305,17 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
         "https://geocoding-api.open-meteo.com",
         "http://localhost:8001"
       ],
+      connectDomains: [
+        "https://travelsafety-un15.onrender.com",
+        "https://nominatim.openstreetmap.org",
+        "https://api.open-meteo.com",
+        "https://geocoding-api.open-meteo.com",
+        "http://localhost:8001"
+      ],
       resource_domains: [
+        "https://travelsafety-un15.onrender.com"
+      ],
+      resourceDomains: [
         "https://travelsafety-un15.onrender.com"
       ],
     },
