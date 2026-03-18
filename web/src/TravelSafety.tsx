@@ -2978,10 +2978,15 @@ function CommunitySentiment({ location }: { location: string }) {
   const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
-    const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
-    if (votedLocations[location.toLowerCase()]) {
-      setHasVoted(true);
-    } else {
+    try {
+      const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
+      if (votedLocations[location.toLowerCase()]) {
+        setHasVoted(true);
+      } else {
+        setHasVoted(false);
+      }
+    } catch (e) {
+      // localStorage blocked in sandboxed iframes (e.g. ChatGPT)
       setHasVoted(false);
     }
     
@@ -3021,9 +3026,13 @@ function CommunitySentiment({ location }: { location: string }) {
       setSentiment(data);
       setHasVoted(true);
       
-      const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
-      votedLocations[location.toLowerCase()] = vote;
-      localStorage.setItem('sentimentVotes', JSON.stringify(votedLocations));
+      try {
+        const votedLocations = JSON.parse(localStorage.getItem('sentimentVotes') || '{}');
+        votedLocations[location.toLowerCase()] = vote;
+        localStorage.setItem('sentimentVotes', JSON.stringify(votedLocations));
+      } catch (e) {
+        // localStorage blocked in sandboxed iframes (e.g. ChatGPT)
+      }
     } catch (err) {
       console.error('Failed to vote:', err);
     } finally {
