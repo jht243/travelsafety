@@ -24782,6 +24782,14 @@ var UI = {
 };
 var API_BASE = typeof window !== "undefined" && window.location.hostname === "localhost" ? "" : "https://travelsafety-un15.onrender.com";
 console.log("[Sentiment] API_BASE resolved to:", JSON.stringify(API_BASE), "hostname:", typeof window !== "undefined" ? window.location.hostname : "N/A");
+var debugBeacon = (step, loc = "", detail = "") => {
+  try {
+    const img = new Image();
+    img.src = `${API_BASE}/api/debug?step=${encodeURIComponent(step)}&loc=${encodeURIComponent(loc)}&detail=${encodeURIComponent(detail)}&_t=${Date.now()}`;
+  } catch (_) {
+  }
+  console.log(`[Sentiment Debug] ${step} loc=${loc} detail=${detail}`);
+};
 var trackEvent = (event, data = {}) => {
   try {
     fetch(`${API_BASE}/api/track`, {
@@ -27409,24 +27417,27 @@ function CommunitySentiment({ location }) {
   const [voteChoice, setVoteChoice] = import_react3.default.useState(null);
   const [pressed, setPressed] = import_react3.default.useState(null);
   import_react3.default.useEffect(() => {
-    console.log("[Sentiment] useEffect fired for location:", location);
+    debugBeacon("mount", location, "component_loaded");
+    let localStorageOk = false;
     try {
       const raw = localStorage.getItem("sentimentVotes");
+      localStorageOk = true;
       const votedLocations = JSON.parse(raw || "{}");
       if (votedLocations[location.toLowerCase()]) {
-        console.log("[Sentiment] User already voted for this location");
         setHasVoted(true);
+        debugBeacon("localStorage", location, "already_voted");
       } else {
         setHasVoted(false);
+        debugBeacon("localStorage", location, "not_voted");
       }
     } catch (e) {
-      console.warn("[Sentiment] localStorage blocked:", e);
       setHasVoted(false);
+      debugBeacon("localStorage", location, "blocked:" + String(e));
     }
     const callbackName = "__sentimentCb_" + Math.random().toString(36).slice(2);
-    console.log("[Sentiment] Loading via JSONP, callback:", callbackName);
+    debugBeacon("jsonp_start", location, callbackName);
     window[callbackName] = (data) => {
-      console.log("[Sentiment] JSONP data received:", JSON.stringify(data));
+      debugBeacon("jsonp_ok", location, JSON.stringify(data).slice(0, 120));
       if (data && !data.error) {
         setSentiment(data);
       }
@@ -27439,16 +27450,19 @@ function CommunitySentiment({ location }) {
     const script = document.createElement("script");
     script.id = callbackName;
     script.src = `${API_BASE}/api/sentiment/jsonp?location=${encodeURIComponent(location)}&callback=${callbackName}`;
-    script.onerror = () => {
-      console.warn("[Sentiment] JSONP script load failed, trying fetch fallback");
+    script.onerror = (evt) => {
+      debugBeacon("jsonp_fail", location, "script_error");
       delete window[callbackName];
       try {
         script.remove();
       } catch (_) {
       }
-      fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`).then((r) => r.ok ? r.json() : null).then((d) => {
+      fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`).then((r) => {
+        debugBeacon("fetch_fallback_ok", location, "status:" + r.status);
+        return r.ok ? r.json() : null;
+      }).then((d) => {
         if (d) setSentiment(d);
-      }).catch(() => console.warn("[Sentiment] Both JSONP and fetch failed"));
+      }).catch((err) => debugBeacon("fetch_fallback_fail", location, String(err)));
     };
     document.head.appendChild(script);
     return () => {
@@ -27460,8 +27474,11 @@ function CommunitySentiment({ location }) {
     };
   }, [location]);
   const handleVote = (vote) => {
-    console.log("[Sentiment] handleVote called with:", vote, "hasVoted:", hasVoted, "isLoading:", isLoading);
-    if (hasVoted || isLoading) return;
+    debugBeacon("vote_click", location, vote);
+    if (hasVoted || isLoading) {
+      debugBeacon("vote_blocked", location, `hasVoted=${hasVoted},isLoading=${isLoading}`);
+      return;
+    }
     setIsLoading(true);
     setVoteChoice(vote);
     const currentSafe = sentiment?.safe ?? 50;
@@ -27472,25 +27489,27 @@ function CommunitySentiment({ location }) {
     const newSafePercent = newTotal > 0 ? Math.round(newSafe / newTotal * 100) : 50;
     setSentiment({ safe: newSafe, unsafe: newUnsafe, total: newTotal, safePercent: newSafePercent });
     setHasVoted(true);
-    console.log("[Sentiment] Optimistic UI updated \u2014 safe:", newSafe, "unsafe:", newUnsafe);
+    debugBeacon("vote_optimistic", location, `vote=${vote},safe=${newSafe},unsafe=${newUnsafe}`);
     const pixelUrl = `${API_BASE}/api/sentiment/vote?location=${encodeURIComponent(location)}&vote=${vote}&_t=${Date.now()}`;
-    console.log("[Sentiment] Firing vote pixel:", pixelUrl);
+    debugBeacon("pixel_fire", location, vote);
     const img = new Image();
-    img.onload = () => console.log("[Sentiment] Vote pixel loaded OK");
+    img.onload = () => debugBeacon("pixel_ok", location, vote);
     img.onerror = () => {
-      console.warn("[Sentiment] Vote pixel failed, trying fetch fallback");
+      debugBeacon("pixel_fail", location, vote);
       fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vote })
-      }).catch(() => console.warn("[Sentiment] Both pixel and fetch failed"));
+      }).then(() => debugBeacon("fetch_vote_ok", location, vote)).catch(() => debugBeacon("fetch_vote_fail", location, vote));
     };
     img.src = pixelUrl;
     try {
       const votedLocations = JSON.parse(localStorage.getItem("sentimentVotes") || "{}");
       votedLocations[location.toLowerCase()] = vote;
       localStorage.setItem("sentimentVotes", JSON.stringify(votedLocations));
+      debugBeacon("localStorage_save", location, "ok");
     } catch (e) {
+      debugBeacon("localStorage_save", location, "blocked");
     }
     try {
       trackEvent("safety_vote", {
@@ -27502,7 +27521,7 @@ function CommunitySentiment({ location }) {
     } catch (_) {
     }
     setIsLoading(false);
-    console.log("[Sentiment] Vote complete");
+    debugBeacon("vote_done", location, vote);
   };
   const safePercent = sentiment?.safePercent ?? 50;
   const unsafePercent = 100 - safePercent;

@@ -736,6 +736,7 @@ const ukProxyPath = "/api/uk";
 const sentimentPath = "/api/sentiment";
 const sentimentVotePixelPath = "/api/sentiment/vote";
 const sentimentJsonpPath = "/api/sentiment/jsonp";
+const debugBeaconPath = "/api/debug";
 
 // Community sentiment storage
 const SENTIMENT_FILE = path.join(LOGS_DIR, "sentiment.json");
@@ -1162,6 +1163,18 @@ async function handleSentimentJsonp(req: IncomingMessage, res: ServerResponse, u
 
   res.writeHead(200, { "Content-Type": "application/javascript" });
   res.end(`${callback}(${data})`);
+}
+
+// Debug beacon — client reports events via image pixel so they appear in Render logs
+async function handleDebugBeacon(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  const step = url.searchParams.get("step") || "unknown";
+  const detail = url.searchParams.get("detail") || "";
+  const loc = url.searchParams.get("loc") || "";
+  console.log(`[Client Debug] step=${step} loc=${loc} detail=${detail}`);
+  res.writeHead(200, { "Content-Type": "image/gif", "Content-Length": TRANSPARENT_GIF.length.toString() });
+  res.end(TRANSPARENT_GIF);
 }
 
 const domainVerificationPath = "/.well-known/openai-apps-challenge";
@@ -2598,6 +2611,7 @@ const httpServer = createServer(
         url.pathname === sentimentPath ||
         url.pathname === sentimentVotePixelPath ||
         url.pathname === sentimentJsonpPath ||
+        url.pathname === debugBeaconPath ||
         url.pathname === trackEventPath ||
         url.pathname === subscribePath)
     ) {
@@ -2674,6 +2688,11 @@ const httpServer = createServer(
 
     if (url.pathname === sentimentJsonpPath) {
       await handleSentimentJsonp(req, res, url);
+      return;
+    }
+
+    if (url.pathname === debugBeaconPath) {
+      await handleDebugBeacon(req, res, url);
       return;
     }
 
