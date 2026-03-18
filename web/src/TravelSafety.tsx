@@ -3405,9 +3405,21 @@ function getScoreLabel(score: number): string {
    return null;
  }
 
-function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack, onCityClick }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean; onBack?: () => void; onCityClick?: (cityKey: string) => void }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, isUnknownLoading, onBack, onCityClick }: { advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; searchTerm: string; isCity: boolean; isUnknownLoading?: boolean; onBack?: () => void; onCityClick?: (cityKey: string) => void }) {
   const [showMore, setShowMore] = useState(false);
+  const [loadingFrame, setLoadingFrame] = useState(0);
   const config = ADVISORY_LEVELS[advisory.advisory_level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
+  const isPendingOfficialData = !!isUnknownLoading;
+
+  useEffect(() => {
+    if (!isPendingOfficialData) return;
+    const id = window.setInterval(() => {
+      setLoadingFrame((f) => (f + 1) % 3);
+    }, 400);
+    return () => window.clearInterval(id);
+  }, [isPendingOfficialData]);
+
+  const loadingDots = loadingFrame === 0 ? '·' : loadingFrame === 1 ? '··' : '···';
   
   // Calculate composite safety score
   const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
@@ -3497,20 +3509,27 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
           height: '72px', 
           borderRadius: '50%', 
           backgroundColor: COLORS.white,
-          border: `4px solid ${scoreConfig.text}`,
+          border: `4px solid ${isPendingOfficialData ? COLORS.slate[300] : scoreConfig.text}`,
           boxShadow: '0 10px 18px rgba(17, 24, 39, 0.10)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
+          transform: isPendingOfficialData && loadingFrame === 1 ? 'scale(1.03)' : 'scale(1)',
+          transition: 'transform 0.25s ease',
         }}>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: scoreConfig.text, lineHeight: 1 }}>{safetyScore}</div>
+          <div style={{ fontSize: '24px', fontWeight: 800, color: isPendingOfficialData ? COLORS.slate[500] : scoreConfig.text, lineHeight: 1 }}>
+            {isPendingOfficialData ? loadingDots : safetyScore}
+          </div>
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.slate[900], marginBottom: '4px', letterSpacing: '-0.01em' }}>{scoreLabel}</div>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.slate[900], marginBottom: '4px', letterSpacing: '-0.01em' }}>
+            {isPendingOfficialData ? 'Loading official safety data' : scoreLabel}
+          </div>
           <div style={{ fontSize: '14px', color: COLORS.slate[500], lineHeight: 1.5 }}>
-            {safetyScore >= 75 ? 'Likely safe for travel. Exercise normal precautions.' :
+            {isPendingOfficialData ? 'Checking State Department, UK advisories, ACLED, and GDELT now.' :
+             safetyScore >= 75 ? 'Likely safe for travel. Exercise normal precautions.' :
              safetyScore >= 50 ? 'Exercise increased caution. Be aware of surroundings.' :
              safetyScore >= 25 ? 'Reconsider travel. Significant safety concerns exist.' :
              'Do not travel. Extreme risks present.'}
@@ -3585,12 +3604,12 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
             <div style={{ 
               fontSize: '18px', 
               fontWeight: 700, 
-              color: config.style.text,
+              color: isPendingOfficialData ? COLORS.slate[500] : config.style.text,
             }}>
-              Level {advisory.advisory_level}
+              {isPendingOfficialData ? 'Loading' : `Level ${advisory.advisory_level}`}
             </div>
             <div style={{ fontSize: '11px', color: COLORS.slate[400] }}>
-              of 4
+              {isPendingOfficialData ? 'official data' : 'of 4'}
             </div>
           </div>
         </div>
@@ -4197,7 +4216,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
   // Extract location from hydration data
   const initialLocation = initialData?.location || initialData?.city || initialData?.country || '';
   const [searchQuery, setSearchQuery] = useState(initialLocation);
-  const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; isCity: boolean; searchTerm: string } | null>(null);
+  const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; isCity: boolean; searchTerm: string; isUnknownLoading?: boolean } | null>(null);
   const [advisories, setAdvisories] = useState<AdvisoryData>(INITIAL_PREFILLED_COVERAGE.advisories);
   const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(INITIAL_PREFILLED_COVERAGE.ukAdvisories);
   const [acledData, setAcledData] = useState<ACLEDAdvisoryData>(INITIAL_PREFILLED_COVERAGE.acledData);
@@ -4442,7 +4461,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       promises.push(
         fetchACLEDData(countryName).then((acled) => {
           if (acled) {
-            setSearchResult((prev) => prev ? { ...prev, acledData: acled } : prev);
+            setSearchResult((prev) => prev ? { ...prev, acledData: acled, isUnknownLoading: false } : prev);
           }
         }).catch(() => {})
       );
@@ -4452,7 +4471,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       promises.push(
         fetchGDELTData(locationQuery).then((gdelt) => {
           if (gdelt) {
-            setSearchResult((prev) => prev ? { ...prev, gdeltData: gdelt } : prev);
+            setSearchResult((prev) => prev ? { ...prev, gdeltData: gdelt, isUnknownLoading: false } : prev);
           }
         }).catch(() => {})
       );
@@ -4463,7 +4482,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
         fetchUKAdvice(searchTerm).then((uk) => {
           if (uk) {
             setUkAdvisories((prev) => ({ ...prev, [searchTerm]: uk }));
-            setSearchResult((prev) => prev ? { ...prev, ukAdvisory: uk } : prev);
+            setSearchResult((prev) => prev ? { ...prev, ukAdvisory: uk, isUnknownLoading: false } : prev);
           }
         }).catch(() => {})
       );
@@ -4580,7 +4599,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       noResult: true,
     });
 
-    setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery });
+    setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery, isUnknownLoading: true });
     setLoading(false);
 
     enrichResultInBackground(normalizedQuery, titleCaseName, titleCaseName, false, {});
@@ -4945,6 +4964,7 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
             gdeltData={searchResult.gdeltData}
             searchTerm={searchResult.searchTerm}
             isCity={searchResult.isCity}
+            isUnknownLoading={searchResult.isUnknownLoading}
             onBack={() => {
               setSearchResult(null);
               setSearchQuery('');

@@ -27770,9 +27770,19 @@ function normalizeExternalUrl(rawUrl) {
   }
   return null;
 }
-function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, onBack, onCityClick }) {
+function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, isCity, isUnknownLoading, onBack, onCityClick }) {
   const [showMore, setShowMore] = (0, import_react3.useState)(false);
+  const [loadingFrame, setLoadingFrame] = (0, import_react3.useState)(0);
   const config = ADVISORY_LEVELS[advisory.advisory_level] || ADVISORY_LEVELS[1];
+  const isPendingOfficialData = !!isUnknownLoading;
+  (0, import_react3.useEffect)(() => {
+    if (!isPendingOfficialData) return;
+    const id = window.setInterval(() => {
+      setLoadingFrame((f) => (f + 1) % 3);
+    }, 400);
+    return () => window.clearInterval(id);
+  }, [isPendingOfficialData]);
+  const loadingDots = loadingFrame === 0 ? "\xB7" : loadingFrame === 1 ? "\xB7\xB7" : "\xB7\xB7\xB7";
   const safetyScore = calculateSafetyScore(advisory, acledData, gdeltData);
   const scoreConfig = getScoreConfig(safetyScore);
   const scoreLabel = getScoreLabel(safetyScore);
@@ -27848,17 +27858,19 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         height: "72px",
         borderRadius: "50%",
         backgroundColor: COLORS.white,
-        border: `4px solid ${scoreConfig.text}`,
+        border: `4px solid ${isPendingOfficialData ? COLORS.slate[300] : scoreConfig.text}`,
         boxShadow: "0 10px 18px rgba(17, 24, 39, 0.10)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        flexShrink: 0
-      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, color: scoreConfig.text, lineHeight: 1 }, children: safetyScore }) }),
+        flexShrink: 0,
+        transform: isPendingOfficialData && loadingFrame === 1 ? "scale(1.03)" : "scale(1)",
+        transition: "transform 0.25s ease"
+      }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "24px", fontWeight: 800, color: isPendingOfficialData ? COLORS.slate[500] : scoreConfig.text, lineHeight: 1 }, children: isPendingOfficialData ? loadingDots : safetyScore }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { flex: 1 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "18px", fontWeight: 700, color: COLORS.slate[900], marginBottom: "4px", letterSpacing: "-0.01em" }, children: scoreLabel }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.5 }, children: safetyScore >= 75 ? "Likely safe for travel. Exercise normal precautions." : safetyScore >= 50 ? "Exercise increased caution. Be aware of surroundings." : safetyScore >= 25 ? "Reconsider travel. Significant safety concerns exist." : "Do not travel. Extreme risks present." })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "18px", fontWeight: 700, color: COLORS.slate[900], marginBottom: "4px", letterSpacing: "-0.01em" }, children: isPendingOfficialData ? "Loading official safety data" : scoreLabel }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "14px", color: COLORS.slate[500], lineHeight: 1.5 }, children: isPendingOfficialData ? "Checking State Department, UK advisories, ACLED, and GDELT now." : safetyScore >= 75 ? "Likely safe for travel. Exercise normal precautions." : safetyScore >= 50 ? "Exercise increased caution. Be aware of surroundings." : safetyScore >= 25 ? "Reconsider travel. Significant safety concerns exist." : "Do not travel. Extreme risks present." })
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CommunitySentiment, { location: isCity ? searchTerm : advisory.country }),
@@ -27907,15 +27919,12 @@ function SearchResult({ advisory, ukAdvisory, acledData, gdeltData, searchTerm, 
         textAlign: "center"
       }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[500], marginBottom: "4px", fontWeight: 500, textTransform: "uppercase" }, children: "US Advisory" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
           fontSize: "18px",
           fontWeight: 700,
-          color: config.style.text
-        }, children: [
-          "Level ",
-          advisory.advisory_level
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: "of 4" })
+          color: isPendingOfficialData ? COLORS.slate[500] : config.style.text
+        }, children: isPendingOfficialData ? "Loading" : `Level ${advisory.advisory_level}` }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "11px", color: COLORS.slate[400] }, children: isPendingOfficialData ? "official data" : "of 4" })
       ] })
     ] }) }),
     isCity && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -28661,7 +28670,7 @@ function TravelSafety({ initialData: initialData2 }) {
       promises.push(
         fetchACLEDData(countryName).then((acled) => {
           if (acled) {
-            setSearchResult((prev) => prev ? { ...prev, acledData: acled } : prev);
+            setSearchResult((prev) => prev ? { ...prev, acledData: acled, isUnknownLoading: false } : prev);
           }
         }).catch(() => {
         })
@@ -28671,7 +28680,7 @@ function TravelSafety({ initialData: initialData2 }) {
       promises.push(
         fetchGDELTData(locationQuery).then((gdelt) => {
           if (gdelt) {
-            setSearchResult((prev) => prev ? { ...prev, gdeltData: gdelt } : prev);
+            setSearchResult((prev) => prev ? { ...prev, gdeltData: gdelt, isUnknownLoading: false } : prev);
           }
         }).catch(() => {
         })
@@ -28682,7 +28691,7 @@ function TravelSafety({ initialData: initialData2 }) {
         fetchUKAdvice(searchTerm).then((uk) => {
           if (uk) {
             setUkAdvisories((prev) => ({ ...prev, [searchTerm]: uk }));
-            setSearchResult((prev) => prev ? { ...prev, ukAdvisory: uk } : prev);
+            setSearchResult((prev) => prev ? { ...prev, ukAdvisory: uk, isUnknownLoading: false } : prev);
           }
         }).catch(() => {
         })
@@ -28763,7 +28772,7 @@ function TravelSafety({ initialData: initialData2 }) {
       country: normalizedQuery,
       noResult: true
     });
-    setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery });
+    setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery, isUnknownLoading: true });
     setLoading(false);
     enrichResultInBackground(normalizedQuery, titleCaseName, titleCaseName, false, {});
   };
@@ -29076,6 +29085,7 @@ function TravelSafety({ initialData: initialData2 }) {
           gdeltData: searchResult.gdeltData,
           searchTerm: searchResult.searchTerm,
           isCity: searchResult.isCity,
+          isUnknownLoading: searchResult.isUnknownLoading,
           onBack: () => {
             setSearchResult(null);
             setSearchQuery("");
