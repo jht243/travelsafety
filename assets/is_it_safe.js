@@ -28756,6 +28756,13 @@ function TravelSafety({ initialData: initialData2 }) {
     }
     const titleCaseName = query.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
     const placeholderAdvisory = createPlaceholderAdvisory(normalizedQuery, titleCaseName);
+    trackEvent("search_location_empty", {
+      query: rawQuery,
+      normalizedQuery,
+      isCity: false,
+      country: normalizedQuery,
+      noResult: true
+    });
     setSearchResult({ advisory: placeholderAdvisory, isCity: false, searchTerm: normalizedQuery });
     setLoading(false);
     enrichResultInBackground(normalizedQuery, titleCaseName, titleCaseName, false, {});

@@ -113,6 +113,18 @@ type AnalyticsEvent = {
   [key: string]: any;
 };
 
+type MissingLocationRecord = {
+  key: string;
+  query: string;
+  normalizedQuery: string;
+  count: number;
+  firstSeen: string;
+  lastSeen: string;
+  lastSource: string;
+};
+
+type MissingLocationMap = Record<string, MissingLocationRecord>;
+
 function logAnalytics(event: string, data: Record<string, any> = {}) {
   const entry: AnalyticsEvent = {
     timestamp: new Date().toISOString(),
@@ -170,6 +182,77 @@ function getRecentLogs(days: number | "all" = 7): AnalyticsEvent[] {
   }
 
   return logs.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+}
+
+function normalizeMissingLocationKey(value?: string): string {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function loadMissingLocations(filePath: string): MissingLocationMap {
+  try {
+    if (!fs.existsSync(filePath)) return {};
+    const raw = fs.readFileSync(filePath, "utf8");
+    if (!raw.trim()) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    return parsed as MissingLocationMap;
+  } catch (e) {
+    console.error("[Missing Locations] Failed to load:", e);
+    return {};
+  }
+}
+
+function saveMissingLocations(filePath: string, data: MissingLocationMap): void {
+  try {
+    const tmpFile = `${filePath}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2));
+    fs.renameSync(tmpFile, filePath);
+  } catch (e) {
+    console.error("[Missing Locations] Failed to save:", e);
+  }
+}
+
+function recordMissingLocation(filePath: string, query: string, normalizedQuery?: string, source: string = "widget_search_location_empty"): void {
+  const key = normalizeMissingLocationKey(normalizedQuery || query);
+  if (!key) return;
+
+  const now = new Date().toISOString();
+  const store = loadMissingLocations(filePath);
+  const existing = store[key];
+
+  if (existing) {
+    existing.count += 1;
+    existing.lastSeen = now;
+    existing.lastSource = source;
+    if (query && query.trim()) {
+      existing.query = query;
+    }
+    if (normalizedQuery && normalizedQuery.trim()) {
+      existing.normalizedQuery = normalizedQuery;
+    }
+  } else {
+    store[key] = {
+      key,
+      query: query || key,
+      normalizedQuery: normalizedQuery || key,
+      count: 1,
+      firstSeen: now,
+      lastSeen: now,
+      lastSource: source,
+    };
+  }
+
+  saveMissingLocations(filePath, store);
+}
+
+function getMissingLocationsList(filePath: string): MissingLocationRecord[] {
+  return Object.values(loadMissingLocations(filePath)).sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return b.lastSeen.localeCompare(a.lastSeen);
+  });
 }
 
 function classifyDevice(userAgent?: string | null): string {
@@ -737,9 +820,11 @@ const sentimentPath = "/api/sentiment";
 const sentimentVotePixelPath = "/api/sentiment/vote";
 const sentimentJsonpPath = "/api/sentiment/jsonp";
 const debugBeaconPath = "/api/debug";
+const missingLocationsPath = "/api/missing-locations";
 
 // Community sentiment storage
 const SENTIMENT_FILE = path.join(LOGS_DIR, "sentiment.json");
+const MISSING_LOCATIONS_FILE = path.join(LOGS_DIR, "missing_locations.json");
 
 type LocationSentiment = {
   seeded: { safe: number; unsafe: number };
@@ -1513,6 +1598,8 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
 
   const timeRangeLabel = timeRange === "all" ? "All Time" : `Last ${timeRange} days`;
   
+  const missingLocations = getMissingLocationsList(MISSING_LOCATIONS_FILE);
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -1772,133 +1859,26 @@ function generateAnalyticsDashboard(logs: AnalyticsEvent[], alerts: AlertEntry[]
       </table>
     </div>
 
-    <div class="grid" style="margin-bottom: 20px;">
-      <div class="card">
-        <h2>Top Countries (MCP)</h2>
-        <table>
-          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(countryDist).length > 0 ? Object.entries(countryDist)
-      .sort((a, b) => (b[1] as number) - (a[1] as number))
-      .slice(0, 10)
-      .map(
-        ([country, count]) => `
-              <tr>
-                <td>${country}</td>
-                <td>${count}</td>
-              </tr>
-            `
-      )
-      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="card">
-        <h2>Top Cities (MCP)</h2>
-        <table>
-          <thead><tr><th>City</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(cityDist).length > 0 ? Object.entries(cityDist)
-      .sort((a, b) => (b[1] as number) - (a[1] as number))
-      .slice(0, 10)
-      .map(
-        ([city, count]) => `
-              <tr>
-                <td>${city}</td>
-                <td>${count}</td>
-              </tr>
-            `
-      )
-      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No data yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    
-    <div class="grid" style="margin-bottom: 20px;">
-      <div class="card">
-        <h2>Top Countries (Internal)</h2>
-        <table>
-          <thead><tr><th>Country</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(internalSearchCountries).length > 0 ? Object.entries(internalSearchCountries)
-      .sort((a, b) => (b[1] as number) - (a[1] as number))
-      .slice(0, 10)
-      .map(
-        ([country, count]) => `
-              <tr>
-                <td>${country}</td>
-                <td>${count}</td>
-              </tr>
-            `
-      )
-      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="card">
-        <h2>Top Locations (Internal)</h2>
-        <table>
-          <thead><tr><th>Location</th><th>Searches</th></tr></thead>
-          <tbody>
-            ${Object.entries(internalSearchLocations).length > 0 ? Object.entries(internalSearchLocations)
-      .sort((a, b) => (b[1] as number) - (a[1] as number))
-      .slice(0, 10)
-      .map(
-        ([loc, count]) => `
-              <tr>
-                <td>${loc}</td>
-                <td>${count}</td>
-              </tr>
-            `
-      )
-      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No internal searches yet</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom: 20px;">
-      <h2>User Queries (Inferred from Tool Calls)</h2>
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #22c55e;">
+      <h2 style="color: #15803d;">🧭 Missing Searched Locations</h2>
+      <p style="font-size: 12px; color: #166534; margin: 6px 0 12px 0;">Persisted on Render disk at <code>missing_locations.json</code>. Pull JSON: <code>/api/missing-locations</code> (analytics auth required).</p>
       <table>
-        <thead><tr><th>Date</th><th>Query</th><th>User Location</th><th>Locale</th></tr></thead>
+        <thead><tr><th>Query</th><th>Normalized</th><th>Count</th><th>First Seen</th><th>Last Seen</th></tr></thead>
         <tbody>
-          ${successLogs.length > 0 ? successLogs
-      .slice(0, 30)
+          ${missingLocations.length > 0 ? missingLocations
+      .slice(0, 50)
       .map(
-        (log) => `
+        (item) => `
             <tr>
-              <td class="timestamp" style="white-space: nowrap;">${new Date(log.timestamp).toLocaleString()}</td>
-              <td style="max-width: 300px;">${log.inferredQuery || "general search"}</td>
-              <td style="font-size: 12px; color: #6b7280;">${log.userLocation ? `${log.userLocation.city || ''}, ${log.userLocation.region || ''}, ${log.userLocation.country || ''}`.replace(/^, |, $/g, '') : '—'}</td>
-              <td style="font-size: 12px; color: #6b7280;">${log.userLocale || '—'}</td>
+              <td>${item.query || "—"}</td>
+              <td><code>${item.normalizedQuery || "—"}</code></td>
+              <td>${item.count || 0}</td>
+              <td class="timestamp">${item.firstSeen ? new Date(item.firstSeen).toLocaleString() : "—"}</td>
+              <td class="timestamp">${item.lastSeen ? new Date(item.lastSeen).toLocaleString() : "—"}</td>
             </tr>
           `
       )
-      .join("") : '<tr><td colspan="4" style="text-align: center; color: #9ca3af;">No queries yet</td></tr>'}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card" style="margin-bottom: 20px;">
-      <h2>User Feedback</h2>
-      <table>
-        <thead><tr><th>Date</th><th>Feedback</th></tr></thead>
-        <tbody>
-          ${logs.filter(l => l.event === "widget_user_feedback").length > 0 ? logs
-      .filter(l => l.event === "widget_user_feedback")
-      .slice(0, 20)
-      .map(
-        (log) => `
-            <tr>
-              <td class="timestamp" style="white-space: nowrap;">${new Date(log.timestamp).toLocaleString()}</td>
-              <td style="max-width: 600px;">${log.feedback || "—"}</td>
-            </tr>
-          `
-      )
-      .join("") : '<tr><td colspan="2" style="text-align: center; color: #9ca3af;">No feedback yet</td></tr>'}
+      .join("") : '<tr><td colspan="5" style="text-align: center; color: #9ca3af;">No empty searches yet</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -2281,11 +2261,44 @@ async function handleTrackEvent(req: IncomingMessage, res: ServerResponse) {
       vote: data.vote,
     });
 
+    if ((event === "search_location_empty" || event === "search_location") && (data.noResult === true || event === "search_location_empty")) {
+      recordMissingLocation(
+        MISSING_LOCATIONS_FILE,
+        String(data.query || ""),
+        String(data.normalizedQuery || ""),
+        `widget_${event}`,
+      );
+    }
+
     res.writeHead(200).end(JSON.stringify({ success: true }));
   } catch (error) {
     console.error("Track event error:", error);
     res.writeHead(500).end(JSON.stringify({ error: "Failed to track event" }));
   }
+}
+
+async function handleMissingLocations(req: IncomingMessage, res: ServerResponse) {
+  if (!checkAnalyticsAuth(req)) {
+    res.writeHead(401, {
+      "WWW-Authenticate": 'Basic realm="Analytics Dashboard"',
+      "Content-Type": "application/json",
+    });
+    res.end(JSON.stringify({ error: "Authentication required" }));
+    return;
+  }
+
+  if (req.method !== "GET") {
+    res.writeHead(405, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Method not allowed" }));
+    return;
+  }
+
+  const items = getMissingLocationsList(MISSING_LOCATIONS_FILE);
+  res.writeHead(200, {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+  });
+  res.end(JSON.stringify({ total: items.length, items }, null, 2));
 }
 
 // Buttondown API integration
@@ -2612,6 +2625,7 @@ const httpServer = createServer(
         url.pathname === sentimentVotePixelPath ||
         url.pathname === sentimentJsonpPath ||
         url.pathname === debugBeaconPath ||
+        url.pathname === missingLocationsPath ||
         url.pathname === trackEventPath ||
         url.pathname === subscribePath)
     ) {
@@ -2658,6 +2672,11 @@ const httpServer = createServer(
 
     if (url.pathname === trackEventPath) {
       await handleTrackEvent(req, res);
+      return;
+    }
+
+    if (url.pathname === missingLocationsPath) {
+      await handleMissingLocations(req, res);
       return;
     }
 
