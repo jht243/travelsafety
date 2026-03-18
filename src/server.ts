@@ -260,6 +260,24 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
     : widget.templateUri;
 
   return {
+    // ---- MCP Apps standard metadata (new format) ----
+    "ui": {
+      "resourceUri": templateUri,
+      "csp": {
+        "connectDomains": [
+          "https://travelsafety-un15.onrender.com",
+          "https://nominatim.openstreetmap.org",
+          "https://api.open-meteo.com",
+          "https://geocoding-api.open-meteo.com",
+          "http://localhost:8001"
+        ],
+        "resourceDomains": [
+          "https://travelsafety-un15.onrender.com"
+        ],
+      },
+      "domain": "https://travelsafety-un15.onrender.com",
+    },
+    // ---- Apps SDK legacy metadata (kept for backward compatibility) ----
     "openai/outputTemplate": templateUri,
     "openai/widgetDescription":
       "A travel safety tool that provides real-time safety data for any city or country. Shows official travel advisories from US State Department and UK Foreign Office, recent conflict data from ACLED, and news sentiment analysis from GDELT. Call this tool immediately with NO arguments to let the user search for a location manually. Only provide arguments if the user has explicitly stated a location.",
@@ -298,18 +316,18 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
     ],
     "openai/widgetPrefersBorder": true,
     "openai/widgetCSP": {
-      connect_domains: [
+      connectDomains: [
         "https://travelsafety-un15.onrender.com",
         "https://nominatim.openstreetmap.org",
         "https://api.open-meteo.com",
         "https://geocoding-api.open-meteo.com",
         "http://localhost:8001"
       ],
-      resource_domains: [
+      resourceDomains: [
         "https://travelsafety-un15.onrender.com"
       ],
     },
-    "openai/widgetDomain": "https://web-sandbox.oaiusercontent.com",
+    "openai/widgetDomain": "https://travelsafety-un15.onrender.com",
     "openai/toolInvocation/invoking": widget.invoking,
     "openai/toolInvocation/invoked": widget.invoked,
     "openai/widgetAccessible": true,
@@ -410,7 +428,7 @@ const resources: Resource[] = widgets.map((widget) => ({
   name: widget.title,
   description:
     "HTML template for the Is It Safe travel safety widget that provides real-time safety data for cities and countries.",
-  mimeType: "text/html+skybridge",
+  mimeType: "text/html;profile=mcp-app",
   _meta: widgetMeta(widget),
 }));
 
@@ -419,7 +437,7 @@ const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
   name: widget.title,
   description:
     "Template descriptor for the Is It Safe travel safety widget.",
-  mimeType: "text/html+skybridge",
+  mimeType: "text/html;profile=mcp-app",
   _meta: widgetMeta(widget),
 }));
 
@@ -467,7 +485,7 @@ function createTravelSafetyServer(): Server {
         contents: [
           {
             uri: widget.templateUri,
-            mimeType: "text/html+skybridge",
+            mimeType: "text/html;profile=mcp-app",
             text: htmlToSend,
             _meta: widgetMeta(widget),
           },
@@ -664,7 +682,7 @@ function createTravelSafetyServer(): Server {
             type: "resource",
             resource: {
               uri: widget.templateUri,
-              mimeType: "text/html+skybridge",
+              mimeType: "text/html;profile=mcp-app",
               text: widget.html,
               title: widget.title,
             },
