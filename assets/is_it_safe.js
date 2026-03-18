@@ -24781,6 +24781,7 @@ var UI = {
   }
 };
 var API_BASE = typeof window !== "undefined" && window.location.hostname === "localhost" ? "" : "https://travelsafety-un15.onrender.com";
+console.log("[Sentiment] API_BASE resolved to:", JSON.stringify(API_BASE), "hostname:", typeof window !== "undefined" ? window.location.hostname : "N/A");
 var trackEvent = (event, data = {}) => {
   try {
     fetch(`${API_BASE}/api/track`, {
@@ -27406,54 +27407,83 @@ function CommunitySentiment({ location }) {
   const [hasVoted, setHasVoted] = import_react3.default.useState(false);
   const [isLoading, setIsLoading] = import_react3.default.useState(false);
   import_react3.default.useEffect(() => {
+    console.log("[Sentiment] useEffect fired for location:", location);
     try {
-      const votedLocations = JSON.parse(localStorage.getItem("sentimentVotes") || "{}");
+      const raw = localStorage.getItem("sentimentVotes");
+      console.log("[Sentiment] localStorage read OK, raw:", raw);
+      const votedLocations = JSON.parse(raw || "{}");
       if (votedLocations[location.toLowerCase()]) {
+        console.log("[Sentiment] User already voted for this location");
         setHasVoted(true);
       } else {
         setHasVoted(false);
       }
     } catch (e) {
+      console.warn("[Sentiment] localStorage blocked:", e);
       setHasVoted(false);
     }
-    fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`).then((res) => {
+    const sentimentUrl = `${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`;
+    console.log("[Sentiment] Fetching GET:", sentimentUrl);
+    fetch(sentimentUrl).then((res) => {
+      console.log("[Sentiment] GET response status:", res.status, "ok:", res.ok);
       if (!res.ok) {
         throw new Error(`Sentiment GET failed (${res.status})`);
       }
       return res.json();
-    }).then((data) => setSentiment(data)).catch((err) => console.error("Failed to load sentiment:", err));
+    }).then((data) => {
+      console.log("[Sentiment] GET data received:", JSON.stringify(data));
+      setSentiment(data);
+    }).catch((err) => console.error("[Sentiment] GET failed:", err));
   }, [location]);
   const handleVote = async (vote) => {
-    if (hasVoted || isLoading) return;
+    console.log("[Sentiment] handleVote called with:", vote, "hasVoted:", hasVoted, "isLoading:", isLoading);
+    if (hasVoted || isLoading) {
+      console.log("[Sentiment] handleVote BLOCKED \u2014 hasVoted:", hasVoted, "isLoading:", isLoading);
+      return;
+    }
     setIsLoading(true);
-    trackEvent("safety_vote", {
-      location,
-      vote,
-      isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
-      country: CITY_TO_COUNTRY[location.toLowerCase()] || location
-    });
+    console.log("[Sentiment] isLoading set to true");
     try {
-      const res = await fetch(`${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`, {
+      trackEvent("safety_vote", {
+        location,
+        vote,
+        isCity: !!CITY_TO_COUNTRY[location.toLowerCase()],
+        country: CITY_TO_COUNTRY[location.toLowerCase()] || location
+      });
+      console.log("[Sentiment] trackEvent fired OK");
+    } catch (trackErr) {
+      console.error("[Sentiment] trackEvent crashed:", trackErr);
+    }
+    const voteUrl = `${API_BASE}/api/sentiment?location=${encodeURIComponent(location)}`;
+    console.log("[Sentiment] Fetching POST:", voteUrl);
+    try {
+      const res = await fetch(voteUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vote })
       });
+      console.log("[Sentiment] POST response status:", res.status, "ok:", res.ok);
       if (!res.ok) {
         throw new Error(`Sentiment vote failed (${res.status})`);
       }
       const data = await res.json();
+      console.log("[Sentiment] POST data received:", JSON.stringify(data));
       setSentiment(data);
       setHasVoted(true);
+      console.log("[Sentiment] Vote SUCCESS \u2014 hasVoted set to true");
       try {
         const votedLocations = JSON.parse(localStorage.getItem("sentimentVotes") || "{}");
         votedLocations[location.toLowerCase()] = vote;
         localStorage.setItem("sentimentVotes", JSON.stringify(votedLocations));
+        console.log("[Sentiment] localStorage updated OK");
       } catch (e) {
+        console.warn("[Sentiment] localStorage save blocked:", e);
       }
     } catch (err) {
-      console.error("Failed to vote:", err);
+      console.error("[Sentiment] POST failed:", err);
     } finally {
       setIsLoading(false);
+      console.log("[Sentiment] isLoading set back to false");
     }
   };
   const safePercent = sentiment?.safePercent ?? 50;

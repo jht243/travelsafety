@@ -1062,12 +1062,16 @@ function voteSentiment(location: string, isSafe: boolean): { safe: number; unsaf
 }
 
 async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
+  const origin = req.headers.origin || req.headers.referer || 'none';
+  console.log(`[Sentiment API] ${req.method} ${url.toString()} origin=${origin}`);
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "content-type");
 
   const location = url.searchParams.get("location");
   if (!location) {
+    console.log("[Sentiment API] 400 — missing location param");
     res.writeHead(400, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Missing location parameter" }));
     return;
@@ -1077,6 +1081,7 @@ async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: U
     const sentiment = getSentiment(location);
     const total = sentiment.safe + sentiment.unsafe;
     const safePercent = total > 0 ? Math.round((sentiment.safe / total) * 100) : 50;
+    console.log(`[Sentiment API] GET 200 for "${location}" — safe:${sentiment.safe} unsafe:${sentiment.unsafe} total:${total}`);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ ...sentiment, total, safePercent }));
     return;
@@ -1087,8 +1092,10 @@ async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: U
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
       try {
+        console.log(`[Sentiment API] POST body for "${location}":`, body);
         const { vote } = JSON.parse(body);
         if (vote !== "safe" && vote !== "unsafe") {
+          console.log(`[Sentiment API] 400 — invalid vote value: ${vote}`);
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Invalid vote. Must be 'safe' or 'unsafe'" }));
           return;
@@ -1097,9 +1104,11 @@ async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: U
         const total = sentiment.safe + sentiment.unsafe;
         const safePercent = total > 0 ? Math.round((sentiment.safe / total) * 100) : 50;
         logAnalytics("sentiment_vote", { location, vote });
+        console.log(`[Sentiment API] POST 200 vote="${vote}" for "${location}" — safe:${sentiment.safe} unsafe:${sentiment.unsafe}`);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ...sentiment, total, safePercent }));
       } catch (e) {
+        console.error(`[Sentiment API] 400 — JSON parse error:`, e);
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Invalid JSON body" }));
       }
@@ -1107,6 +1116,7 @@ async function handleSentiment(req: IncomingMessage, res: ServerResponse, url: U
     return;
   }
 
+  console.log(`[Sentiment API] 405 — method not allowed: ${req.method}`);
   res.writeHead(405, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Method not allowed" }));
 }
