@@ -2758,6 +2758,118 @@ const FALLBACK_ADVISORIES: AdvisoryData = {
   },
 };
 
+function createDefaultAdvisory(countryName: string): TravelAdvisory {
+  return {
+    country: countryName,
+    country_code: '',
+    advisory_level: 2,
+    advisory_text: `Official advisory data is not available for ${countryName} right now. Verify with official sources before traveling.`,
+    date_updated: new Date().toISOString().split('T')[0],
+    url: 'https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html',
+  };
+}
+
+function createDefaultUkAdvice(countryName: string): UKTravelAdvice {
+  return {
+    country: countryName,
+    alert_status: [],
+    change_description: `No UK advisory record available for ${countryName} at this time.`,
+    last_updated: new Date().toISOString(),
+    url: `https://www.gov.uk/foreign-travel-advice/${toUkSlug(countryName.toLowerCase())}`,
+  };
+}
+
+function createDefaultAcled(countryName: string, location?: string): ACLEDData {
+  return {
+    country: countryName,
+    location,
+    total_events: 0,
+    fatalities: 0,
+    events_last_30_days: 0,
+    event_types: {
+      'No data available': 1,
+    },
+    last_updated: new Date().toISOString(),
+    trend: 'stable',
+  };
+}
+
+function createDefaultGdelt(location: string, countryName: string): GDELTData {
+  return {
+    location,
+    country: countryName,
+    tone_score: 0,
+    volume_level: 'normal',
+    article_count_24h: 0,
+    themes: {},
+    headlines: [],
+    trend_7day: 'stable',
+    last_updated: new Date().toISOString(),
+  };
+}
+
+function buildPrefilledCoverageData(
+  liveUsAdvisories: AdvisoryData,
+  liveUkAdvisories: UKAdvisoryData,
+): {
+  advisories: AdvisoryData;
+  ukAdvisories: UKAdvisoryData;
+  acledData: ACLEDAdvisoryData;
+  gdeltData: GDELTAdvisoryData;
+} {
+  const allCountries = new Set<string>();
+
+  Object.values(CITY_COORDINATES).forEach((city) => allCountries.add(city.country));
+  Object.values(FALLBACK_ADVISORIES).forEach((a) => allCountries.add(a.country));
+  Object.values(liveUsAdvisories).forEach((a) => allCountries.add(a.country));
+
+  const advisories: AdvisoryData = { ...FALLBACK_ADVISORIES, ...liveUsAdvisories };
+  const ukAdvisories: UKAdvisoryData = { ...FALLBACK_UK_ADVISORIES, ...liveUkAdvisories };
+  const acledData: ACLEDAdvisoryData = { ...FALLBACK_ACLED_DATA };
+  const gdeltData: GDELTAdvisoryData = { ...FALLBACK_GDELT_DATA };
+
+  for (const countryName of allCountries) {
+    const countryKey = countryName.toLowerCase();
+
+    if (!advisories[countryKey]) {
+      advisories[countryKey] = createDefaultAdvisory(countryName);
+    }
+
+    if (!ukAdvisories[countryKey]) {
+      ukAdvisories[countryKey] = createDefaultUkAdvice(countryName);
+    }
+
+    if (!acledData[countryKey]) {
+      acledData[countryKey] = createDefaultAcled(countryName);
+    }
+
+    if (!gdeltData[countryKey]) {
+      gdeltData[countryKey] = createDefaultGdelt(countryName, countryName);
+    }
+  }
+
+  for (const [cityKey, cityInfo] of Object.entries(CITY_COORDINATES)) {
+    const countryKey = cityInfo.country.toLowerCase();
+
+    if (!acledData[cityKey]) {
+      const baseAcled = acledData[countryKey] || createDefaultAcled(cityInfo.country);
+      acledData[cityKey] = {
+        ...baseAcled,
+        country: cityInfo.country,
+        location: cityInfo.name,
+      };
+    }
+
+    if (!gdeltData[cityKey]) {
+      gdeltData[cityKey] = createDefaultGdelt(cityInfo.name, cityInfo.country);
+    }
+  }
+
+  return { advisories, ukAdvisories, acledData, gdeltData };
+}
+
+const INITIAL_PREFILLED_COVERAGE = buildPrefilledCoverageData({}, {});
+
 function AdvisoryLevelBadge({ level }: { level: number }) {
   const config = ADVISORY_LEVELS[level as keyof typeof ADVISORY_LEVELS] || ADVISORY_LEVELS[1];
   const Icon = config.icon;
@@ -4086,10 +4198,10 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
   const initialLocation = initialData?.location || initialData?.city || initialData?.country || '';
   const [searchQuery, setSearchQuery] = useState(initialLocation);
   const [searchResult, setSearchResult] = useState<{ advisory: TravelAdvisory; ukAdvisory?: UKTravelAdvice; acledData?: ACLEDData; gdeltData?: GDELTData; isCity: boolean; searchTerm: string } | null>(null);
-  const [advisories, setAdvisories] = useState<AdvisoryData>(FALLBACK_ADVISORIES);
-  const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(FALLBACK_UK_ADVISORIES);
-  const [acledData, setAcledData] = useState<ACLEDAdvisoryData>(FALLBACK_ACLED_DATA);
-  const [gdeltData, setGdeltData] = useState<GDELTAdvisoryData>(FALLBACK_GDELT_DATA);
+  const [advisories, setAdvisories] = useState<AdvisoryData>(INITIAL_PREFILLED_COVERAGE.advisories);
+  const [ukAdvisories, setUkAdvisories] = useState<UKAdvisoryData>(INITIAL_PREFILLED_COVERAGE.ukAdvisories);
+  const [acledData, setAcledData] = useState<ACLEDAdvisoryData>(INITIAL_PREFILLED_COVERAGE.acledData);
+  const [gdeltData, setGdeltData] = useState<GDELTAdvisoryData>(INITIAL_PREFILLED_COVERAGE.gdeltData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiLoaded, setApiLoaded] = useState(false);
@@ -4258,12 +4370,23 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
       fetchStateAdvisories(),
       fetchUKAdvisories()
     ]).then(([usData, ukData]) => {
-      if (Object.keys(usData).length > 0) {
-        setAdvisories({ ...FALLBACK_ADVISORIES, ...usData });
-      }
-      if (Object.keys(ukData).length > 0) {
-        setUkAdvisories({ ...FALLBACK_UK_ADVISORIES, ...ukData });
-      }
+      const prefilled = buildPrefilledCoverageData(usData, ukData);
+      setAdvisories(prefilled.advisories);
+      setUkAdvisories(prefilled.ukAdvisories);
+      setAcledData(prefilled.acledData);
+      setGdeltData(prefilled.gdeltData);
+
+      console.log('[Prefill] Coverage ready:', {
+        cities: Object.keys(CITY_COORDINATES).length,
+        countries: new Set(Object.values(CITY_COORDINATES).map((c) => c.country)).size,
+        advisoryCount: Object.keys(prefilled.advisories).length,
+        ukCount: Object.keys(prefilled.ukAdvisories).length,
+        acledCount: Object.keys(prefilled.acledData).length,
+        gdeltCount: Object.keys(prefilled.gdeltData).length,
+      });
+
+      setApiLoaded(true);
+    }).catch(() => {
       setApiLoaded(true);
     });
   }, []);

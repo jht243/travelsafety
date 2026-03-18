@@ -27258,6 +27258,93 @@ var FALLBACK_ADVISORIES = {
     url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/south-korea-travel-advisory.html"
   }
 };
+function createDefaultAdvisory(countryName) {
+  return {
+    country: countryName,
+    country_code: "",
+    advisory_level: 2,
+    advisory_text: `Official advisory data is not available for ${countryName} right now. Verify with official sources before traveling.`,
+    date_updated: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+    url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html"
+  };
+}
+function createDefaultUkAdvice(countryName) {
+  return {
+    country: countryName,
+    alert_status: [],
+    change_description: `No UK advisory record available for ${countryName} at this time.`,
+    last_updated: (/* @__PURE__ */ new Date()).toISOString(),
+    url: `https://www.gov.uk/foreign-travel-advice/${toUkSlug(countryName.toLowerCase())}`
+  };
+}
+function createDefaultAcled(countryName, location) {
+  return {
+    country: countryName,
+    location,
+    total_events: 0,
+    fatalities: 0,
+    events_last_30_days: 0,
+    event_types: {
+      "No data available": 1
+    },
+    last_updated: (/* @__PURE__ */ new Date()).toISOString(),
+    trend: "stable"
+  };
+}
+function createDefaultGdelt(location, countryName) {
+  return {
+    location,
+    country: countryName,
+    tone_score: 0,
+    volume_level: "normal",
+    article_count_24h: 0,
+    themes: {},
+    headlines: [],
+    trend_7day: "stable",
+    last_updated: (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
+function buildPrefilledCoverageData(liveUsAdvisories, liveUkAdvisories) {
+  const allCountries = /* @__PURE__ */ new Set();
+  Object.values(CITY_COORDINATES).forEach((city) => allCountries.add(city.country));
+  Object.values(FALLBACK_ADVISORIES).forEach((a) => allCountries.add(a.country));
+  Object.values(liveUsAdvisories).forEach((a) => allCountries.add(a.country));
+  const advisories = { ...FALLBACK_ADVISORIES, ...liveUsAdvisories };
+  const ukAdvisories = { ...FALLBACK_UK_ADVISORIES, ...liveUkAdvisories };
+  const acledData = { ...FALLBACK_ACLED_DATA };
+  const gdeltData = { ...FALLBACK_GDELT_DATA };
+  for (const countryName of allCountries) {
+    const countryKey = countryName.toLowerCase();
+    if (!advisories[countryKey]) {
+      advisories[countryKey] = createDefaultAdvisory(countryName);
+    }
+    if (!ukAdvisories[countryKey]) {
+      ukAdvisories[countryKey] = createDefaultUkAdvice(countryName);
+    }
+    if (!acledData[countryKey]) {
+      acledData[countryKey] = createDefaultAcled(countryName);
+    }
+    if (!gdeltData[countryKey]) {
+      gdeltData[countryKey] = createDefaultGdelt(countryName, countryName);
+    }
+  }
+  for (const [cityKey, cityInfo] of Object.entries(CITY_COORDINATES)) {
+    const countryKey = cityInfo.country.toLowerCase();
+    if (!acledData[cityKey]) {
+      const baseAcled = acledData[countryKey] || createDefaultAcled(cityInfo.country);
+      acledData[cityKey] = {
+        ...baseAcled,
+        country: cityInfo.country,
+        location: cityInfo.name
+      };
+    }
+    if (!gdeltData[cityKey]) {
+      gdeltData[cityKey] = createDefaultGdelt(cityInfo.name, cityInfo.country);
+    }
+  }
+  return { advisories, ukAdvisories, acledData, gdeltData };
+}
+var INITIAL_PREFILLED_COVERAGE = buildPrefilledCoverageData({}, {});
 function SafetyMeter({ level }) {
   const percentage = (4 - level + 1) / 4 * 100;
   const config = ADVISORY_LEVELS[level] || ADVISORY_LEVELS[1];
@@ -28387,10 +28474,10 @@ function TravelSafety({ initialData: initialData2 }) {
   const initialLocation = initialData2?.location || initialData2?.city || initialData2?.country || "";
   const [searchQuery, setSearchQuery] = (0, import_react3.useState)(initialLocation);
   const [searchResult, setSearchResult] = (0, import_react3.useState)(null);
-  const [advisories, setAdvisories] = (0, import_react3.useState)(FALLBACK_ADVISORIES);
-  const [ukAdvisories, setUkAdvisories] = (0, import_react3.useState)(FALLBACK_UK_ADVISORIES);
-  const [acledData, setAcledData] = (0, import_react3.useState)(FALLBACK_ACLED_DATA);
-  const [gdeltData, setGdeltData] = (0, import_react3.useState)(FALLBACK_GDELT_DATA);
+  const [advisories, setAdvisories] = (0, import_react3.useState)(INITIAL_PREFILLED_COVERAGE.advisories);
+  const [ukAdvisories, setUkAdvisories] = (0, import_react3.useState)(INITIAL_PREFILLED_COVERAGE.ukAdvisories);
+  const [acledData, setAcledData] = (0, import_react3.useState)(INITIAL_PREFILLED_COVERAGE.acledData);
+  const [gdeltData, setGdeltData] = (0, import_react3.useState)(INITIAL_PREFILLED_COVERAGE.gdeltData);
   const [loading, setLoading] = (0, import_react3.useState)(false);
   const [error, setError] = (0, import_react3.useState)(null);
   const [apiLoaded, setApiLoaded] = (0, import_react3.useState)(false);
@@ -28539,12 +28626,21 @@ function TravelSafety({ initialData: initialData2 }) {
       fetchStateAdvisories(),
       fetchUKAdvisories()
     ]).then(([usData, ukData]) => {
-      if (Object.keys(usData).length > 0) {
-        setAdvisories({ ...FALLBACK_ADVISORIES, ...usData });
-      }
-      if (Object.keys(ukData).length > 0) {
-        setUkAdvisories({ ...FALLBACK_UK_ADVISORIES, ...ukData });
-      }
+      const prefilled = buildPrefilledCoverageData(usData, ukData);
+      setAdvisories(prefilled.advisories);
+      setUkAdvisories(prefilled.ukAdvisories);
+      setAcledData(prefilled.acledData);
+      setGdeltData(prefilled.gdeltData);
+      console.log("[Prefill] Coverage ready:", {
+        cities: Object.keys(CITY_COORDINATES).length,
+        countries: new Set(Object.values(CITY_COORDINATES).map((c) => c.country)).size,
+        advisoryCount: Object.keys(prefilled.advisories).length,
+        ukCount: Object.keys(prefilled.ukAdvisories).length,
+        acledCount: Object.keys(prefilled.acledData).length,
+        gdeltCount: Object.keys(prefilled.gdeltData).length
+      });
+      setApiLoaded(true);
+    }).catch(() => {
       setApiLoaded(true);
     });
   }, []);
