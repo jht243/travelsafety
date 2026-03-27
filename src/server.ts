@@ -202,7 +202,7 @@ async function resolveCountryFromQuery(query: string): Promise<string | null> {
     const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&q=${encodeURIComponent(query)}`;
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "is-it-safe/0.1 (+https://travelsafety-un15.onrender.com)",
+        "User-Agent": "check_travel_safety/0.1 (+https://travelsafety-un15.onrender.com)",
       },
     });
     if (!res.ok) return null;
@@ -719,7 +719,7 @@ function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
 
 const widgets: TravelSafetyWidget[] = [
   {
-    id: "is-it-safe",
+    id: "check_travel_safety",
     title: "Is It Safe? — Real-time travel safety data for any city or country",
     templateUri: `ui://widget/is_it_safe.html?v=${VERSION}`,
     invoking:
@@ -826,7 +826,7 @@ const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
 function createTravelSafetyServer(): Server {
   const server = new Server(
     {
-      name: "is-it-safe",
+      name: "check_travel_safety",
       version: "0.1.0",
       description:
         "Is It Safe provides real-time travel safety data for any city or country, including official government advisories, conflict data, and news analysis.",
@@ -2674,7 +2674,7 @@ async function subscribeToButtondown(email: string, topicId: string, topicName: 
 
   const metadata: Record<string, any> = {
     topicName,
-    source: "is-it-safe",
+    source: "check_travel_safety",
     subscribedAt: new Date().toISOString(),
   };
 
@@ -2764,7 +2764,7 @@ async function updateButtondownSubscriber(email: string, topicId: string, topicN
   const updatedMetadata = {
     ...existingMetadata,
     [topicKey]: topicData,
-    source: "is-it-safe",
+    source: "check_travel_safety",
   };
 
   const updateRequestBody = {
@@ -2819,7 +2819,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
     // Support both old (settlementId/settlementName) and new (topicId/topicName) field names
     const parsed = JSON.parse(body);
     const email = parsed.email;
-    const topicId = parsed.topicId || parsed.settlementId || "is-it-safe";
+    const topicId = parsed.topicId || parsed.settlementId || "check_travel_safety";
     const topicName = parsed.topicName || parsed.settlementName || "Is It Safe Updates";
     if (!email || !email.includes("@")) {
       res.writeHead(400).end(JSON.stringify({ error: "Invalid email address" }));

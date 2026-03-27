@@ -1,6 +1,6 @@
-# Golden Prompt Set - Crypto Portfolio Optimizer
+# Golden Prompt Set - Is It Safe? Travel Safety
 
-This document contains test prompts to validate the Crypto Portfolio Optimizer connector's metadata and behavior.
+This document contains test prompts to validate the `check_travel_safety` connector's metadata and behavior.
 
 ## Purpose
 Use these prompts to test:
@@ -12,81 +12,81 @@ Use these prompts to test:
 
 ## Direct Prompts (Should ALWAYS trigger the connector)
 
-### 1. Explicit Tool Name
-**Prompt**: "Optimize my crypto portfolio"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` with default values
+### 1. Explicit Safety Check
+**Prompt**: "Is it safe to travel to Colombia?"
+**Expected**: ✅ Calls `check_travel_safety` with location="Colombia"
 **Status**: [ ] Pass / [ ] Fail
 
-### 2. Specific Allocation
-**Prompt**: "Analyze my portfolio with 60% stocks and 40% crypto"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` with stocks=60, crypto=40
+### 2. City-Specific Query
+**Prompt**: "Check travel safety for Bangkok"
+**Expected**: ✅ Calls `check_travel_safety` with city="Bangkok"
 **Status**: [ ] Pass / [ ] Fail
 
-### 3. Investment Query
-**Prompt**: "What's the best asset allocation for a 10 year horizon?"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` with time horizon context
+### 3. Country Advisory
+**Prompt**: "What's the travel advisory for Ukraine?"
+**Expected**: ✅ Calls `check_travel_safety` with country="Ukraine"
 **Status**: [ ] Pass / [ ] Fail
 
 ### 4. Detailed Parameters
-**Prompt**: "Simulate portfolio with $100k in stocks, $50k in bonds, $10k crypto"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` with all parameters
+**Prompt**: "Show me safety data for Mexico City including news and conflict data"
+**Expected**: ✅ Calls `check_travel_safety` with city="Mexico City", include_news=true, include_conflict=true
 **Status**: [ ] Pass / [ ] Fail
 
-### 5. Risk Assessment
-**Prompt**: "Is my portfolio too risky with 80% in crypto?"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` to analyze allocation
+### 5. Open-Ended Safety
+**Prompt**: "Is it safe to travel right now?"
+**Expected**: ✅ Calls `check_travel_safety` with no arguments (opens widget for manual search)
 **Status**: [ ] Pass / [ ] Fail
 
 ---
 
 ## Indirect Prompts (Should trigger the connector)
 
-### 6. Diversification Question
-**Prompt**: "How should I diversify my crypto investments?"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` to suggest allocation
+### 6. Trip Planning
+**Prompt**: "I'm planning a trip to Kenya, should I be worried?"
+**Expected**: ✅ Calls `check_travel_safety` with location="Kenya"
 **Status**: [ ] Pass / [ ] Fail
 
-### 7. Investment Strategy
-**Prompt**: "Check my crypto allocation"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer`
+### 7. News-Based Concern
+**Prompt**: "Is there any danger traveling to Israel right now?"
+**Expected**: ✅ Calls `check_travel_safety` with location="Israel"
 **Status**: [ ] Pass / [ ] Fail
 
 ### 8. Comparison
-**Prompt**: "Is my portfolio balanced for growth?"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer`
+**Prompt**: "How safe is Tokyo compared to other cities?"
+**Expected**: ✅ Calls `check_travel_safety` with city="Tokyo"
 **Status**: [ ] Pass / [ ] Fail
 
 ---
 
 ## Negative Prompts (Should NOT trigger the connector)
 
-### 9. Stock Picks
-**Prompt**: "What coins should I buy?"
-**Expected**: ❌ Does NOT call `crypto-portfolio-optimizer` (specific advice)
+### 9. Food Safety
+**Prompt**: "Is it safe to eat raw fish?"
+**Expected**: ❌ Does NOT call `check_travel_safety` (food safety, not travel)
 **Status**: [ ] Pass / [ ] Fail
 
-### 10. Tax Advice
-**Prompt**: "How do I minimize taxes on crypto?"
-**Expected**: ❌ Does NOT call `crypto-portfolio-optimizer` (tax advice)
+### 10. Financial Safety
+**Prompt**: "Is it safe to invest in crypto?"
+**Expected**: ❌ Does NOT call `check_travel_safety` (financial advice)
 **Status**: [ ] Pass / [ ] Fail
 
-### 11. Trading Signals
-**Prompt**: "Best time to buy Bitcoin"
-**Expected**: ❌ Does NOT call `crypto-portfolio-optimizer` (trading advice)
+### 11. General Safety
+**Prompt**: "Is this neighborhood safe to walk at night?"
+**Expected**: ❌ Does NOT call `check_travel_safety` (local safety, not travel advisory)
 **Status**: [ ] Pass / [ ] Fail
 
 ---
 
 ## Edge Cases
 
-### 12. Percentage Format
-**Prompt**: "I have 50% crypto"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` with crypto=50
+### 12. Region Query
+**Prompt**: "Is Southeast Asia safe?"
+**Expected**: ✅ Calls `check_travel_safety` with location="Southeast Asia"
 **Status**: [ ] Pass / [ ] Fail
 
-### 13. Dollar Amounts
-**Prompt**: "$50,000 in Bitcoin and $20,000 in bonds"
-**Expected**: ✅ Calls `crypto-portfolio-optimizer` with correct dollar amounts
+### 13. Ambiguous Location
+**Prompt**: "Safety in Georgia"
+**Expected**: ✅ Calls `check_travel_safety` with location="Georgia" (may need disambiguation)
 **Status**: [ ] Pass / [ ] Fail
 
 ---
@@ -95,7 +95,7 @@ Use these prompts to test:
 
 ### How to Test
 1. Open ChatGPT in **Developer Mode**
-2. Link your Crypto Portfolio Optimizer connector
+2. Link your Is It Safe? travel safety connector
 3. For each prompt above:
    - Enter the exact prompt
    - Observe which tool gets called

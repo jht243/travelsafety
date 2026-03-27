@@ -204,7 +204,7 @@ function widgetMeta(widget, bustCache = false) {
 }
 const widgets = [
     {
-        id: "is-it-safe",
+        id: "check_travel_safety",
         title: "Is It Safe? — Real-time travel safety data for any city or country",
         templateUri: `ui://widget/is_it_safe.html?v=${VERSION}`,
         invoking: "Opening Is It Safe?...",
@@ -295,7 +295,7 @@ const resourceTemplates = widgets.map((widget) => ({
 }));
 function createTravelSafetyServer() {
     const server = new Server({
-        name: "is-it-safe",
+        name: "check_travel_safety",
         version: "0.1.0",
         description: "Is It Safe provides real-time travel safety data for any city or country, including official government advisories, conflict data, and news analysis.",
     }, {
@@ -1315,7 +1315,7 @@ async function subscribeToButtondown(email, topicId, topicName) {
     }
     const metadata = {
         topicName,
-        source: "is-it-safe",
+        source: "check_travel_safety",
         subscribedAt: new Date().toISOString(),
     };
     const requestBody = {
@@ -1389,7 +1389,7 @@ async function updateButtondownSubscriber(email, topicId, topicName) {
     const updatedMetadata = {
         ...existingMetadata,
         [topicKey]: topicData,
-        source: "is-it-safe",
+        source: "check_travel_safety",
     };
     const updateRequestBody = {
         tags: updatedTags,
@@ -1433,7 +1433,7 @@ async function handleSubscribe(req, res) {
         // Support both old (settlementId/settlementName) and new (topicId/topicName) field names
         const parsed = JSON.parse(body);
         const email = parsed.email;
-        const topicId = parsed.topicId || parsed.settlementId || "is-it-safe";
+        const topicId = parsed.topicId || parsed.settlementId || "check_travel_safety";
         const topicName = parsed.topicName || parsed.settlementName || "Is It Safe Updates";
         if (!email || !email.includes("@")) {
             res.writeHead(400).end(JSON.stringify({ error: "Invalid email address" }));
