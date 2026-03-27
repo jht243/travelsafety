@@ -574,26 +574,7 @@ function classifyDevice(userAgent?: string | null): string {
   return "Other";
 }
 
-function computeSummary(args: any) {
-  // Compute travel safety summary
-  const location = args.location || args.city || args.country || "Not specified";
-  const country = args.country || "";
-  const city = args.city || "";
-
-  // Determine query type
-  let queryType = "general";
-  if (city && country) queryType = "city";
-  else if (city) queryType = "city";
-  else if (country) queryType = "country";
-
-  return {
-    location,
-    country,
-    city,
-    query_type: queryType,
-    data_sources: ["US State Dept", "UK Foreign Office", "GDELT News", "ACLED Conflict Data"],
-  };
-}
+// Summary computation removed to strictly minimize tool response payload.
 
 function readWidgetHtml(componentName: string): string {
   if (!fs.existsSync(ASSETS_DIR)) {
@@ -640,9 +621,7 @@ function readWidgetHtml(componentName: string): string {
   return htmlContents;
 }
 
-// Use git commit hash for deterministic cache-busting across deploys
-// Added timestamp suffix to force cache invalidation for width fix
-const VERSION = (process.env.RENDER_GIT_COMMIT?.slice(0, 7) || Date.now().toString()) + '-' + Date.now();
+const VERSION = process.env.RENDER_GIT_COMMIT?.slice(0, 7) || '1.0.0';
 
 function widgetMeta(widget: TravelSafetyWidget, bustCache: boolean = false) {
   const templateUri = bustCache
@@ -769,11 +748,9 @@ const tools: Tool[] = widgets.map((widget) => ({
     type: "object",
     properties: {
       ready: { type: "boolean" },
-      timestamp: { type: "string" },
-      location: { type: "string" },
-      country: { type: "string" },
-      city: { type: "string" },
-      input_source: { type: "string", enum: ["user", "default"] },
+      location: { type: ["string", "null"] },
+      country: { type: ["string", "null"] },
+      city: { type: ["string", "null"] },
       summary: {
         type: "object",
         properties: {
@@ -894,8 +871,6 @@ function createTravelSafetyServer(): Server {
     CallToolRequestSchema,
     async (request: CallToolRequest) => {
       const startTime = Date.now();
-      let userAgentString: string | null = null;
-      let deviceCategory = "Unknown";
 
       // Create a dedup key from request params
       const dedupKey = JSON.stringify({
@@ -916,8 +891,6 @@ function createTravelSafetyServer(): Server {
         }
       }
 
-      // Log the full request to debug _meta location
-      console.log("Full request object:", JSON.stringify(request, null, 2));
       if (isDuplicate) {
         console.log("[MCP] Duplicate request detected, skipping analytics logging");
       }
@@ -946,61 +919,12 @@ function createTravelSafetyServer(): Server {
           throw parseError;
         }
 
-        // Capture user context from _meta - try multiple locations
-        const meta = (request as any)._meta || request.params?._meta || {};
-        const userLocation = meta["openai/userLocation"];
-        const userLocale = meta["openai/locale"];
-        const userAgent = meta["openai/userAgent"];
-        const userSubject = meta["openai/subject"]; // User's query subject/topic
-        const userSession = meta["openai/session"]; // Session info
-        userAgentString = typeof userAgent === "string" ? userAgent : null;
-        deviceCategory = classifyDevice(userAgentString);
-
-        // Debug log - include subject to see what users are asking
-        console.log("Captured meta:", { userLocation, userLocale, userAgent, userSubject, userSession });
-        console.log("Full _meta object:", JSON.stringify(meta, null, 2));
-
-        // If ChatGPT didn't pass structured arguments, try to infer travel details from freeform text in meta
-        try {
-          const candidates: any[] = [
-            meta["openai/subject"],
-            meta["openai/userPrompt"],
-            meta["openai/userText"],
-            meta["openai/lastUserMessage"],
-            meta["openai/inputText"],
-            meta["openai/requestText"],
-          ];
-          const userText = candidates.find((t) => typeof t === "string" && t.trim().length > 0) || "";
-
-          // Try to infer location from user text (e.g., "safe to travel to Egypt", "dangerous in Mexico City")
-          if (args.location === undefined && args.country === undefined && args.city === undefined) {
-            // Match patterns like "safe to travel to X", "is X safe", "dangerous in X", "safety of X"
-            const locationPatterns = [
-              /(?:safe|dangerous|safety|risk|travel|visit|go)\s+(?:to|in|for|of)\s+([A-Za-z\s,]+?)(?:\?|\.|,|right now|\s*$)/i,
-              /(?:is|how)\s+([A-Za-z\s,]+?)\s+(?:safe|dangerous|risky)/i,
-              /(?:travel\s+)?(?:advisory|warning)\s+(?:for|in)\s+([A-Za-z\s,]+?)(?:\?|\.|,|\s*$)/i,
-            ];
-
-            for (const pattern of locationPatterns) {
-              const match = userText.match(pattern);
-              if (match) {
-                const inferredLocation = match[1].trim();
-                // Check if it looks like a city (contains spaces or common city indicators)
-                if (/city|town|metro/i.test(inferredLocation) || /\s/.test(inferredLocation)) {
-                  args.city = inferredLocation;
-                } else {
-                  // Assume country if single word
-                  args.country = inferredLocation;
-                }
-                args.location = inferredLocation;
-                break;
-              }
-            }
-          }
-
-        } catch (e) {
-          console.warn("Parameter inference from meta failed", e);
-        }
+        // NOTE: We intentionally do NOT extract openai/userLocation, openai/locale,
+        // openai/userAgent, or any chat-log fields (openai/userPrompt, etc.) from _meta.
+        // Per OpenAI's App Submission Guidelines:
+        //   - "Avoid requesting raw location fields"
+        //   - "Your app must not pull, reconstruct, or infer the full chat log"
+        //   - Response minimization: no diagnostic/telemetry data in responses
 
 
         const responseTime = Date.now() - startTime;
@@ -1018,21 +942,8 @@ function createTravelSafetyServer(): Server {
         if (!isDuplicate) {
           logAnalytics("tool_call_success", {
             toolName: request.params.name,
-            params: args,
             inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
             responseTime,
-            userSubject: userSubject || null, // The user's query subject/topic from ChatGPT
-            device: deviceCategory,
-            userLocation: userLocation
-              ? {
-                city: userLocation.city,
-                region: userLocation.region,
-                country: userLocation.country,
-                timezone: userLocation.timezone,
-              }
-              : null,
-            userLocale,
-            userAgent,
           });
         }
 
@@ -1040,21 +951,12 @@ function createTravelSafetyServer(): Server {
         const widgetMetadata = widgetMeta(widget, false);
         console.log(`[MCP] Tool called: ${request.params.name}, returning templateUri: ${(widgetMetadata as any)["openai/outputTemplate"]}`);
 
-        // Build structured content once so we can log it and return it.
-        // For travel safety, expose fields relevant to location safety data
+        // For travel safety, expose ONLY the exact fields required for the widget to hydrate the location.
         const structured = {
           ready: true,
-          timestamp: new Date().toISOString(),
-          ...args,
-          input_source: usedDefaults ? "default" : "user",
-          // Summary + follow-ups for natural language UX
-          summary: computeSummary(args),
-          suggested_followups: [
-            "What are the main safety concerns?",
-            "Is it safe for solo travelers?",
-            "What areas should I avoid?",
-            "Are there any recent incidents?"
-          ],
+          location: args.location || null,
+          country: args.country || null,
+          city: args.city || null,
         } as const;
 
         // Embed the widget resource in _meta to mirror official examples and improve hydration reliability
@@ -1072,7 +974,6 @@ function createTravelSafetyServer(): Server {
         } as const;
 
         console.log("[MCP] Returning outputTemplate:", (metaForReturn as any)["openai/outputTemplate"]);
-        console.log("[MCP] Returning structuredContent:", structured);
 
         // Log empty result if no location inputs provided
         try {
@@ -1094,10 +995,7 @@ function createTravelSafetyServer(): Server {
       } catch (error: any) {
         logAnalytics("tool_call_error", {
           error: error.message,
-          stack: error.stack,
           responseTime: Date.now() - startTime,
-          device: deviceCategory,
-          userAgent: userAgentString,
         });
         throw error;
       }
@@ -2585,17 +2483,23 @@ async function handleTrackEvent(req: IncomingMessage, res: ServerResponse) {
       return;
     }
 
-    // Log with all data fields at top level for dashboard access
-    logAnalytics(`widget_${event}`, {
-      ...data,
-      query: data.query,
-      normalizedQuery: data.normalizedQuery,
-      isCity: data.isCity,
-      country: data.country,
-      city: data.city,
-      location: data.location,
-      vote: data.vote,
-    });
+    // Allowlist: only log fields that are safe and disclosed in the privacy policy.
+    // This prevents accidental logging of user-related fields (userAgent, screenWidth,
+    // screenHeight, referrer, ip, etc.) even if a cached or modified client sends them.
+    const ALLOWED_TRACK_FIELDS = new Set([
+      "query", "normalizedQuery", "isCity", "country", "city", "location",
+      "vote", "noResult", "sessionId", "durationSeconds", "button",
+      "feedback", "enjoymentVote", "event",
+    ]);
+
+    const sanitized: Record<string, any> = {};
+    for (const key of ALLOWED_TRACK_FIELDS) {
+      if (data[key] !== undefined) {
+        sanitized[key] = data[key];
+      }
+    }
+
+    logAnalytics(`widget_${event}`, sanitized);
 
     if ((event === "search_location_empty" || event === "search_location") && (data.noResult === true || event === "search_location_empty")) {
       recordMissingLocation(
@@ -2835,7 +2739,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
     try {
       await subscribeToButtondown(email, topicId, topicName);
       logAnalytics("widget_notify_me_subscribe", {
-        email,
+        emailDomain: email.split("@")[1] || "unknown",
         topicId,
         topicName,
       });
@@ -2853,7 +2757,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
         try {
           await updateButtondownSubscriber(email, topicId, topicName);
           logAnalytics("widget_notify_me_subscribe", {
-            email,
+            emailDomain: email.split("@")[1] || "unknown",
             topicId,
             topicName,
             updated: true,
@@ -2870,7 +2774,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
           });
           logAnalytics("widget_notify_me_subscribe_error", {
             stage: "update",
-            email,
+            emailDomain: email.split("@")[1] || "unknown",
             error: updateError?.message,
           });
           res.writeHead(200).end(JSON.stringify({
@@ -2883,7 +2787,7 @@ async function handleSubscribe(req: IncomingMessage, res: ServerResponse) {
 
       logAnalytics("widget_notify_me_subscribe_error", {
         stage: "subscribe",
-        email,
+        emailDomain: email.split("@")[1] || "unknown",
         error: rawMessage || "unknown_error",
       });
       throw subscribeError;
@@ -3085,11 +2989,8 @@ const httpServer = createServer(
     if (req.method === "GET" && url.pathname === "/assets/is_it_safe.html") {
       const mainAssetPath = path.join(ASSETS_DIR, "is_it_safe.html");
       if (fs.existsSync(mainAssetPath) && fs.statSync(mainAssetPath).isFile()) {
-        // Track widget page load server-side
-        logAnalytics("widget_page_load", {
-          userAgent: req.headers["user-agent"] || "unknown",
-          referer: req.headers["referer"] || "direct",
-        });
+        // Track widget page load server-side (no PII — no user-agent or referer)
+        logAnalytics("widget_page_load", {});
         res.writeHead(200, {
           "Content-Type": "text/html",
           "Access-Control-Allow-Origin": "*",

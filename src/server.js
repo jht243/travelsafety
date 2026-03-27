@@ -246,11 +246,9 @@ const tools = widgets.map((widget) => ({
         type: "object",
         properties: {
             ready: { type: "boolean" },
-            timestamp: { type: "string" },
-            location: { type: "string" },
-            country: { type: "string" },
-            city: { type: "string" },
-            input_source: { type: "string", enum: ["user", "default"] },
+            location: { type: ["string", "null"] },
+            country: { type: ["string", "null"] },
+            city: { type: ["string", "null"] },
             summary: {
                 type: "object",
                 properties: {
@@ -336,8 +334,6 @@ function createTravelSafetyServer() {
         const startTime = Date.now();
         let userAgentString = null;
         let deviceCategory = "Unknown";
-        // Log the full request to debug _meta location
-        console.log("Full request object:", JSON.stringify(request, null, 2));
         try {
             const widget = widgetsById.get(request.params.name);
             if (!widget) {
@@ -367,8 +363,6 @@ function createTravelSafetyServer() {
             const userAgent = meta["openai/userAgent"];
             userAgentString = typeof userAgent === "string" ? userAgent : null;
             deviceCategory = classifyDevice(userAgentString);
-            // Debug log
-            console.log("Captured meta:", { userLocation, userLocale, userAgent });
             // If ChatGPT didn't pass structured arguments, try to infer travel details from freeform text in meta
             try {
                 const candidates = [
@@ -422,20 +416,9 @@ function createTravelSafetyServer() {
                 inferredQuery.push(`City: ${args.city}`);
             logAnalytics("tool_call_success", {
                 toolName: request.params.name,
-                params: args,
                 inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
                 responseTime,
                 device: deviceCategory,
-                userLocation: userLocation
-                    ? {
-                        city: userLocation.city,
-                        region: userLocation.region,
-                        country: userLocation.country,
-                        timezone: userLocation.timezone,
-                    }
-                    : null,
-                userLocale,
-                userAgent,
             });
             // Use a stable template URI so toolOutput reliably hydrates the component
             const widgetMetadata = widgetMeta(widget, false);
@@ -444,10 +427,9 @@ function createTravelSafetyServer() {
             // For travel safety, expose fields relevant to location safety data
             const structured = {
                 ready: true,
-                timestamp: new Date().toISOString(),
-                ...args,
-                input_source: usedDefaults ? "default" : "user",
-                // Summary + follow-ups for natural language UX
+                location: args.location || null,
+                country: args.country || null,
+                city: args.city || null,
                 summary: computeSummary(args),
                 suggested_followups: [
                     "What are the main safety concerns?",
@@ -470,26 +452,12 @@ function createTravelSafetyServer() {
                 },
             };
             console.log("[MCP] Returning outputTemplate:", metaForReturn["openai/outputTemplate"]);
-            console.log("[MCP] Returning structuredContent:", structured);
-            // Log success analytics
             try {
-                // Check for "empty" result - when no location inputs are provided
                 const hasMainInputs = args.location || args.country || args.city;
                 if (!hasMainInputs) {
                     logAnalytics("tool_call_empty", {
                         toolName: request.params.name,
-                        params: request.params.arguments || {},
                         reason: "No location provided"
-                    });
-                }
-                else {
-                    logAnalytics("tool_call_success", {
-                        responseTime,
-                        params: request.params.arguments || {},
-                        inferredQuery: inferredQuery.join(", "),
-                        userLocation,
-                        userLocale,
-                        device: deviceCategory,
                     });
                 }
             }
@@ -503,10 +471,8 @@ function createTravelSafetyServer() {
         catch (error) {
             logAnalytics("tool_call_error", {
                 error: error.message,
-                stack: error.stack,
                 responseTime: Date.now() - startTime,
                 device: deviceCategory,
-                userAgent: userAgentString,
             });
             throw error;
         }

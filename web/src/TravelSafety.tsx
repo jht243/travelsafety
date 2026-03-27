@@ -82,7 +82,7 @@ const trackEvent = (event: string, data: Record<string, any> = {}) => {
     fetch(`${API_BASE}/api/track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event, data: { ...data, timestamp: new Date().toISOString() } }),
+      body: JSON.stringify({ event, data }),
     }).catch((err) => console.error('[trackEvent] Failed:', err));
   } catch (e) {
     console.error('[trackEvent] Error:', e);
@@ -4355,13 +4355,9 @@ export default function TravelSafety({ initialData }: { initialData?: any }) {
     const sessionStart = Date.now();
     const sessionId = Math.random().toString(36).substring(2, 15);
     
-    // Track app open
+    // Track app open (no PII — no user-agent, screen size, or referrer per privacy policy)
     trackEvent('app_open', {
       sessionId,
-      referrer: document.referrer || 'direct',
-      userAgent: navigator.userAgent,
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight,
     });
 
     // Track session end on unload

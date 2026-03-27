@@ -24,9 +24,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/react/cjs/react.development.js
+// node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js
 var require_react_development = __commonJS({
-  "node_modules/react/cjs/react.development.js"(exports, module) {
+  "node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react.development.js"(exports, module) {
     "use strict";
     if (true) {
       (function() {
@@ -1898,9 +1898,9 @@ var require_react_development = __commonJS({
   }
 });
 
-// node_modules/react/index.js
+// node_modules/.pnpm/react@18.3.1/node_modules/react/index.js
 var require_react = __commonJS({
-  "node_modules/react/index.js"(exports, module) {
+  "node_modules/.pnpm/react@18.3.1/node_modules/react/index.js"(exports, module) {
     "use strict";
     if (false) {
       module.exports = null;
@@ -1910,9 +1910,9 @@ var require_react = __commonJS({
   }
 });
 
-// node_modules/scheduler/cjs/scheduler.development.js
+// node_modules/.pnpm/scheduler@0.23.2/node_modules/scheduler/cjs/scheduler.development.js
 var require_scheduler_development = __commonJS({
-  "node_modules/scheduler/cjs/scheduler.development.js"(exports) {
+  "node_modules/.pnpm/scheduler@0.23.2/node_modules/scheduler/cjs/scheduler.development.js"(exports) {
     "use strict";
     if (true) {
       (function() {
@@ -2360,9 +2360,9 @@ var require_scheduler_development = __commonJS({
   }
 });
 
-// node_modules/scheduler/index.js
+// node_modules/.pnpm/scheduler@0.23.2/node_modules/scheduler/index.js
 var require_scheduler = __commonJS({
-  "node_modules/scheduler/index.js"(exports, module) {
+  "node_modules/.pnpm/scheduler@0.23.2/node_modules/scheduler/index.js"(exports, module) {
     "use strict";
     if (false) {
       module.exports = null;
@@ -2372,9 +2372,9 @@ var require_scheduler = __commonJS({
   }
 });
 
-// node_modules/react-dom/cjs/react-dom.development.js
+// node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js
 var require_react_dom_development = __commonJS({
-  "node_modules/react-dom/cjs/react-dom.development.js"(exports) {
+  "node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js"(exports) {
     "use strict";
     if (true) {
       (function() {
@@ -23478,9 +23478,9 @@ var require_react_dom_development = __commonJS({
   }
 });
 
-// node_modules/react-dom/index.js
+// node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/index.js
 var require_react_dom = __commonJS({
-  "node_modules/react-dom/index.js"(exports, module) {
+  "node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/index.js"(exports, module) {
     "use strict";
     if (false) {
       checkDCE();
@@ -23491,9 +23491,9 @@ var require_react_dom = __commonJS({
   }
 });
 
-// node_modules/react-dom/client.js
+// node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/client.js
 var require_client = __commonJS({
-  "node_modules/react-dom/client.js"(exports) {
+  "node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/client.js"(exports) {
     "use strict";
     var m = require_react_dom();
     if (false) {
@@ -23522,9 +23522,9 @@ var require_client = __commonJS({
   }
 });
 
-// node_modules/react/cjs/react-jsx-runtime.development.js
+// node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react-jsx-runtime.development.js
 var require_react_jsx_runtime_development = __commonJS({
-  "node_modules/react/cjs/react-jsx-runtime.development.js"(exports) {
+  "node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/react-jsx-runtime.development.js"(exports) {
     "use strict";
     if (true) {
       (function() {
@@ -24415,9 +24415,9 @@ var require_react_jsx_runtime_development = __commonJS({
   }
 });
 
-// node_modules/react/jsx-runtime.js
+// node_modules/.pnpm/react@18.3.1/node_modules/react/jsx-runtime.js
 var require_jsx_runtime = __commonJS({
-  "node_modules/react/jsx-runtime.js"(exports, module) {
+  "node_modules/.pnpm/react@18.3.1/node_modules/react/jsx-runtime.js"(exports, module) {
     "use strict";
     if (false) {
       module.exports = null;
@@ -24434,10 +24434,10 @@ var import_client = __toESM(require_client(), 1);
 // src/TravelSafety.tsx
 var import_react3 = __toESM(require_react(), 1);
 
-// node_modules/lucide-react/dist/esm/createLucideIcon.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.js
 var import_react2 = __toESM(require_react());
 
-// node_modules/lucide-react/dist/esm/shared/src/utils.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/shared/src/utils.js
 var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 var toCamelCase = (string) => string.replace(
   /^([A-Z])|[\s-_]+(\w)/g,
@@ -24458,10 +24458,10 @@ var hasA11yProp = (props) => {
   }
 };
 
-// node_modules/lucide-react/dist/esm/Icon.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/Icon.js
 var import_react = __toESM(require_react());
 
-// node_modules/lucide-react/dist/esm/defaultAttributes.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/defaultAttributes.js
 var defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -24474,7 +24474,7 @@ var defaultAttributes = {
   strokeLinejoin: "round"
 };
 
-// node_modules/lucide-react/dist/esm/Icon.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/Icon.js
 var Icon = (0, import_react.forwardRef)(
   ({
     color = "currentColor",
@@ -24505,7 +24505,7 @@ var Icon = (0, import_react.forwardRef)(
   )
 );
 
-// node_modules/lucide-react/dist/esm/createLucideIcon.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/createLucideIcon.js
 var createLucideIcon = (iconName, iconNode) => {
   const Component = (0, import_react2.forwardRef)(
     ({ className, ...props }, ref) => (0, import_react2.createElement)(Icon, {
@@ -24523,7 +24523,7 @@ var createLucideIcon = (iconName, iconNode) => {
   return Component;
 };
 
-// node_modules/lucide-react/dist/esm/icons/calendar.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/calendar.js
 var __iconNode = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
@@ -24532,15 +24532,15 @@ var __iconNode = [
 ];
 var Calendar = createLucideIcon("calendar", __iconNode);
 
-// node_modules/lucide-react/dist/esm/icons/chevron-down.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-down.js
 var __iconNode2 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
 var ChevronDown = createLucideIcon("chevron-down", __iconNode2);
 
-// node_modules/lucide-react/dist/esm/icons/chevron-up.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/chevron-up.js
 var __iconNode3 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
 var ChevronUp = createLucideIcon("chevron-up", __iconNode3);
 
-// node_modules/lucide-react/dist/esm/icons/circle-alert.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-alert.js
 var __iconNode4 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
@@ -24548,14 +24548,14 @@ var __iconNode4 = [
 ];
 var CircleAlert = createLucideIcon("circle-alert", __iconNode4);
 
-// node_modules/lucide-react/dist/esm/icons/circle-check-big.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/circle-check-big.js
 var __iconNode5 = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
 var CircleCheckBig = createLucideIcon("circle-check-big", __iconNode5);
 
-// node_modules/lucide-react/dist/esm/icons/external-link.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/external-link.js
 var __iconNode6 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
@@ -24563,7 +24563,7 @@ var __iconNode6 = [
 ];
 var ExternalLink = createLucideIcon("external-link", __iconNode6);
 
-// node_modules/lucide-react/dist/esm/icons/globe.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/globe.js
 var __iconNode7 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
@@ -24571,7 +24571,7 @@ var __iconNode7 = [
 ];
 var Globe = createLucideIcon("globe", __iconNode7);
 
-// node_modules/lucide-react/dist/esm/icons/heart.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/heart.js
 var __iconNode8 = [
   [
     "path",
@@ -24583,7 +24583,7 @@ var __iconNode8 = [
 ];
 var Heart = createLucideIcon("heart", __iconNode8);
 
-// node_modules/lucide-react/dist/esm/icons/info.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/info.js
 var __iconNode9 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
@@ -24591,14 +24591,14 @@ var __iconNode9 = [
 ];
 var Info = createLucideIcon("info", __iconNode9);
 
-// node_modules/lucide-react/dist/esm/icons/mail.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/mail.js
 var __iconNode10 = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
 var Mail = createLucideIcon("mail", __iconNode10);
 
-// node_modules/lucide-react/dist/esm/icons/map-pin.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/map-pin.js
 var __iconNode11 = [
   [
     "path",
@@ -24611,7 +24611,7 @@ var __iconNode11 = [
 ];
 var MapPin = createLucideIcon("map-pin", __iconNode11);
 
-// node_modules/lucide-react/dist/esm/icons/message-square.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/message-square.js
 var __iconNode12 = [
   [
     "path",
@@ -24623,7 +24623,7 @@ var __iconNode12 = [
 ];
 var MessageSquare = createLucideIcon("message-square", __iconNode12);
 
-// node_modules/lucide-react/dist/esm/icons/printer.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/printer.js
 var __iconNode13 = [
   [
     "path",
@@ -24637,14 +24637,14 @@ var __iconNode13 = [
 ];
 var Printer = createLucideIcon("printer", __iconNode13);
 
-// node_modules/lucide-react/dist/esm/icons/search.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/search.js
 var __iconNode14 = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
 var Search = createLucideIcon("search", __iconNode14);
 
-// node_modules/lucide-react/dist/esm/icons/shield.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/shield.js
 var __iconNode15 = [
   [
     "path",
@@ -24656,7 +24656,7 @@ var __iconNode15 = [
 ];
 var Shield = createLucideIcon("shield", __iconNode15);
 
-// node_modules/lucide-react/dist/esm/icons/thumbs-down.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/thumbs-down.js
 var __iconNode16 = [
   ["path", { d: "M17 14V2", key: "8ymqnk" }],
   [
@@ -24669,7 +24669,7 @@ var __iconNode16 = [
 ];
 var ThumbsDown = createLucideIcon("thumbs-down", __iconNode16);
 
-// node_modules/lucide-react/dist/esm/icons/thumbs-up.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/thumbs-up.js
 var __iconNode17 = [
   ["path", { d: "M7 10v12", key: "1qc93n" }],
   [
@@ -24682,21 +24682,21 @@ var __iconNode17 = [
 ];
 var ThumbsUp = createLucideIcon("thumbs-up", __iconNode17);
 
-// node_modules/lucide-react/dist/esm/icons/trending-down.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-down.js
 var __iconNode18 = [
   ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
   ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
 ];
 var TrendingDown = createLucideIcon("trending-down", __iconNode18);
 
-// node_modules/lucide-react/dist/esm/icons/trending-up.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/trending-up.js
 var __iconNode19 = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
 var TrendingUp = createLucideIcon("trending-up", __iconNode19);
 
-// node_modules/lucide-react/dist/esm/icons/triangle-alert.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/triangle-alert.js
 var __iconNode20 = [
   [
     "path",
@@ -24710,7 +24710,7 @@ var __iconNode20 = [
 ];
 var TriangleAlert = createLucideIcon("triangle-alert", __iconNode20);
 
-// node_modules/lucide-react/dist/esm/icons/x.js
+// node_modules/.pnpm/lucide-react@0.554.0_react@18.3.1/node_modules/lucide-react/dist/esm/icons/x.js
 var __iconNode21 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
@@ -24795,7 +24795,7 @@ var trackEvent = (event, data = {}) => {
     fetch(`${API_BASE}/api/track`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event, data: { ...data, timestamp: (/* @__PURE__ */ new Date()).toISOString() } })
+      body: JSON.stringify({ event, data })
     }).catch((err) => console.error("[trackEvent] Failed:", err));
   } catch (e) {
     console.error("[trackEvent] Error:", e);
@@ -28609,11 +28609,7 @@ function TravelSafety({ initialData: initialData2 }) {
     const sessionStart = Date.now();
     const sessionId = Math.random().toString(36).substring(2, 15);
     trackEvent("app_open", {
-      sessionId,
-      referrer: document.referrer || "direct",
-      userAgent: navigator.userAgent,
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight
+      sessionId
     });
     const handleUnload = () => {
       const duration = Math.round((Date.now() - sessionStart) / 1e3);
