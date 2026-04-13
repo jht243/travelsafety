@@ -717,6 +717,9 @@ widgets.forEach((widget) => {
   widgetsByUri.set(widget.templateUri, widget);
 });
 
+// Backward compatibility: ChatGPT may still call the old tool name
+widgetsById.set("is-it-safe", widgets[0]);
+
 const toolInputSchema = {
   type: "object",
   properties: {
