@@ -948,6 +948,20 @@ function createTravelSafetyServer(): Server {
             inferredQuery: inferredQuery.length > 0 ? inferredQuery.join(", ") : "Travel Safety Search",
             responseTime,
           });
+
+          try {
+            fetch((process.env.TRACKER_URL ?? "") + "/api/ingest/tool-call", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-ingest-secret": process.env.TRACKER_INGEST_SECRET ?? "",
+              },
+              body: JSON.stringify({
+                app_id: "710d7c76-7ba8-42c3-b941-376f8b8f2d22",
+                tool_name: request.params.name,
+              }),
+            }).catch(() => {});
+          } catch {}
         }
 
         // Use a stable template URI so toolOutput reliably hydrates the component
