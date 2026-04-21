@@ -2952,6 +2952,31 @@ const httpServer = createServer(
       return;
     }
 
+    if (url.pathname === "/api/internal/export-tool-calls") {
+      const provided = url.searchParams.get("secret") || "";
+      const expected = process.env.TRACKER_INGEST_SECRET || "";
+      if (!expected || provided !== expected) {
+        res.writeHead(401, { "Content-Type": "text/plain" });
+        res.end("unauthorized");
+        return;
+      }
+      try {
+        const logs = getRecentLogs("all");
+        const calls = logs
+          .filter((l: any) => l && l.event === "tool_call_success" && l.toolName && l.timestamp)
+          .map((l: any) => ({ timestamp: l.timestamp, tool_name: l.toolName }));
+        res.writeHead(200, {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        });
+        res.end(JSON.stringify({ count: calls.length, calls }));
+      } catch (e: any) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("export failed: " + (e?.message ?? "unknown"));
+      }
+      return;
+    }
+
     if (url.pathname === trackEventPath) {
       await handleTrackEvent(req, res);
       return;
